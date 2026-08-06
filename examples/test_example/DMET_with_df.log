@@ -1,0 +1,2074 @@
+#INFO: **** input file is /data/home/cuihx/pyscf_learn/LAMP_emb/examples/test_example/DMET_with_df.py ****
+import sys
+sys.path.append('/data/home/cuihx/pyscf_learn/LAMP_emb/')
+import os
+import numpy as np
+from pyscf import gto, scf, df
+from embed_sim import ssdmet, sacasscf_mixer, siso, rdiis
+
+title = 'CoSH4'
+
+def get_mol(dihedral):
+     mol = gto.M(atom = '''
+                Co             
+                S                  1            2.30186590
+                S                  1            2.30186590    2            109.47122060
+                S                  1            2.30186590    3            109.47122065    2            -120.00000001                  0
+                S                  1            2.30186590    4            109.47122060    3            120.00000001                   0
+                H                  2            1.30714645    1            109.47121982    4            '''+str(-60-dihedral)+'''      0
+                H                  4            1.30714645    1            109.47121982    3            '''+str(60+dihedral)+'''       0
+                H                  5            1.30714645    1            109.47121982    4            '''+str(-180+dihedral)+'''     0
+                H                  3            1.30714645    1            109.47121982    4            '''+str(60-dihedral)+'''       0
+     ''',
+     basis={'Co':'def2tzvp','S':'6-31G*','H':'6-31G*'}, symmetry=0 ,spin = 3,charge = -2,verbose= 4)
+
+     return mol
+
+mol = get_mol(0)
+
+'''
+Density fitting and scalar relativistic effects can be applied together,
+regardless to the order you apply the decoration.
+'''
+mf = scf.rohf.ROHF(mol).density_fit().x2c()
+
+'''
+Sometimes it is useful to save it to disk for re-use in later calculations.
+This can be achieved by specifying a HDF5 file by setting _cderi_to_save.
+The saved DF tensor can be used later by setting _cderi to the HDF5 file.
+If I/O free treatment is needed, just skip the following part.
+'''
+cderi_fname = title + '_cderi.h5'
+if not os.path.exists(cderi_fname):
+    mydf = df.df.DF(mol)
+    mydf.auxbasis = mf.with_df.auxbasis
+    mydf._cderi_to_save = cderi_fname
+    mydf.build()
+    mf.with_df = mydf
+else:
+    mf.with_df._cderi = cderi_fname
+    mf.with_df.auxmol = df.addons.make_auxmol(mol)
+
+chk_fname = title + '_rohf.chk'
+mf.diis = rdiis.RDIIS(rdiis_prop='dS',imp_idx=mol.search_ao_label(['Co.*d']),power=0.2)
+mf.chkfile = chk_fname
+mf.init_guess = 'chk'
+mf.level_shift = .1
+mf.max_cycle = 1000
+mf.max_memory = 100000
+mf.kernel()
+
+'''
+Switch to DF-DMET with density_fit decoration
+'''
+mydmet = ssdmet.SSDMET(mf, title=title, imp_idx='Co.*').density_fit()
+# if impurity is not assigned, the orbitals on the first atom is chosen as impurity
+mydmet.build()
+
+ncas, nelec, es_mo = mydmet.avas('Co 3d', minao='def2tzvp', threshold=0.5, openshell_option=3)
+
+es_cas = sacasscf_mixer.sacasscf_mixer(mydmet.es_mf, ncas, nelec)
+es_cas.kernel(es_mo)
+
+es_ecorr = sacasscf_mixer.sacasscf_nevpt2(es_cas)
+es_cas.fcisolver.e_states = es_cas.fcisolver.e_states + es_ecorr
+total_cas = mydmet.total_cas(es_cas)
+Ha2cm = 219474.63
+np.savetxt(mydmet.title+'_opt.txt',(es_cas.fcisolver.e_states-np.min(es_cas.fcisolver.e_states))*Ha2cm,fmt='%.6f')
+'''
+Density fitting can be used to accelerate the calculation of SOC 2e integrals
+by setting a DF object to the with_df attribute.
+'''
+mysiso = siso.SISO(title, total_cas, verbose=5).density_fit()
+'''
+Set verbose greater than 5 will output detailed information for 2e SOC J/K1/K2 contraction.
+'''
+mysiso = siso.SISO(title, total_cas, verbose=6).density_fit()
+mysiso.verbose = 9
+
+mysiso.kernel()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='amd-cpu', release='6.8.0-60-generic', version='#63~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Apr 22 19:00:15 UTC 2', machine='x86_64')  Threads 16
+Python 3.10.18 (main, Sep 10 2025, 09:50:55) [GCC 11.4.0]
+numpy 2.2.6  scipy 1.15.3  h5py 3.14.0
+Date: Sun Sep 21 04:38:18 2025
+PySCF version 2.10.0
+PySCF path  /data/home/cuihx/.local/lib/python3.10/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 9
+[INPUT] num. electrons = 97
+[INPUT] charge = -2
+[INPUT] spin (= nelec alpha-beta = 2S) = 3
+[INPUT] symmetry 0 subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 Co     0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 S      2.301865900000   0.000000000000   0.000000000000 AA    4.349896126475   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  3 S     -0.767288632027   0.000000000000   2.170219983491 AA   -1.449965373023   0.000000000000   4.101121398857 Bohr   0.0
+[INPUT]  4 S     -0.767288634002   1.879465636735  -1.085109991681 AA   -1.449965376756   3.551675313960  -2.050560699307 Bohr   0.0
+[INPUT]  5 S     -0.767288634021  -1.879465636673  -1.085109991774 AA   -1.449965376792  -3.551675313844  -2.050560699483 Bohr   0.0
+[INPUT]  6 H      2.737581365814  -0.000000000187  -1.232389497926 AA    5.173279025102  -0.000000000353  -2.328878629870 Bohr   0.0
+[INPUT]  7 H     -0.331573141714   2.946746233413  -0.468915233929 AA   -0.626582428101   5.568543339745  -0.886121367762 Bohr   0.0
+[INPUT]  8 H     -0.331573141920  -2.946746233387  -0.468915233951 AA   -0.626582428489  -5.568543339694  -0.886121367803 Bohr   0.0
+[INPUT]  9 H     -2.074435082027  -0.000000000215   2.170219965696 AA   -3.920114168221  -0.000000000406   4.101121365229 Bohr   0.0
+
+nuclear repulsion = 683.055032921424
+number of shells = 55
+number of NR pGTOs = 312
+number of NR cGTOs = 125
+basis = {'Co': 'def2tzvp', 'S': '6-31G*', 'H': '6-31G*'}
+ecp = {}
+CPU time:         2.94
+******** <class 'pyscf.df.df.DF'> ********
+auxbasis = None
+max_memory = 4000
+Default auxbasis def2-tzvp-jkfit is used for Co def2tzvp
+Default auxbasis cc-pvdz-jkfit is used for S 6-31G*
+Default auxbasis cc-pvdz-jkfit is used for H 6-31G*
+_cderi_to_save = CoSH4_cderi.h5
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eDFROHF'> ********
+method = sfX2C1eDFROHF
+initial guess = chk
+damping factor = 0
+level_shift factor = 0.1
+DIIS = <embed_sim.rdiis.RDIIS object at 0x106863dabf70>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 1000
+direct_scf = False
+chkfile to save SCF result = CoSH4_rohf.chk
+max_memory 100000 MB (current use 164 MB)
+num. doubly occ = 47  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+
+WARN: Fail in reading CoSH4_rohf.chk. Use MINAO initial guess
+
+init E= -2984.50724692922
+
+WARN: HOMO 0.207706403342675 >= LUMO 0.203805275479776
+
+cycle= 1 E= -2978.1959814908  delta_E= 6.31  |g|= 6.76  |ddm|= 10.4
+----------RDIIS-Entropy 0.547
+  HOMO = -0.127026488365909  LUMO = -0.107230187647687
+cycle= 2 E= -2955.94034430119  delta_E= 22.3  |g|= 15.2  |ddm|= 12.3
+----------RDIIS-Entropy 1.788
+
+WARN: HOMO 0.613717712274645 >= LUMO 0.105736517137686
+
+cycle= 3 E= -2982.46614707583  delta_E= -26.5  |g|= 4.98  |ddm|= 8.44
+----------RDIIS-Entropy 2.010
+
+WARN: HOMO 0.522303264566923 >= LUMO 0.206145966344269
+
+cycle= 4 E= -2983.10457194109  delta_E= -0.638  |g|= 4.28  |ddm|= 0.567
+----------RDIIS-Entropy 2.012
+
+WARN: HOMO 0.506955944684727 >= LUMO 0.276861688978303
+
+cycle= 5 E= -2984.39497027641  delta_E= -1.29  |g|= 2.83  |ddm|= 2.49
+----------RDIIS-Entropy 1.958
+
+WARN: HOMO 0.55853001039543 >= LUMO 0.368047058876332
+
+cycle= 6 E= -2985.13430487205  delta_E= -0.739  |g|= 1.83  |ddm|= 1.11
+----------RDIIS-Entropy 1.876
+
+WARN: HOMO 0.482031292117657 >= LUMO 0.437422279301333
+
+cycle= 7 E= -2985.35379745992  delta_E= -0.219  |g|= 1.64  |ddm|=  2.3
+----------RDIIS-Entropy 1.901
+
+WARN: HOMO 0.477571725275249 >= LUMO 0.44782562627377
+
+cycle= 8 E= -2985.37242112738  delta_E= -0.0186  |g|= 1.66  |ddm|= 0.677
+----------RDIIS-Entropy 1.916
+
+WARN: HOMO 0.479057580128668 >= LUMO 0.454466145120056
+
+cycle= 9 E= -2985.38253538657  delta_E= -0.0101  |g|= 1.65  |ddm|= 0.261
+----------RDIIS-Entropy 1.902
+  HOMO = 0.470659921660278  LUMO = 0.488985606686264
+cycle= 10 E= -2985.56017982663  delta_E= -0.178  |g|= 0.646  |ddm|= 1.58
+----------RDIIS-Entropy 1.772
+  HOMO = 0.492167920709586  LUMO = 0.496796602766148
+cycle= 11 E= -2985.53415838281  delta_E= 0.026  |g|= 0.69  |ddm|= 1.88
+----------RDIIS-Entropy 1.600
+  HOMO = 0.440913781968591  LUMO = 0.50633589034353
+cycle= 12 E= -2985.62314692168  delta_E= -0.089  |g|= 0.494  |ddm|= 3.51
+----------RDIIS-Entropy 1.169
+
+WARN: HOMO 0.530437795555386 >= LUMO 0.510413218991812
+
+cycle= 13 E= -2985.48886956911  delta_E= 0.134  |g|= 0.958  |ddm|= 2.52
+----------RDIIS-Entropy 1.317
+
+WARN: HOMO 0.51876587785925 >= LUMO 0.509570284878434
+
+cycle= 14 E= -2985.47645547872  delta_E= 0.0124  |g|= 1.02  |ddm|=  1.9
+----------RDIIS-Entropy 1.341
+  HOMO = 0.507123275173309  LUMO = 0.56758636686642
+cycle= 15 E= -2985.62274807876  delta_E= -0.146  |g|= 0.544  |ddm|= 10.6
+----------RDIIS-Entropy 1.587
+  HOMO = 0.429472791193962  LUMO = 0.580922099457082
+cycle= 16 E= -2985.64870245571  delta_E= -0.026  |g|= 0.545  |ddm|= 0.901
+----------RDIIS-Entropy 1.536
+  HOMO = 0.425300645473007  LUMO = 0.584893112936575
+cycle= 17 E= -2985.70814665387  delta_E= -0.0594  |g|= 0.484  |ddm|= 0.889
+----------RDIIS-Entropy 1.447
+  HOMO = 0.419395435985646  LUMO = 0.54146458745995
+cycle= 18 E= -2985.75382102474  delta_E= -0.0457  |g|= 0.655  |ddm|= 2.18
+----------RDIIS-Entropy 1.342
+  HOMO = 0.457636261704921  LUMO = 0.534280674312996
+cycle= 19 E= -2985.64442178543  delta_E= 0.109  |g|= 0.858  |ddm|= 1.62
+----------RDIIS-Entropy 1.339
+  HOMO = 0.426760126227202  LUMO = 0.548358232496322
+cycle= 20 E= -2985.49479974717  delta_E= 0.15  |g|= 1.23  |ddm|= 2.44
+----------RDIIS-Entropy 1.400
+  HOMO = 0.400623233286853  LUMO = 0.540832390009971
+cycle= 21 E= -2985.47122246005  delta_E= 0.0236  |g|= 1.22  |ddm|= 0.822
+----------RDIIS-Entropy 1.396
+  HOMO = 0.399130572525985  LUMO = 0.542550647182304
+cycle= 22 E= -2985.47561427204  delta_E= -0.00439  |g|= 1.19  |ddm|= 0.236
+----------RDIIS-Entropy 1.395
+  HOMO = 0.33436595811458  LUMO = 0.544676464475514
+cycle= 23 E= -2985.35473712541  delta_E= 0.121  |g|= 1.65  |ddm|= 1.77
+----------RDIIS-Entropy 1.373
+  HOMO = 0.340761883353273  LUMO = 0.536577568733197
+cycle= 24 E= -2985.34942488168  delta_E= 0.00531  |g|= 1.63  |ddm|= 0.618
+----------RDIIS-Entropy 1.359
+  HOMO = 0.371219390402297  LUMO = 0.559214110369582
+cycle= 25 E= -2985.5926928807  delta_E= -0.243  |g|= 1.06  |ddm|= 2.89
+----------RDIIS-Entropy 1.377
+  HOMO = 0.376780589343153  LUMO = 0.559306142870038
+cycle= 26 E= -2985.6306854717  delta_E= -0.038  |g|= 0.928  |ddm|= 0.902
+----------RDIIS-Entropy 1.440
+  HOMO = 0.364736526113208  LUMO = 0.547582098772047
+cycle= 27 E= -2985.82436582594  delta_E= -0.194  |g|= 0.526  |ddm|= 2.18
+----------RDIIS-Entropy 1.320
+  HOMO = 0.441708963708148  LUMO = 0.571440001107461
+cycle= 28 E= -2985.70112940316  delta_E= 0.123  |g|= 0.806  |ddm|= 2.54
+----------RDIIS-Entropy 1.363
+  HOMO = 0.43887969252494  LUMO = 0.564773822363304
+cycle= 29 E= -2985.6694394875  delta_E= 0.0317  |g|= 0.894  |ddm|= 0.762
+----------RDIIS-Entropy 1.372
+  HOMO = 0.415407654342349  LUMO = 0.566404138467175
+cycle= 30 E= -2985.66290851153  delta_E= 0.00653  |g|= 1.15  |ddm|= 3.06
+----------RDIIS-Entropy 1.259
+  HOMO = 0.320885758191876  LUMO = 0.533880715809819
+cycle= 31 E= -2985.51971562526  delta_E= 0.143  |g|= 1.11  |ddm|= 5.48
+----------RDIIS-Entropy 1.152
+  HOMO = 0.496873977831155  LUMO = 0.557373931123491
+cycle= 32 E= -2985.71672486706  delta_E= -0.197  |g|= 0.66  |ddm|= 2.63
+----------RDIIS-Entropy 1.102
+  HOMO = 0.413032972229106  LUMO = 0.587692572975292
+cycle= 33 E= -2985.80344842565  delta_E= -0.0867  |g|= 0.497  |ddm|= 1.59
+----------RDIIS-Entropy 1.102
+  HOMO = 0.357363258912447  LUMO = 0.582455226774593
+cycle= 34 E= -2985.80498767884  delta_E= -0.00154  |g|= 0.444  |ddm|= 1.13
+----------RDIIS-Entropy 1.117
+  HOMO = 0.27211820737097  LUMO = 0.538746586917063
+cycle= 35 E= -2985.71763683948  delta_E= 0.0874  |g|= 0.733  |ddm|=  1.2
+----------RDIIS-Entropy 1.051
+  HOMO = 0.305826310643229  LUMO = 0.558672260106432
+cycle= 36 E= -2985.74860169797  delta_E= -0.031  |g|= 0.731  |ddm|= 1.08
+----------RDIIS-Entropy 1.069
+  HOMO = 0.329386023858911  LUMO = 0.564536601377619
+cycle= 37 E= -2985.7497947141  delta_E= -0.00119  |g|= 0.707  |ddm|= 0.882
+----------RDIIS-Entropy 1.074
+  HOMO = 0.38218835772787  LUMO = 0.500690979594163
+cycle= 38 E= -2985.78691037662  delta_E= -0.0371  |g|= 0.548  |ddm|= 3.29
+----------RDIIS-Entropy 0.941
+  HOMO = 0.463854224822456  LUMO = 0.513368150277871
+cycle= 39 E= -2985.92524471971  delta_E= -0.138  |g|= 0.475  |ddm|= 2.65
+----------RDIIS-Entropy 0.684
+  HOMO = 0.39114124604467  LUMO = 0.522833342608378
+cycle= 40 E= -2985.98038601825  delta_E= -0.0551  |g|= 0.442  |ddm|= 1.95
+----------RDIIS-Entropy 0.349
+  HOMO = 0.429152474156765  LUMO = 0.523177542101442
+cycle= 41 E= -2986.07873876762  delta_E= -0.0984  |g|= 0.572  |ddm|= 1.67
+----------RDIIS-Entropy 0.098
+  HOMO = 0.314658305648553  LUMO = 0.520349518471815
+cycle= 42 E= -2986.21806107128  delta_E= -0.139  |g|= 0.366  |ddm|= 1.14
+----------RDIIS-Entropy 0.024
+  HOMO = 0.255455170162639  LUMO = 0.510750956533988
+cycle= 43 E= -2986.26090075443  delta_E= -0.0428  |g|= 0.187  |ddm|= 0.665
+----------RDIIS-Entropy 0.013
+  HOMO = 0.215869866834516  LUMO = 0.507914822093007
+cycle= 44 E= -2986.27274781737  delta_E= -0.0118  |g|= 0.0839  |ddm|= 0.509
+----------RDIIS-Entropy 0.009
+  HOMO = 0.222228115901703  LUMO = 0.50802535010839
+cycle= 45 E= -2986.27788082219  delta_E= -0.00513  |g|= 0.0369  |ddm|= 0.181
+----------RDIIS-Entropy 0.008
+  HOMO = 0.229204673463215  LUMO = 0.508611206718013
+cycle= 46 E= -2986.27906987695  delta_E= -0.00119  |g|= 0.0233  |ddm|= 0.0596
+----------RDIIS-Entropy 0.008
+  HOMO = 0.226931152018428  LUMO = 0.507742807624084
+cycle= 47 E= -2986.28003986024  delta_E= -0.00097  |g|= 0.0168  |ddm|= 0.0367
+----------RDIIS-Entropy 0.008
+  HOMO = 0.225450177532407  LUMO = 0.507487481039638
+cycle= 48 E= -2986.2810021924  delta_E= -0.000962  |g|= 0.0148  |ddm|= 0.0343
+----------RDIIS-Entropy 0.008
+  HOMO = 0.222945636259977  LUMO = 0.507702613773415
+cycle= 49 E= -2986.2827465318  delta_E= -0.00174  |g|= 0.0126  |ddm|= 0.0702
+----------RDIIS-Entropy 0.008
+  HOMO = 0.221347770885151  LUMO = 0.507892676686579
+cycle= 50 E= -2986.2841642028  delta_E= -0.00142  |g|= 0.00987  |ddm|= 0.0718
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219854090998394  LUMO = 0.507681272929568
+cycle= 51 E= -2986.28478852551  delta_E= -0.000624  |g|= 0.00831  |ddm|= 0.0405
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218818590492065  LUMO = 0.507641993509759
+cycle= 52 E= -2986.28531618945  delta_E= -0.000528  |g|= 0.00739  |ddm|= 0.0387
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218159994826524  LUMO = 0.507652758067095
+cycle= 53 E= -2986.28566066233  delta_E= -0.000344  |g|= 0.00709  |ddm|= 0.0259
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218524558655211  LUMO = 0.507700875360696
+cycle= 54 E= -2986.28593446854  delta_E= -0.000274  |g|= 0.00689  |ddm|= 0.0206
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218780424944089  LUMO = 0.507694596434141
+cycle= 55 E= -2986.28656850173  delta_E= -0.000634  |g|= 0.0062  |ddm|= 0.0493
+----------RDIIS-Entropy 0.008
+  HOMO = 0.221662956291301  LUMO = 0.507664432659087
+cycle= 56 E= -2986.28752669831  delta_E= -0.000958  |g|= 0.00599  |ddm|= 0.0833
+----------RDIIS-Entropy 0.008
+  HOMO = 0.22134829284946  LUMO = 0.507683878784906
+cycle= 57 E= -2986.28779749628  delta_E= -0.000271  |g|= 0.0058  |ddm|= 0.026
+----------RDIIS-Entropy 0.008
+  HOMO = 0.221200637373317  LUMO = 0.507685541990869
+cycle= 58 E= -2986.28795958596  delta_E= -0.000162  |g|= 0.00575  |ddm|= 0.0165
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219783465852625  LUMO = 0.507695193404114
+cycle= 59 E= -2986.28805832809  delta_E= -9.87e-05  |g|= 0.00555  |ddm|= 0.0108
+----------RDIIS-Entropy 0.008
+  HOMO = 0.223513088663054  LUMO = 0.507709526512051
+cycle= 60 E= -2986.28849671758  delta_E= -0.000438  |g|= 0.00684  |ddm|= 0.0507
+----------RDIIS-Entropy 0.008
+  HOMO = 0.220825443137936  LUMO = 0.507704389295606
+cycle= 61 E= -2986.2885184334  delta_E= -2.17e-05  |g|= 0.00598  |ddm|= 0.00469
+----------RDIIS-Entropy 0.008
+  HOMO = 0.22246976938089  LUMO = 0.507718685420333
+cycle= 62 E= -2986.2888100769  delta_E= -0.000292  |g|= 0.00599  |ddm|= 0.0346
+----------RDIIS-Entropy 0.008
+  HOMO = 0.220329485438376  LUMO = 0.507705695272602
+cycle= 63 E= -2986.28897946703  delta_E= -0.000169  |g|= 0.00489  |ddm|= 0.0198
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218696046243333  LUMO = 0.507705541651524
+cycle= 64 E= -2986.28931531719  delta_E= -0.000336  |g|= 0.00445  |ddm|= 0.04
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219629625358361  LUMO = 0.507716817303837
+cycle= 65 E= -2986.28952682716  delta_E= -0.000212  |g|= 0.00424  |ddm|= 0.0266
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219402912917574  LUMO = 0.507714692009435
+cycle= 66 E= -2986.28960676494  delta_E= -7.99e-05  |g|= 0.00445  |ddm|= 0.0103
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219981770080614  LUMO = 0.507712632024608
+cycle= 67 E= -2986.28963922421  delta_E= -3.25e-05  |g|= 0.00458  |ddm|= 0.0054
+----------RDIIS-Entropy 0.008
+  HOMO = 0.220361442026009  LUMO = 0.507712793252664
+cycle= 68 E= -2986.28966785769  delta_E= -2.86e-05  |g|= 0.0046  |ddm|= 0.00493
+----------RDIIS-Entropy 0.008
+  HOMO = 0.221052906767544  LUMO = 0.50771082912208
+cycle= 69 E= -2986.28966084458  delta_E= 7.01e-06  |g|= 0.00499  |ddm|= 0.00258
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219648297178826  LUMO = 0.507712418730441
+cycle= 70 E= -2986.2895428319  delta_E= 0.000118  |g|= 0.00483  |ddm|= 0.0158
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219496444865599  LUMO = 0.507710723918592
+cycle= 71 E= -2986.28950557296  delta_E= 3.73e-05  |g|= 0.00467  |ddm|= 0.00555
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219485310922651  LUMO = 0.507715881623375
+cycle= 72 E= -2986.28951706091  delta_E= -1.15e-05  |g|= 0.00465  |ddm|= 0.00428
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219329096816566  LUMO = 0.507714823860472
+cycle= 73 E= -2986.28958645095  delta_E= -6.94e-05  |g|= 0.00449  |ddm|= 0.00896
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219299063136922  LUMO = 0.507713900725365
+cycle= 74 E= -2986.28965971655  delta_E= -7.33e-05  |g|= 0.00458  |ddm|= 0.00923
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219283627947277  LUMO = 0.507711613177427
+cycle= 75 E= -2986.2895662544  delta_E= 9.35e-05  |g|= 0.00514  |ddm|= 0.0107
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219358465384568  LUMO = 0.50771277426186
+cycle= 76 E= -2986.28955212385  delta_E= 1.41e-05  |g|= 0.00506  |ddm|= 0.00263
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219260415390874  LUMO = 0.507708737861956
+cycle= 77 E= -2986.28967394694  delta_E= -0.000122  |g|= 0.00477  |ddm|= 0.0147
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219450647056448  LUMO = 0.507711588776597
+cycle= 78 E= -2986.28988351162  delta_E= -0.00021  |g|= 0.00458  |ddm|= 0.0246
+----------RDIIS-Entropy 0.009
+  HOMO = 0.219485615191841  LUMO = 0.507710021212227
+cycle= 79 E= -2986.28996335192  delta_E= -7.98e-05  |g|= 0.00491  |ddm|= 0.00989
+----------RDIIS-Entropy 0.009
+  HOMO = 0.219166540693232  LUMO = 0.507701213014947
+cycle= 80 E= -2986.28977642836  delta_E= 0.000187  |g|= 0.00584  |ddm|= 0.0214
+----------RDIIS-Entropy 0.009
+  HOMO = 0.21930892513234  LUMO = 0.507703255886456
+cycle= 81 E= -2986.28968496243  delta_E= 9.15e-05  |g|= 0.00547  |ddm|= 0.0114
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219327379557778  LUMO = 0.507705632151298
+cycle= 82 E= -2986.28979484619  delta_E= -0.00011  |g|= 0.0049  |ddm|= 0.0125
+----------RDIIS-Entropy 0.009
+  HOMO = 0.219239993632168  LUMO = 0.507702912506958
+cycle= 83 E= -2986.28971011989  delta_E= 8.47e-05  |g|= 0.00516  |ddm|= 0.0111
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219339599146342  LUMO = 0.507706770460251
+cycle= 84 E= -2986.28961926422  delta_E= 9.09e-05  |g|= 0.00523  |ddm|= 0.0112
+----------RDIIS-Entropy 0.008
+  HOMO = 0.21939582769645  LUMO = 0.507706122418722
+cycle= 85 E= -2986.28957285435  delta_E= 4.64e-05  |g|= 0.00512  |ddm|= 0.00612
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219364328650699  LUMO = 0.50770391124907
+cycle= 86 E= -2986.28953125305  delta_E= 4.16e-05  |g|= 0.00508  |ddm|= 0.00593
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219785361653895  LUMO = 0.507712652873712
+cycle= 87 E= -2986.28996633842  delta_E= -0.000435  |g|= 0.00421  |ddm|= 0.0524
+----------RDIIS-Entropy 0.009
+  HOMO = 0.219691494265855  LUMO = 0.507715953342701
+cycle= 88 E= -2986.28986086944  delta_E= 0.000105  |g|= 0.00513  |ddm|= 0.0122
+----------RDIIS-Entropy 0.009
+  HOMO = 0.219731435568921  LUMO = 0.507717239105233
+cycle= 89 E= -2986.28980515956  delta_E= 5.57e-05  |g|= 0.00532  |ddm|= 0.00729
+----------RDIIS-Entropy 0.009
+  HOMO = 0.219714177291985  LUMO = 0.50772279697296
+cycle= 90 E= -2986.28956750939  delta_E= 0.000238  |g|= 0.00563  |ddm|= 0.029
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219219528065539  LUMO = 0.507708355024733
+cycle= 91 E= -2986.28927586577  delta_E= 0.000292  |g|= 0.00588  |ddm|= 0.0371
+----------RDIIS-Entropy 0.008
+  HOMO = 0.219122528775313  LUMO = 0.507699831894419
+cycle= 92 E= -2986.28903078839  delta_E= 0.000245  |g|= 0.00571  |ddm|= 0.0358
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218998521411732  LUMO = 0.50770440327091
+cycle= 93 E= -2986.28892072215  delta_E= 0.00011  |g|= 0.00498  |ddm|= 0.0221
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218672281152968  LUMO = 0.507703314328148
+cycle= 94 E= -2986.28863038749  delta_E= 0.00029  |g|= 0.00605  |ddm|= 0.0585
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218730946321901  LUMO = 0.507708146082553
+cycle= 95 E= -2986.28865575312  delta_E= -2.54e-05  |g|= 0.00395  |ddm|= 0.0125
+----------RDIIS-Entropy 0.008
+  HOMO = 0.22704401002422  LUMO = 0.507716358000941
+cycle= 96 E= -2986.28819132075  delta_E= 0.000464  |g|= 0.0132  |ddm|= 0.117
+----------RDIIS-Entropy 0.008
+  HOMO = 0.225284071855357  LUMO = 0.507708574219713
+cycle= 97 E= -2986.28818425621  delta_E= 7.06e-06  |g|= 0.0116  |ddm|= 0.022
+----------RDIIS-Entropy 0.008
+  HOMO = 0.224525880609712  LUMO = 0.507701457392496
+cycle= 98 E= -2986.28819699868  delta_E= -1.27e-05  |g|= 0.0107  |ddm|= 0.0069
+----------RDIIS-Entropy 0.008
+  HOMO = 0.228906393435817  LUMO = 0.507702358349225
+cycle= 99 E= -2986.2881126511  delta_E= 8.43e-05  |g|= 0.0138  |ddm|= 0.0225
+----------RDIIS-Entropy 0.008
+  HOMO = 0.220131816181803  LUMO = 0.507702063399115
+cycle= 100 E= -2986.28824127878  delta_E= -0.000129  |g|= 0.00743  |ddm|= 0.0229
+----------RDIIS-Entropy 0.008
+  HOMO = 0.2184866116454  LUMO = 0.50769740761264
+cycle= 101 E= -2986.288337448  delta_E= -9.62e-05  |g|= 0.00337  |ddm|= 0.0244
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218629867872587  LUMO = 0.507704165290702
+cycle= 102 E= -2986.28834979203  delta_E= -1.23e-05  |g|= 0.00261  |ddm|= 0.0078
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218743228634379  LUMO = 0.507705890818033
+cycle= 103 E= -2986.28830650834  delta_E= 4.33e-05  |g|= 0.00344  |ddm|= 0.0275
+----------RDIIS-Entropy 0.008
+  HOMO = 0.2187060814084  LUMO = 0.507703236392493
+cycle= 104 E= -2986.28832823742  delta_E= -2.17e-05  |g|= 0.00188  |ddm|= 0.0073
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218423839546661  LUMO = 0.507703045006656
+cycle= 105 E= -2986.28834409616  delta_E= -1.59e-05  |g|= 0.00175  |ddm|= 0.00773
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218679773297238  LUMO = 0.507704533078601
+cycle= 106 E= -2986.28831143898  delta_E= 3.27e-05  |g|= 0.00251  |ddm|= 0.0356
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218766199208082  LUMO = 0.507702396501447
+cycle= 107 E= -2986.28830205716  delta_E= 9.38e-06  |g|= 0.00212  |ddm|= 0.0208
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218710769688576  LUMO = 0.507699276275383
+cycle= 108 E= -2986.28829414152  delta_E= 7.92e-06  |g|= 0.00186  |ddm|= 0.0223
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218509270034455  LUMO = 0.507703631610519
+cycle= 109 E= -2986.28829833009  delta_E= -4.19e-06  |g|= 0.00101  |ddm|= 0.00606
+----------RDIIS-Entropy 0.008
+  HOMO = 0.21829604429235  LUMO = 0.507703542229493
+cycle= 110 E= -2986.2882977582  delta_E= 5.72e-07  |g|= 0.000888  |ddm|= 0.006
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218429482995074  LUMO = 0.507704659035718
+cycle= 111 E= -2986.28829351012  delta_E= 4.25e-06  |g|= 0.000948  |ddm|= 0.00636
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218364152691449  LUMO = 0.507703284593403
+cycle= 112 E= -2986.28829186946  delta_E= 1.64e-06  |g|= 0.000828  |ddm|= 0.00355
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218256122275567  LUMO = 0.507703368026144
+cycle= 113 E= -2986.28829416857  delta_E= -2.3e-06  |g|= 0.000714  |ddm|= 0.00368
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218375234024494  LUMO = 0.507703054601763
+cycle= 114 E= -2986.28828722068  delta_E= 6.95e-06  |g|= 0.00084  |ddm|= 0.00722
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218304876894147  LUMO = 0.507702962622336
+cycle= 115 E= -2986.28828969982  delta_E= -2.48e-06  |g|= 0.000637  |ddm|= 0.00231
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218328164343837  LUMO = 0.50770437984338
+cycle= 116 E= -2986.28829087407  delta_E= -1.17e-06  |g|= 0.000623  |ddm|= 0.00202
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218318812893266  LUMO = 0.507703527509309
+cycle= 117 E= -2986.28829205557  delta_E= -1.18e-06  |g|= 0.000623  |ddm|= 0.00141
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218318781291896  LUMO = 0.507703716141036
+cycle= 118 E= -2986.28829345757  delta_E= -1.4e-06  |g|= 0.000637  |ddm|= 0.00141
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218321676758948  LUMO = 0.507703898244384
+cycle= 119 E= -2986.2882936923  delta_E= -2.35e-07  |g|= 0.000677  |ddm|= 0.000398
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218328000874527  LUMO = 0.507703977067884
+cycle= 120 E= -2986.28829412978  delta_E= -4.37e-07  |g|= 0.000689  |ddm|= 0.000448
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218338547868967  LUMO = 0.507704155401222
+cycle= 121 E= -2986.2882928942  delta_E= 1.24e-06  |g|= 0.000744  |ddm|= 0.00133
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218339378385327  LUMO = 0.507704323488514
+cycle= 122 E= -2986.28829270949  delta_E= 1.85e-07  |g|= 0.000716  |ddm|= 0.000376
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218310890638182  LUMO = 0.507703242511346
+cycle= 123 E= -2986.28829226143  delta_E= 4.48e-07  |g|= 0.000729  |ddm|= 0.000579
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218326637775018  LUMO = 0.507704191354234
+cycle= 124 E= -2986.28829272801  delta_E= -4.67e-07  |g|= 0.00069  |ddm|= 0.000586
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218309930696269  LUMO = 0.50770388222835
+cycle= 125 E= -2986.28829267992  delta_E= 4.81e-08  |g|= 0.000687  |ddm|= 0.000575
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218299661803745  LUMO = 0.507703726091703
+cycle= 126 E= -2986.28829106651  delta_E= 1.61e-06  |g|= 0.000721  |ddm|= 0.00291
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218303915150603  LUMO = 0.507703632722725
+cycle= 127 E= -2986.28829295498  delta_E= -1.89e-06  |g|= 0.000587  |ddm|= 0.00298
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218301863940645  LUMO = 0.507703346687248
+cycle= 128 E= -2986.28829152941  delta_E= 1.43e-06  |g|= 0.00067  |ddm|= 0.00479
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218293073807168  LUMO = 0.507703717802234
+cycle= 129 E= -2986.28829227798  delta_E= -7.49e-07  |g|= 0.000608  |ddm|= 0.00103
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218333708089025  LUMO = 0.507704032754553
+cycle= 130 E= -2986.28829245516  delta_E= -1.77e-07  |g|= 0.000632  |ddm|= 0.00281
+----------RDIIS-Entropy 0.008
+  HOMO = 0.21831317764071  LUMO = 0.507703108280895
+cycle= 131 E= -2986.28829263224  delta_E= -1.77e-07  |g|= 0.000613  |ddm|= 0.00171
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218363234978783  LUMO = 0.507704590585467
+cycle= 132 E= -2986.2882933439  delta_E= -7.12e-07  |g|= 0.000577  |ddm|= 0.0023
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218299529354829  LUMO = 0.507702970828334
+cycle= 133 E= -2986.28829460375  delta_E= -1.26e-06  |g|= 0.00057  |ddm|= 0.00192
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218324124292403  LUMO = 0.507703773042865
+cycle= 134 E= -2986.28829750287  delta_E= -2.9e-06  |g|= 0.000549  |ddm|= 0.00411
+----------RDIIS-Entropy 0.008
+  HOMO = 0.21831058142657  LUMO = 0.507703708047622
+cycle= 135 E= -2986.28829867586  delta_E= -1.17e-06  |g|= 0.000572  |ddm|= 0.00137
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218329300032318  LUMO = 0.507703664564115
+cycle= 136 E= -2986.28829737162  delta_E= 1.3e-06  |g|= 0.000634  |ddm|= 0.00153
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218320095103861  LUMO = 0.507704269651586
+cycle= 137 E= -2986.28829637642  delta_E= 9.95e-07  |g|= 0.000651  |ddm|= 0.00149
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218368001970683  LUMO = 0.507704230933882
+cycle= 138 E= -2986.28829609262  delta_E= 2.84e-07  |g|= 0.000584  |ddm|= 0.00329
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218311753006546  LUMO = 0.507703553578859
+cycle= 139 E= -2986.28829663644  delta_E= -5.44e-07  |g|= 0.000577  |ddm|= 0.00288
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218353047040279  LUMO = 0.507704694671409
+cycle= 140 E= -2986.28829423545  delta_E= 2.4e-06  |g|= 0.000663  |ddm|= 0.00374
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218331869411306  LUMO = 0.507704017203728
+cycle= 141 E= -2986.28829345429  delta_E= 7.81e-07  |g|= 0.000611  |ddm|= 0.00129
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218364159116272  LUMO = 0.50770465304214
+cycle= 142 E= -2986.28829242666  delta_E= 1.03e-06  |g|= 0.000615  |ddm|= 0.00133
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218356644688697  LUMO = 0.507704463626857
+cycle= 143 E= -2986.28829137724  delta_E= 1.05e-06  |g|= 0.000586  |ddm|= 0.00205
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218342815274835  LUMO = 0.507703937041933
+cycle= 144 E= -2986.28828862987  delta_E= 2.75e-06  |g|= 0.000651  |ddm|= 0.00379
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218365851070283  LUMO = 0.507705041917264
+cycle= 145 E= -2986.28828766421  delta_E= 9.66e-07  |g|= 0.000591  |ddm|= 0.00206
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218329210065764  LUMO = 0.507703670357122
+cycle= 146 E= -2986.28828546141  delta_E= 2.2e-06  |g|= 0.000583  |ddm|= 0.00391
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218325456316804  LUMO = 0.507703278779189
+cycle= 147 E= -2986.28828414  delta_E= 1.32e-06  |g|= 0.000508  |ddm|= 0.00264
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218313751797086  LUMO = 0.50770309174612
+cycle= 148 E= -2986.28828295502  delta_E= 1.18e-06  |g|= 0.000488  |ddm|= 0.0018
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218286903374989  LUMO = 0.507703497001468
+cycle= 149 E= -2986.28828605909  delta_E= -3.1e-06  |g|= 0.000399  |ddm|= 0.0045
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218299943414401  LUMO = 0.507703675195086
+cycle= 150 E= -2986.28828614103  delta_E= -8.19e-08  |g|= 0.000457  |ddm|= 0.000708
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218297576434582  LUMO = 0.507703653970231
+cycle= 151 E= -2986.28828624637  delta_E= -1.05e-07  |g|= 0.000478  |ddm|= 0.000238
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218294325003955  LUMO = 0.507703534434299
+cycle= 152 E= -2986.28828596245  delta_E= 2.84e-07  |g|= 0.000498  |ddm|= 0.000763
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218302494526501  LUMO = 0.507704061879978
+cycle= 153 E= -2986.28828711621  delta_E= -1.15e-06  |g|= 0.000467  |ddm|= 0.00149
+----------RDIIS-Entropy 0.008
+  HOMO = 0.21829366715394  LUMO = 0.507703885434119
+cycle= 154 E= -2986.28828677831  delta_E= 3.38e-07  |g|= 0.000513  |ddm|= 0.00054
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218288349249182  LUMO = 0.507703641783848
+cycle= 155 E= -2986.2882871633  delta_E= -3.85e-07  |g|= 0.000499  |ddm|= 0.000512
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218289663163209  LUMO = 0.507703847965605
+cycle= 156 E= -2986.28828746018  delta_E= -2.97e-07  |g|= 0.000504  |ddm|= 0.000416
+----------RDIIS-Entropy 0.008
+  HOMO = 0.21828861518351  LUMO = 0.507703727919104
+cycle= 157 E= -2986.28828785932  delta_E= -3.99e-07  |g|= 0.000509  |ddm|= 0.00061
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218285061682204  LUMO = 0.507703686969873
+cycle= 158 E= -2986.28828827675  delta_E= -4.17e-07  |g|= 0.0005  |ddm|= 0.000776
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218307317452549  LUMO = 0.507703785798603
+cycle= 159 E= -2986.28828894406  delta_E= -6.67e-07  |g|= 0.00047  |ddm|= 0.00205
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218297820995189  LUMO = 0.50770380442299
+cycle= 160 E= -2986.28829014589  delta_E= -1.2e-06  |g|= 0.000454  |ddm|= 0.00151
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218305939779084  LUMO = 0.507703939474932
+cycle= 161 E= -2986.28829033045  delta_E= -1.85e-07  |g|= 0.000488  |ddm|= 0.000559
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218327255562266  LUMO = 0.507704843997244
+cycle= 162 E= -2986.28828778421  delta_E= 2.55e-06  |g|= 0.000551  |ddm|= 0.00411
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218294807492881  LUMO = 0.507703707417835
+cycle= 163 E= -2986.28828554818  delta_E= 2.24e-06  |g|= 0.000551  |ddm|= 0.0031
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218289086874614  LUMO = 0.507703435283139
+cycle= 164 E= -2986.28828477665  delta_E= 7.72e-07  |g|= 0.000497  |ddm|= 0.00123
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218308964803094  LUMO = 0.50770421383506
+cycle= 165 E= -2986.28828358832  delta_E= 1.19e-06  |g|= 0.000512  |ddm|= 0.00169
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218282392348024  LUMO = 0.50770341590696
+cycle= 166 E= -2986.28827983766  delta_E= 3.75e-06  |g|= 0.000596  |ddm|= 0.00556
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218285381487549  LUMO = 0.507703649050375
+cycle= 167 E= -2986.28828085395  delta_E= -1.02e-06  |g|= 0.00041  |ddm|= 0.00178
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218292365201285  LUMO = 0.507703908568312
+cycle= 168 E= -2986.28828140644  delta_E= -5.52e-07  |g|= 0.000406  |ddm|= 0.00108
+----------RDIIS-Entropy 0.008
+  HOMO = 0.21829058733567  LUMO = 0.507703993054169
+cycle= 169 E= -2986.28828215103  delta_E= -7.45e-07  |g|= 0.000406  |ddm|= 0.00108
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218285206172177  LUMO = 0.50770391812397
+cycle= 170 E= -2986.28828203651  delta_E= 1.15e-07  |g|= 0.000437  |ddm|= 0.000605
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218297872848807  LUMO = 0.507704192140006
+cycle= 171 E= -2986.2882808586  delta_E= 1.18e-06  |g|= 0.000468  |ddm|= 0.00171
+----------RDIIS-Entropy 0.008
+  HOMO = 0.21829734686148  LUMO = 0.507704090475525
+cycle= 172 E= -2986.28828072149  delta_E= 1.37e-07  |g|= 0.00043  |ddm|= 0.00047
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218296865605961  LUMO = 0.507703715341525
+cycle= 173 E= -2986.28827967953  delta_E= 1.04e-06  |g|= 0.000448  |ddm|= 0.00204
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218319187733341  LUMO = 0.507704088100072
+cycle= 174 E= -2986.28827814507  delta_E= 1.53e-06  |g|= 0.00046  |ddm|= 0.00432
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218333139408685  LUMO = 0.507704243843362
+cycle= 175 E= -2986.28827633677  delta_E= 1.81e-06  |g|= 0.000445  |ddm|= 0.00567
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218286658979279  LUMO = 0.507703098401544
+cycle= 176 E= -2986.28827706679  delta_E= -7.3e-07  |g|= 0.000323  |ddm|= 0.00331
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218299954064853  LUMO = 0.50770352177479
+cycle= 177 E= -2986.28827728903  delta_E= -2.22e-07  |g|= 0.000304  |ddm|= 0.00415
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218306619741797  LUMO = 0.507703797550106
+cycle= 178 E= -2986.28827697412  delta_E= 3.15e-07  |g|= 0.000266  |ddm|= 0.00299
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218272583285412  LUMO = 0.507703281657498
+cycle= 179 E= -2986.28827692467  delta_E= 4.95e-08  |g|= 0.000225  |ddm|= 0.00194
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218289604974605  LUMO = 0.507703782465831
+cycle= 180 E= -2986.28827684002  delta_E= 8.46e-08  |g|= 0.000198  |ddm|= 0.00219
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218272022786125  LUMO = 0.507703667624739
+cycle= 181 E= -2986.28827693317  delta_E= -9.31e-08  |g|= 0.000163  |ddm|= 0.00117
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218281856137591  LUMO = 0.507703722777219
+cycle= 182 E= -2986.28827695436  delta_E= -2.12e-08  |g|= 0.000156  |ddm|= 0.0013
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218284822980632  LUMO = 0.507703800898156
+cycle= 183 E= -2986.28827714114  delta_E= -1.87e-07  |g|= 0.000109  |ddm|= 0.00121
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218283952767601  LUMO = 0.507703815920803
+cycle= 184 E= -2986.28827727084  delta_E= -1.3e-07  |g|= 9.73e-05  |ddm|= 0.000972
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218280445107877  LUMO = 0.50770358711311
+cycle= 185 E= -2986.28827729075  delta_E= -1.99e-08  |g|= 0.000109  |ddm|= 0.000602
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218282953457355  LUMO = 0.507703688872524
+cycle= 186 E= -2986.2882773871  delta_E= -9.64e-08  |g|= 8.93e-05  |ddm|= 0.000678
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218284868600515  LUMO = 0.507703791356343
+cycle= 187 E= -2986.28827741598  delta_E= -2.89e-08  |g|= 9.39e-05  |ddm|= 0.000217
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218287147600832  LUMO = 0.507703833463199
+cycle= 188 E= -2986.28827736821  delta_E= 4.78e-08  |g|= 0.000108  |ddm|= 0.00031
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218286870152696  LUMO = 0.507703831388174
+cycle= 189 E= -2986.2882773699  delta_E= -1.69e-09  |g|= 0.000103  |ddm|= 4.31e-05
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218285451514651  LUMO = 0.507703825744727
+cycle= 190 E= -2986.28827739715  delta_E= -2.72e-08  |g|= 9.83e-05  |ddm|= 0.000196
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218282963513028  LUMO = 0.507703824685159
+cycle= 191 E= -2986.28827744246  delta_E= -4.53e-08  |g|= 9.4e-05  |ddm|= 0.000283
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218280839652163  LUMO = 0.50770381368039
+cycle= 192 E= -2986.28827747469  delta_E= -3.22e-08  |g|= 9.53e-05  |ddm|= 0.000249
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218280768574361  LUMO = 0.507703791476628
+cycle= 193 E= -2986.28827745924  delta_E= 1.54e-08  |g|= 0.000104  |ddm|= 0.000199
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218277088677168  LUMO = 0.507703693060532
+cycle= 194 E= -2986.2882773935  delta_E= 6.57e-08  |g|= 0.000116  |ddm|= 0.000554
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218280658459497  LUMO = 0.50770374976562
+cycle= 195 E= -2986.28827745994  delta_E= -6.64e-08  |g|= 9.75e-05  |ddm|= 0.000533
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218280330670671  LUMO = 0.507703786874157
+cycle= 196 E= -2986.28827747507  delta_E= -1.51e-08  |g|= 9.82e-05  |ddm|= 0.000293
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218280907725086  LUMO = 0.50770384591706
+cycle= 197 E= -2986.28827746816  delta_E= 6.91e-09  |g|= 9.98e-05  |ddm|= 0.000144
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218276347698845  LUMO = 0.507703721718535
+cycle= 198 E= -2986.28827741345  delta_E= 5.47e-08  |g|= 0.000108  |ddm|= 0.000425
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218274735089437  LUMO = 0.507703724327818
+cycle= 199 E= -2986.28827728967  delta_E= 1.24e-07  |g|= 0.000115  |ddm|= 0.0011
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218275824514931  LUMO = 0.50770372416084
+cycle= 200 E= -2986.28827724456  delta_E= 4.51e-08  |g|= 8.98e-05  |ddm|= 0.000469
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218285693679455  LUMO = 0.507703867542325
+cycle= 201 E= -2986.28827709969  delta_E= 1.45e-07  |g|= 0.000116  |ddm|= 0.00137
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218283598123496  LUMO = 0.507703784179744
+cycle= 202 E= -2986.28827705914  delta_E= 4.05e-08  |g|= 8.02e-05  |ddm|= 0.000556
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218281493818719  LUMO = 0.50770372021179
+cycle= 203 E= -2986.28827702232  delta_E= 3.68e-08  |g|= 6.64e-05  |ddm|= 0.000617
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218282476267176  LUMO = 0.507703788601879
+cycle= 204 E= -2986.28827697251  delta_E= 4.98e-08  |g|= 6.62e-05  |ddm|= 0.000881
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218279936221538  LUMO = 0.507703682191885
+cycle= 205 E= -2986.28827694332  delta_E= 2.92e-08  |g|= 5.83e-05  |ddm|= 0.000659
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218281400585926  LUMO = 0.507703843796305
+cycle= 206 E= -2986.28827693702  delta_E= 6.3e-09  |g|= 4.4e-05  |ddm|= 0.000325
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218274101247976  LUMO = 0.507703709912812
+cycle= 207 E= -2986.28827692913  delta_E= 7.89e-09  |g|= 3.52e-05  |ddm|= 0.000308
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218275215504954  LUMO = 0.507703795674476
+cycle= 208 E= -2986.28827691322  delta_E= 1.59e-08  |g|= 3.58e-05  |ddm|= 0.00071
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218274687001884  LUMO = 0.507703772427968
+cycle= 209 E= -2986.28827691078  delta_E= 2.43e-09  |g|= 1.87e-05  |ddm|= 0.000202
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218274137903827  LUMO = 0.507703738440235
+cycle= 210 E= -2986.28827691345  delta_E= -2.66e-09  |g|= 1.32e-05  |ddm|= 0.000166
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218273729487849  LUMO = 0.507703742965791
+cycle= 211 E= -2986.28827691435  delta_E= -9.07e-10  |g|= 1.27e-05  |ddm|= 4.82e-05
+  HOMO = 0.168274478685645  LUMO = 0.40770376876346
+Extra cycle  E= -2986.28827691482  delta_E= -4.66e-10  |g|= 1.29e-05  |ddm|= 2.48e-05
+converged SCF energy = -2986.28827691482
+
+******** <class 'embed_sim.df.DFSSDMET'> ********
+DMET from ROHF
+number of impurity orbitals = 45
+number of bath orbitals = 46
+number of embedded cluster orbitals = 91
+number of frozen occupied orbitals = 4
+number of frozen virtual orbitals = 30
+number of frozen orbitals = 34
+percentage of embedded cluster orbitals = 72.80%
+percentage of frozen orbitals = 27.20%
+
+
+******** <class 'pyscf.df.df_jk.DFsfX2C1eROHF'> ********
+method = DFsfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0.1
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = False
+chkfile to save SCF result = /tmp/tmpuh_2wg1s
+max_memory 100000 MB (current use 275 MB)
+num. doubly occ = 43  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -3182.19675936876
+  HOMO = 0.218272909248112  LUMO = 0.554479045578874
+cycle= 1 E= -3182.19675936918  delta_E= -4.26e-10  |g|= 1.43e-05  |ddm|= 4.12e-05
+converged SCF energy = -3182.19675936918
+
+energy from frozen occupied orbitals = 195.90848245393965
+deviation from DMET exact condition = -4.220055416226387e-10
+
+******** AVAS flags ********
+aolabels = Co 3d
+ncore = 4
+nunocc = 30
+minao = def2tzvp
+threshold = 0.5
+with_iao = False
+openshell_option = 3
+canonicalize = False
+
+** AVAS **
+  Total number of HF MOs  is equal to    125
+  Number of occupied HF MOs is equal to  50
+reference AO indices for def2tzvp Co 3d:
+ [18 19 20 21 22]
+Option 3: threshold 0.5, num open shell 3
+Active from occupied = 2 , eig [1.         1.         1.         0.70845327 0.7179828 ]
+Inactive from occupied = 41
+Active from unoccupied = 0 , eig []
+Inactive from unoccupied = 45
+Dimensions of active 5
+# of alpha electrons 5
+# of beta electrons 2
+statelis is None
+generate statelis [ 0 40  0 10]
+Attempting SA-CASSCF with
+fix_spin parameter 0.5 on spin multiplicity 2
+40 states with spin multiplicity 2
+fix_spin parameter 0.5 on spin multiplicity 4
+10 states with spin multiplicity 4
+
+******** <class 'pyscf.mcscf.addons.StateAverageDFCASSCF'> ********
+CAS (5e+2e, 5o), ncore = 41, nvir = 45
+max_cycle_macro = 50
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+orbital rotation threshold for CI restart = 0.01
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 1e-08
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = /tmp/tmpuh_2wg1s
+max_memory 100000 MB (current use 277 MB)
+internal_rotation = False
+******** <class 'pyscf.mcscf.addons.StateAverageMixSpinPenaltyFCISolver'> ********
+max. cycles = 100
+conv_tol = 1e-10
+davidson only = True
+linear dependence = 1e-14
+level shift = 0.001
+max iter space = 12
+max_memory 100000 MB
+nroots = 50
+pspace_size = 400
+spin = 1
+State-average over 50 states with weights [0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02]
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+CASCI E = -3182.05527854587  S^2 = 1.3500000
+Set conv_tol_grad to 0.000316228
+macro iter   1 ( 21 JK    4 micro), CASSCF E = -3182.06848418393  dE = -1.32056381e-02  S^2 = 1.3500000
+               |grad[o]|=0.192  |ddm|=4.23e-15  |maxRot[o]|=0.0717
+macro iter   2 ( 28 JK    4 micro), CASSCF E = -3182.06869805815  dE = -2.13874221e-04  S^2 = 1.3500000
+               |grad[o]|=0.0256  |ddm|=3.75e-15  |maxRot[o]|=0.00812
+macro iter   3 ( 33 JK    4 micro), CASSCF E = -3182.06869859285  dE = -5.34697392e-07  S^2 = 1.3500000
+               |grad[o]|=0.00219  |ddm|=1.2e-15  |maxRot[o]|=0.000221
+macro iter   4 (  9 JK    1 micro), CASSCF E = -3182.06869859386  dE = -1.01135811e-09  S^2 = 1.3500000
+               |grad[o]|=0.000104  |ddm|=7.71e-16  |maxRot[o]|=1.14e-05
+1-step CASSCF converged in   4 macro ( 91 JK  13 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1.4 1.4 1.4 1.4 1.4]
+CASSCF energy = -3182.06869859386
+CASCI E = -3182.06869859386  E(CI) = -19.6494284619916  S^2 = 1.3500000
+CASCI state-averaged energy = -3182.06869859386
+CASCI energy for each state
+  State 0 weight 0.02  E = -3182.11235107121 S^2 = 0.7500000
+  State 1 weight 0.02  E = -3182.11232038569 S^2 = 0.7500000
+  State 2 weight 0.02  E = -3182.11217298223 S^2 = 0.7500000
+  State 3 weight 0.02  E = -3182.11090057229 S^2 = 0.7500000
+  State 4 weight 0.02  E = -3182.11090054277 S^2 = 0.7500000
+  State 5 weight 0.02  E = -3182.10860959768 S^2 = 0.7500000
+  State 6 weight 0.02  E = -3182.10493037042 S^2 = 0.7500000
+  State 7 weight 0.02  E = -3182.10223470811 S^2 = 0.7500000
+  State 8 weight 0.02  E = -3182.10223470005 S^2 = 0.7500000
+  State 9 weight 0.02  E = -3182.08932482631 S^2 = 0.7500000
+  State 10 weight 0.02  E = -3182.08932479965 S^2 = 0.7500000
+  State 11 weight 0.02  E = -3182.08702450199 S^2 = 0.7500000
+  State 12 weight 0.02  E = -3182.08185949545 S^2 = 0.7500000
+  State 13 weight 0.02  E = -3182.08066467617 S^2 = 0.7500000
+  State 14 weight 0.02  E = -3182.08066464733 S^2 = 0.7500000
+  State 15 weight 0.02  E = -3182.07894167605 S^2 = 0.7500000
+  State 16 weight 0.02  E = -3182.07807287924 S^2 = 0.7500000
+  State 17 weight 0.02  E = -3182.07622493918 S^2 = 0.7500000
+  State 18 weight 0.02  E = -3182.07622490287 S^2 = 0.7500000
+  State 19 weight 0.02  E = -3182.0735499639 S^2 = 0.7500000
+  State 20 weight 0.02  E = -3182.0718760748 S^2 = 0.7500000
+  State 21 weight 0.02  E = -3182.07187603837 S^2 = 0.7500000
+  State 22 weight 0.02  E = -3182.06978769388 S^2 = 0.7500000
+  State 23 weight 0.02  E = -3182.06308994327 S^2 = 0.7500000
+  State 24 weight 0.02  E = -3182.06308988383 S^2 = 0.7500000
+  State 25 weight 0.02  E = -3182.06147710049 S^2 = 0.7500000
+  State 26 weight 0.02  E = -3182.05663669337 S^2 = 0.7500000
+  State 27 weight 0.02  E = -3182.05253270793 S^2 = 0.7500000
+  State 28 weight 0.02  E = -3182.00375150123 S^2 = 0.7500000
+  State 29 weight 0.02  E = -3182.00053743203 S^2 = 0.7500000
+  State 30 weight 0.02  E = -3182.0005374189 S^2 = 0.7500000
+  State 31 weight 0.02  E = -3181.9998650439 S^2 = 0.7500000
+  State 32 weight 0.02  E = -3181.99718834793 S^2 = 0.7500000
+  State 33 weight 0.02  E = -3181.99718833787 S^2 = 0.7500000
+  State 34 weight 0.02  E = -3181.99501952439 S^2 = 0.7500000
+  State 35 weight 0.02  E = -3181.90108614493 S^2 = 0.7500000
+  State 36 weight 0.02  E = -3181.89676547466 S^2 = 0.7500000
+  State 37 weight 0.02  E = -3181.89137625211 S^2 = 0.7500000
+  State 38 weight 0.02  E = -3181.8868587716 S^2 = 0.7500000
+  State 39 weight 0.02  E = -3181.88685871179 S^2 = 0.7500000
+  State 40 weight 0.02  E = -3182.1998992599 S^2 = 3.7500000
+  State 41 weight 0.02  E = -3182.19152670753 S^2 = 3.7500000
+  State 42 weight 0.02  E = -3182.18470713583 S^2 = 3.7500000
+  State 43 weight 0.02  E = -3182.18470708319 S^2 = 3.7500000
+  State 44 weight 0.02  E = -3182.17510989094 S^2 = 3.7500000
+  State 45 weight 0.02  E = -3182.17510982302 S^2 = 3.7500000
+  State 46 weight 0.02  E = -3182.17470279272 S^2 = 3.7500000
+  State 47 weight 0.02  E = -3182.1070014746 S^2 = 3.7500000
+  State 48 weight 0.02  E = -3182.10700137731 S^2 = 3.7500000
+  State 49 weight 0.02  E = -3182.099232812 S^2 = 3.7500000
+sacasscf_nevpt2_casci_ver
+CASCI
+
+******** <class 'pyscf.mcscf.df.DFCASCI'> ********
+CAS (4e+3e, 5o), ncore = 41, nvir = 45
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 100000 MB (current use 314 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 40
+pspace_size = 400
+spin = 1
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+
+WARN: Mulitple states found in CASCI solver. First state is used to compute the Fock matrix and natural orbitals in active space.
+
+Density matrix diagonal elements [1.87755492 1.01000914 1.84808336 1.1321757  1.13217689]
+CASCI converged
+CASCI state   0  E = -3182.11235107121  E(CI) = -19.6930809393457  S^2 = 0.7500000
+CASCI state   1  E = -3182.11232038569  E(CI) = -19.6930502538185  S^2 = 0.7500000
+CASCI state   2  E = -3182.11217298223  E(CI) = -19.6929028503605  S^2 = 0.7500000
+CASCI state   3  E = -3182.11090057229  E(CI) = -19.6916304404235  S^2 = 0.7500000
+CASCI state   4  E = -3182.11090054277  E(CI) = -19.6916304109045  S^2 = 0.7500000
+CASCI state   5  E = -3182.10860959768  E(CI) = -19.6893394658141  S^2 = 0.7500000
+CASCI state   6  E = -3182.10493037042  E(CI) = -19.6856602385533  S^2 = 0.7500000
+CASCI state   7  E = -3182.10223470811  E(CI) = -19.6829645762436  S^2 = 0.7500000
+CASCI state   8  E = -3182.10223470005  E(CI) = -19.6829645681814  S^2 = 0.7500000
+CASCI state   9  E = -3182.08932482631  E(CI) = -19.6700546944435  S^2 = 0.7500000
+CASCI state  10  E = -3182.08932479965  E(CI) = -19.6700546677798  S^2 = 0.7500000
+CASCI state  11  E = -3182.08702450199  E(CI) = -19.6677543701239  S^2 = 0.7500000
+CASCI state  12  E = -3182.08185949545  E(CI) = -19.6625893635864  S^2 = 0.7500000
+CASCI state  13  E = -3182.08066467617  E(CI) = -19.6613945443000  S^2 = 0.7500000
+CASCI state  14  E = -3182.08066464733  E(CI) = -19.6613945154591  S^2 = 0.7500000
+CASCI state  15  E = -3182.07894167605  E(CI) = -19.6596715441847  S^2 = 0.7500000
+CASCI state  16  E = -3182.07807287924  E(CI) = -19.6588027473745  S^2 = 0.7500000
+CASCI state  17  E = -3182.07622493918  E(CI) = -19.6569548073103  S^2 = 0.7500000
+CASCI state  18  E = -3182.07622490286  E(CI) = -19.6569547709978  S^2 = 0.7500000
+CASCI state  19  E = -3182.07354996390  E(CI) = -19.6542798320320  S^2 = 0.7500000
+CASCI state  20  E = -3182.07187607480  E(CI) = -19.6526059429302  S^2 = 0.7500000
+CASCI state  21  E = -3182.07187603837  E(CI) = -19.6526059065031  S^2 = 0.7500000
+CASCI state  22  E = -3182.06978769388  E(CI) = -19.6505175620141  S^2 = 0.7500000
+CASCI state  23  E = -3182.06308994327  E(CI) = -19.6438198114038  S^2 = 0.7500000
+CASCI state  24  E = -3182.06308988383  E(CI) = -19.6438197519615  S^2 = 0.7500000
+CASCI state  25  E = -3182.06147710049  E(CI) = -19.6422069686237  S^2 = 0.7500000
+CASCI state  26  E = -3182.05663669337  E(CI) = -19.6373665615019  S^2 = 0.7500000
+CASCI state  27  E = -3182.05253270793  E(CI) = -19.6332625760583  S^2 = 0.7500000
+CASCI state  28  E = -3182.00375150123  E(CI) = -19.5844813693616  S^2 = 0.7500000
+CASCI state  29  E = -3182.00053743203  E(CI) = -19.5812673001601  S^2 = 0.7500000
+CASCI state  30  E = -3182.00053741890  E(CI) = -19.5812672870352  S^2 = 0.7500000
+CASCI state  31  E = -3181.99986504390  E(CI) = -19.5805949120327  S^2 = 0.7500000
+CASCI state  32  E = -3181.99718834793  E(CI) = -19.5779182160591  S^2 = 0.7500000
+CASCI state  33  E = -3181.99718833787  E(CI) = -19.5779182060005  S^2 = 0.7500000
+CASCI state  34  E = -3181.99501952439  E(CI) = -19.5757493925253  S^2 = 0.7500000
+CASCI state  35  E = -3181.90108614493  E(CI) = -19.4818160130612  S^2 = 0.7500000
+CASCI state  36  E = -3181.89676547466  E(CI) = -19.4774953427932  S^2 = 0.7500000
+CASCI state  37  E = -3181.89137625211  E(CI) = -19.4721061202431  S^2 = 0.7500000
+CASCI state  38  E = -3181.88685877160  E(CI) = -19.4675886397340  S^2 = 0.7500000
+CASCI state  39  E = -3181.88685871179  E(CI) = -19.4675885799211  S^2 = 0.7500000
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 0
+Sr    (-1)',   E = -0.00113819594011
+Si    (+1)',   E = -0.00159818112957
+Sijrs (0)  ,   E = -0.16279270294107
+Sijr  (+1) ,   E = -0.03266834652147
+Srsi  (-1) ,   E = -0.16959121087617
+Srs   (-2) ,   E = -0.13617694909697
+Sij   (+2) ,   E = -0.00442828996102
+Sir   (0)' ,   E = -0.07927656958883
+Nevpt2 Energy = -0.587670446055221
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 1
+Sr    (-1)',   E = -0.00111251299915
+Si    (+1)',   E = -0.00160242454394
+Sijrs (0)  ,   E = -0.16277776969558
+Sijr  (+1) ,   E = -0.03236763499119
+Srsi  (-1) ,   E = -0.16957193833770
+Srs   (-2) ,   E = -0.13555349941481
+Sij   (+2) ,   E = -0.00390345002614
+Sir   (0)' ,   E = -0.07894929336071
+Nevpt2 Energy = -0.585838523369229
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 2
+Sr    (-1)',   E = -0.00112614002205
+Si    (+1)',   E = -0.00151567463972
+Sijrs (0)  ,   E = -0.16278158501091
+Sijr  (+1) ,   E = -0.03244840555866
+Srsi  (-1) ,   E = -0.16957527062197
+Srs   (-2) ,   E = -0.13574267389703
+Sij   (+2) ,   E = -0.00404554665129
+Sir   (0)' ,   E = -0.07888120190555
+Nevpt2 Energy = -0.586116498307189
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 3
+Sr    (-1)',   E = -0.00115984921298
+Si    (+1)',   E = -0.00180964134820
+Sijrs (0)  ,   E = -0.16278690676816
+Sijr  (+1) ,   E = -0.03237351164452
+Srsi  (-1) ,   E = -0.16952283104627
+Srs   (-2) ,   E = -0.13560685927829
+Sij   (+2) ,   E = -0.00403686430782
+Sir   (0)' ,   E = -0.07902284438651
+Nevpt2 Energy = -0.586319307992752
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 4
+Sr    (-1)',   E = -0.00115985367683
+Si    (+1)',   E = -0.00180964809142
+Sijrs (0)  ,   E = -0.16278690672490
+Sijr  (+1) ,   E = -0.03237351111927
+Srsi  (-1) ,   E = -0.16952283242063
+Srs   (-2) ,   E = -0.13560685961874
+Sij   (+2) ,   E = -0.00403686870116
+Sir   (0)' ,   E = -0.07902283605234
+Nevpt2 Energy = -0.586319316405301
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 5
+Sr    (-1)',   E = -0.00097011074767
+Si    (+1)',   E = -0.00156205586714
+Sijrs (0)  ,   E = -0.16276710572797
+Sijr  (+1) ,   E = -0.03167337891661
+Srsi  (-1) ,   E = -0.16942264652413
+Srs   (-2) ,   E = -0.13513824923231
+Sij   (+2) ,   E = -0.00428325412725
+Sir   (0)' ,   E = -0.07616289877160
+Nevpt2 Energy = -0.581979699914680
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 6
+Sr    (-1)',   E = -0.00100528878638
+Si    (+1)',   E = -0.00158958843986
+Sijrs (0)  ,   E = -0.16274783192578
+Sijr  (+1) ,   E = -0.03156341100157
+Srsi  (-1) ,   E = -0.16963549356721
+Srs   (-2) ,   E = -0.13571614735621
+Sij   (+2) ,   E = -0.00456576199278
+Sir   (0)' ,   E = -0.07540170183709
+Nevpt2 Energy = -0.582225224906888
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 7
+Sr    (-1)',   E = -0.00100005280606
+Si    (+1)',   E = -0.00158781133802
+Sijrs (0)  ,   E = -0.16275848005546
+Sijr  (+1) ,   E = -0.03109945744702
+Srsi  (-1) ,   E = -0.16929410400949
+Srs   (-2) ,   E = -0.13499581277300
+Sij   (+2) ,   E = -0.00422832101131
+Sir   (0)' ,   E = -0.07439907986318
+Nevpt2 Energy = -0.579363119303537
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 8
+Sr    (-1)',   E = -0.00100005276211
+Si    (+1)',   E = -0.00158781327876
+Sijrs (0)  ,   E = -0.16275848002743
+Sijr  (+1) ,   E = -0.03109945902440
+Srsi  (-1) ,   E = -0.16929410433799
+Srs   (-2) ,   E = -0.13499581620158
+Sij   (+2) ,   E = -0.00422832777184
+Sir   (0)' ,   E = -0.07439908243959
+Nevpt2 Energy = -0.579363135843713
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 9
+Sr    (-1)',   E = -0.00231421524194
+Si    (+1)',   E = -0.00114097303328
+Sijrs (0)  ,   E = -0.16277261006472
+Sijr  (+1) ,   E = -0.03220602392668
+Srsi  (-1) ,   E = -0.16956599074902
+Srs   (-2) ,   E = -0.13572716817176
+Sij   (+2) ,   E = -0.00237902776753
+Sir   (0)' ,   E = -0.08114216977763
+Nevpt2 Energy = -0.587248178732558
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 10
+Sr    (-1)',   E = -0.00231421580504
+Si    (+1)',   E = -0.00114096125250
+Sijrs (0)  ,   E = -0.16277261023018
+Sijr  (+1) ,   E = -0.03220602336327
+Srsi  (-1) ,   E = -0.16956599208953
+Srs   (-2) ,   E = -0.13572715595004
+Sij   (+2) ,   E = -0.00237900189980
+Sir   (0)' ,   E = -0.08114221084152
+Nevpt2 Energy = -0.587248171431879
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 11
+Sr    (-1)',   E = -0.00196236289473
+Si    (+1)',   E = -0.00493689276118
+Sijrs (0)  ,   E = -0.16276357977490
+Sijr  (+1) ,   E = -0.03212954757566
+Srsi  (-1) ,   E = -0.16978621003077
+Srs   (-2) ,   E = -0.13762353362742
+Sij   (+2) ,   E = -0.00688621435168
+Sir   (0)' ,   E = -0.07581958629513
+Nevpt2 Energy = -0.591907927311461
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 12
+Sr    (-1)',   E = -0.00233788906030
+Si    (+1)',   E = -0.00101194320234
+Sijrs (0)  ,   E = -0.16278206913130
+Sijr  (+1) ,   E = -0.03220591153718
+Srsi  (-1) ,   E = -0.16966100236489
+Srs   (-2) ,   E = -0.13672479840049
+Sij   (+2) ,   E = -0.00434578146979
+Sir   (0)' ,   E = -0.07907390297967
+Nevpt2 Energy = -0.588143298145971
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 13
+Sr    (-1)',   E = -0.00204423622362
+Si    (+1)',   E = -0.00281766743707
+Sijrs (0)  ,   E = -0.16277713036805
+Sijr  (+1) ,   E = -0.03146137943081
+Srsi  (-1) ,   E = -0.16946433489392
+Srs   (-2) ,   E = -0.13604872275194
+Sij   (+2) ,   E = -0.00467308822584
+Sir   (0)' ,   E = -0.07631475022919
+Nevpt2 Energy = -0.585601309560434
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 14
+Sr    (-1)',   E = -0.00204422696508
+Si    (+1)',   E = -0.00281769781510
+Sijrs (0)  ,   E = -0.16277713012487
+Sijr  (+1) ,   E = -0.03146137693296
+Srsi  (-1) ,   E = -0.16946433353711
+Srs   (-2) ,   E = -0.13604873069039
+Sij   (+2) ,   E = -0.00467311653700
+Sir   (0)' ,   E = -0.07631472943912
+Nevpt2 Energy = -0.585601342041625
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 15
+Sr    (-1)',   E = -0.00223100384015
+Si    (+1)',   E = -0.00118869503690
+Sijrs (0)  ,   E = -0.16275414388906
+Sijr  (+1) ,   E = -0.03164554913070
+Srsi  (-1) ,   E = -0.16975433814843
+Srs   (-2) ,   E = -0.13695627694194
+Sij   (+2) ,   E = -0.00546956345539
+Sir   (0)' ,   E = -0.07607562219974
+Nevpt2 Energy = -0.586075192642313
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 16
+Sr    (-1)',   E = -0.00218807752423
+Si    (+1)',   E = -0.00095196871942
+Sijrs (0)  ,   E = -0.16277749999189
+Sijr  (+1) ,   E = -0.03119568466735
+Srsi  (-1) ,   E = -0.16932757221332
+Srs   (-2) ,   E = -0.13596328500233
+Sij   (+2) ,   E = -0.00440471815602
+Sir   (0)' ,   E = -0.07602896958546
+Nevpt2 Energy = -0.582837775860016
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 17
+Sr    (-1)',   E = -0.00190130598631
+Si    (+1)',   E = -0.00459789043729
+Sijrs (0)  ,   E = -0.16274228620772
+Sijr  (+1) ,   E = -0.03118441162713
+Srsi  (-1) ,   E = -0.16959547609870
+Srs   (-2) ,   E = -0.13827529982193
+Sij   (+2) ,   E = -0.00875718317524
+Sir   (0)' ,   E = -0.07092639566072
+Nevpt2 Energy = -0.587980249015043
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 18
+Sr    (-1)',   E = -0.00190130301040
+Si    (+1)',   E = -0.00459794563818
+Sijrs (0)  ,   E = -0.16274228646249
+Sijr  (+1) ,   E = -0.03118441924912
+Srsi  (-1) ,   E = -0.16959547958811
+Srs   (-2) ,   E = -0.13827535538967
+Sij   (+2) ,   E = -0.00875729097291
+Sir   (0)' ,   E = -0.07092632294099
+Nevpt2 Energy = -0.587980403251872
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 19
+Sr    (-1)',   E = -0.00231130601299
+Si    (+1)',   E = -0.00033594887811
+Sijrs (0)  ,   E = -0.16274429818875
+Sijr  (+1) ,   E = -0.03021807499425
+Srsi  (-1) ,   E = -0.16928539696913
+Srs   (-2) ,   E = -0.13368595536397
+Sij   (+2) ,   E = -0.00051692394722
+Sir   (0)' ,   E = -0.07702165020955
+Nevpt2 Energy = -0.576119554563970
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 20
+Sr    (-1)',   E = -0.00236085181707
+Si    (+1)',   E = -0.00050989980733
+Sijrs (0)  ,   E = -0.16273668614994
+Sijr  (+1) ,   E = -0.03037730457556
+Srsi  (-1) ,   E = -0.16948455125684
+Srs   (-2) ,   E = -0.13437473935897
+Sij   (+2) ,   E = -0.00148648094599
+Sir   (0)' ,   E = -0.07637308718131
+Nevpt2 Energy = -0.577703601093000
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 21
+Sr    (-1)',   E = -0.00236085259394
+Si    (+1)',   E = -0.00050991302251
+Sijrs (0)  ,   E = -0.16273668580670
+Sijr  (+1) ,   E = -0.03037731090612
+Srsi  (-1) ,   E = -0.16948455207932
+Srs   (-2) ,   E = -0.13437477199797
+Sij   (+2) ,   E = -0.00148654136381
+Sir   (0)' ,   E = -0.07637304747023
+Nevpt2 Energy = -0.577703675240588
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 22
+Sr    (-1)',   E = -0.00206795889522
+Si    (+1)',   E = -0.00372268032025
+Sijrs (0)  ,   E = -0.16275406638791
+Sijr  (+1) ,   E = -0.03035571814749
+Srsi  (-1) ,   E = -0.16933377487508
+Srs   (-2) ,   E = -0.13579470911479
+Sij   (+2) ,   E = -0.00502553948448
+Sir   (0)' ,   E = -0.07276784894988
+Nevpt2 Energy = -0.581822296175100
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 23
+Sr    (-1)',   E = -0.00195140422276
+Si    (+1)',   E = -0.00268261440737
+Sijrs (0)  ,   E = -0.16274992966422
+Sijr  (+1) ,   E = -0.03020689894771
+Srsi  (-1) ,   E = -0.16939343058605
+Srs   (-2) ,   E = -0.13766061218816
+Sij   (+2) ,   E = -0.00863762033188
+Sir   (0)' ,   E = -0.06822230828622
+Nevpt2 Energy = -0.581504818634382
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 24
+Sr    (-1)',   E = -0.00195141199016
+Si    (+1)',   E = -0.00268260017563
+Sijrs (0)  ,   E = -0.16274993031552
+Sijr  (+1) ,   E = -0.03020690644841
+Srsi  (-1) ,   E = -0.16939343095564
+Srs   (-2) ,   E = -0.13766060312778
+Sij   (+2) ,   E = -0.00863759821760
+Sir   (0)' ,   E = -0.06822238419771
+Nevpt2 Energy = -0.581504865428452
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 25
+Sr    (-1)',   E = -0.00201572725544
+Si    (+1)',   E = -0.00177503083963
+Sijrs (0)  ,   E = -0.16270887085888
+Sijr  (+1) ,   E = -0.02948869841102
+Srsi  (-1) ,   E = -0.16959266165129
+Srs   (-2) ,   E = -0.13757404325957
+Sij   (+2) ,   E = -0.00841952327165
+Sir   (0)' ,   E = -0.06617887542245
+Nevpt2 Energy = -0.577753430969934
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 26
+Sr    (-1)',   E = -0.00179402819621
+Si    (+1)',   E = -0.00190539031094
+Sijrs (0)  ,   E = -0.16276107804506
+Sijr  (+1) ,   E = -0.02943878511921
+Srsi  (-1) ,   E = -0.16920689777319
+Srs   (-2) ,   E = -0.13738765167923
+Sij   (+2) ,   E = -0.00859184576644
+Sir   (0)' ,   E = -0.06626211248435
+Nevpt2 Energy = -0.577347789374626
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 27
+Sr    (-1)',   E = -0.00203274561037
+Si    (+1)',   E = -0.00157686840868
+Sijrs (0)  ,   E = -0.16272792588378
+Sijr  (+1) ,   E = -0.02858745393731
+Srsi  (-1) ,   E = -0.16930414493082
+Srs   (-2) ,   E = -0.13638954346359
+Sij   (+2) ,   E = -0.00713886212346
+Sir   (0)' ,   E = -0.06532670454714
+Nevpt2 Energy = -0.573084248905148
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 28
+Sr    (-1)',   E = -0.00498764486539
+Si    (+1)',   E = -0.00300667284338
+Sijrs (0)  ,   E = -0.16276672608492
+Sijr  (+1) ,   E = -0.03174502131791
+Srsi  (-1) ,   E = -0.17003036123337
+Srs   (-2) ,   E = -0.14073525663974
+Sij   (+2) ,   E = -0.00869170340496
+Sir   (0)' ,   E = -0.07724898615107
+Nevpt2 Energy = -0.599212372540740
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 29
+Sr    (-1)',   E = -0.00504572593653
+Si    (+1)',   E = -0.00284883353694
+Sijrs (0)  ,   E = -0.16276447161995
+Sijr  (+1) ,   E = -0.03165256484742
+Srsi  (-1) ,   E = -0.17000735947165
+Srs   (-2) ,   E = -0.14092522031192
+Sij   (+2) ,   E = -0.00881362648482
+Sir   (0)' ,   E = -0.07657967417020
+Nevpt2 Energy = -0.598637476379428
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 30
+Sr    (-1)',   E = -0.00504572750466
+Si    (+1)',   E = -0.00284883313811
+Sijrs (0)  ,   E = -0.16276447154331
+Sijr  (+1) ,   E = -0.03165256462438
+Srsi  (-1) ,   E = -0.17000735888280
+Srs   (-2) ,   E = -0.14092521839064
+Sij   (+2) ,   E = -0.00881362610942
+Sir   (0)' ,   E = -0.07657967685667
+Nevpt2 Energy = -0.598637477049994
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 31
+Sr    (-1)',   E = -0.00506293395095
+Si    (+1)',   E = -0.00291330554582
+Sijrs (0)  ,   E = -0.16275768299515
+Sijr  (+1) ,   E = -0.03154406498881
+Srsi  (-1) ,   E = -0.17008093872972
+Srs   (-2) ,   E = -0.14080460416397
+Sij   (+2) ,   E = -0.00863929012820
+Sir   (0)' ,   E = -0.07637176423894
+Nevpt2 Energy = -0.598174584741564
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 32
+Sr    (-1)',   E = -0.00486897728664
+Si    (+1)',   E = -0.00292745022230
+Sijrs (0)  ,   E = -0.16274868076518
+Sijr  (+1) ,   E = -0.03116938277211
+Srsi  (-1) ,   E = -0.17003494109000
+Srs   (-2) ,   E = -0.14069231336429
+Sij   (+2) ,   E = -0.00880909676553
+Sir   (0)' ,   E = -0.07496334063740
+Nevpt2 Energy = -0.596214182903458
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 33
+Sr    (-1)',   E = -0.00486897795183
+Si    (+1)',   E = -0.00292745236436
+Sijrs (0)  ,   E = -0.16274868069163
+Sijr  (+1) ,   E = -0.03116938341408
+Srsi  (-1) ,   E = -0.17003493996189
+Srs   (-2) ,   E = -0.14069231160044
+Sij   (+2) ,   E = -0.00880909632225
+Sir   (0)' ,   E = -0.07496334271822
+Nevpt2 Energy = -0.596214185024714
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 34
+Sr    (-1)',   E = -0.00489040989601
+Si    (+1)',   E = -0.00288729397334
+Sijrs (0)  ,   E = -0.16275540014874
+Sijr  (+1) ,   E = -0.03093855761771
+Srsi  (-1) ,   E = -0.16992476867142
+Srs   (-2) ,   E = -0.14041520090797
+Sij   (+2) ,   E = -0.00864699648625
+Sir   (0)' ,   E = -0.07445960085297
+Nevpt2 Energy = -0.594918228554398
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 35
+Sr    (-1)',   E = -0.00680285348936
+Si    (+1)',   E = -0.00286248247870
+Sijrs (0)  ,   E = -0.16275647013119
+Sijr  (+1) ,   E = -0.03221771275323
+Srsi  (-1) ,   E = -0.17078697777521
+Srs   (-2) ,   E = -0.15238084593909
+Sij   (+2) ,   E = -0.02394558785951
+Sir   (0)' ,   E = -0.06617421617077
+Nevpt2 Energy = -0.617927146597052
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 36
+Sr    (-1)',   E = -0.00672173541453
+Si    (+1)',   E = -0.00214686680634
+Sijrs (0)  ,   E = -0.16274889712439
+Sijr  (+1) ,   E = -0.03202993377654
+Srsi  (-1) ,   E = -0.17078408146886
+Srs   (-2) ,   E = -0.15224082365362
+Sij   (+2) ,   E = -0.02367335889825
+Sir   (0)' ,   E = -0.06612510405931
+Nevpt2 Energy = -0.616470801201826
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 37
+Sr    (-1)',   E = -0.00693927044418
+Si    (+1)',   E = -0.00300552828268
+Sijrs (0)  ,   E = -0.16276382213794
+Sijr  (+1) ,   E = -0.03175841732635
+Srsi  (-1) ,   E = -0.17076389631038
+Srs   (-2) ,   E = -0.15186393230182
+Sij   (+2) ,   E = -0.02389853446513
+Sir   (0)' ,   E = -0.06480165006043
+Nevpt2 Energy = -0.615795051328909
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 38
+Sr    (-1)',   E = -0.00673022322454
+Si    (+1)',   E = -0.00200565552694
+Sijrs (0)  ,   E = -0.16275737905135
+Sijr  (+1) ,   E = -0.03099683973690
+Srsi  (-1) ,   E = -0.17063746309821
+Srs   (-2) ,   E = -0.15119547539689
+Sij   (+2) ,   E = -0.02282777949745
+Sir   (0)' ,   E = -0.06380028529662
+Nevpt2 Energy = -0.610951100828907
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 41, nvir = 45
+spin = 1  root = 39
+Sr    (-1)',   E = -0.00673022644905
+Si    (+1)',   E = -0.00200564816805
+Sijrs (0)  ,   E = -0.16275737876780
+Sijr  (+1) ,   E = -0.03099684248259
+Srsi  (-1) ,   E = -0.17063745910835
+Srs   (-2) ,   E = -0.15119546711019
+Sij   (+2) ,   E = -0.02282777520763
+Sir   (0)' ,   E = -0.06380031680392
+Nevpt2 Energy = -0.610951114097587
+CASCI
+
+******** <class 'pyscf.mcscf.df.DFCASCI'> ********
+CAS (5e+2e, 5o), ncore = 41, nvir = 45
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 100000 MB (current use 267 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 10
+pspace_size = 400
+spin = 3
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+
+WARN: Mulitple states found in CASCI solver. First state is used to compute the Fock matrix and natural orbitals in active space.
+
+Density matrix diagonal elements [1.9999998  1.00000063 1.99999912 1.00000015 1.0000003 ]
+CASCI converged
+CASCI state   0  E = -3182.19989925990  E(CI) = -19.7806291280353  S^2 = 3.7500000
+CASCI state   1  E = -3182.19152670753  E(CI) = -19.7722565756603  S^2 = 3.7500000
+CASCI state   2  E = -3182.18470713583  E(CI) = -19.7654370039654  S^2 = 3.7500000
+CASCI state   3  E = -3182.18470708319  E(CI) = -19.7654369513243  S^2 = 3.7500000
+CASCI state   4  E = -3182.17510989094  E(CI) = -19.7558397590774  S^2 = 3.7500000
+CASCI state   5  E = -3182.17510982302  E(CI) = -19.7558396911563  S^2 = 3.7500000
+CASCI state   6  E = -3182.17470279272  E(CI) = -19.7554326608538  S^2 = 3.7500000
+CASCI state   7  E = -3182.10700147460  E(CI) = -19.6877313427340  S^2 = 3.7500000
+CASCI state   8  E = -3182.10700137731  E(CI) = -19.6877312454399  S^2 = 3.7500000
+CASCI state   9  E = -3182.09923281200  E(CI) = -19.6799626801362  S^2 = 3.7500000
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 0
+
+WARN: Active orbitals [0 1] (occs = [2. 2.]) are canonicalized with core orbitals
+
+Sr    (-1)',   E = -0.00118897282511
+Si    (+1)',   E = -0.00084061327956
+Sijrs (0)  ,   E = -0.29037149535286
+Sijr  (+1) ,   E = -0.06287914748652
+Srsi  (-1) ,   E = -0.17251062660844
+Srs   (-2) ,   E = -0.01877913449669
+Sij   (+2) ,   E = -0.00334928743567
+Sir   (0)' ,   E = -0.04316921897514
+Nevpt2 Energy = -0.593088496459990
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 1
+
+WARN: Active orbitals [0 1] (occs = [2. 2.]) are canonicalized with core orbitals
+
+Sr    (-1)',   E = -0.00192158473564
+Si    (+1)',   E = -0.00053570547834
+Sijrs (0)  ,   E = -0.27607950154198
+Sijr  (+1) ,   E = -0.05920451829455
+Srsi  (-1) ,   E = -0.18294445953504
+Srs   (-2) ,   E = -0.02233272387049
+Sij   (+2) ,   E = -0.00327847283630
+Sir   (0)' ,   E = -0.04226021973548
+Nevpt2 Energy = -0.588557186027817
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 2
+Sr    (-1)',   E = -0.00292044473507
+Si    (+1)',   E = -0.00057476606470
+Sijrs (0)  ,   E = -0.16276846836185
+Sijr  (+1) ,   E = -0.03095790928012
+Srsi  (-1) ,   E = -0.16870889957443
+Srs   (-2) ,   E = -0.13164411612109
+Sij   (+2) ,   E = -0.00321801643321
+Sir   (0)' ,   E = -0.07339292342355
+Nevpt2 Energy = -0.574185543994014
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 3
+Sr    (-1)',   E = -0.00292044491802
+Si    (+1)',   E = -0.00057477077297
+Sijrs (0)  ,   E = -0.16276846894783
+Sijr  (+1) ,   E = -0.03095791294975
+Srsi  (-1) ,   E = -0.16870889774205
+Srs   (-2) ,   E = -0.13164411099917
+Sij   (+2) ,   E = -0.00321801564024
+Sir   (0)' ,   E = -0.07339296100300
+Nevpt2 Energy = -0.574185582973037
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 4
+Sr    (-1)',   E = -0.00320335706642
+Si    (+1)',   E = -0.00042862482456
+Sijrs (0)  ,   E = -0.16274457160678
+Sijr  (+1) ,   E = -0.02987301277238
+Srsi  (-1) ,   E = -0.16867423960521
+Srs   (-2) ,   E = -0.13109661422093
+Sij   (+2) ,   E = -0.00312720976360
+Sir   (0)' ,   E = -0.07008656474998
+Nevpt2 Energy = -0.569234194609854
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 5
+Sr    (-1)',   E = -0.00320336044750
+Si    (+1)',   E = -0.00042863001860
+Sijrs (0)  ,   E = -0.16274457211617
+Sijr  (+1) ,   E = -0.02987301432274
+Srsi  (-1) ,   E = -0.16867424672585
+Srs   (-2) ,   E = -0.13109662224224
+Sij   (+2) ,   E = -0.00312721065876
+Sir   (0)' ,   E = -0.07008661405736
+Nevpt2 Energy = -0.569234270589223
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 6
+Sr    (-1)',   E = -0.00312806836770
+Si    (+1)',   E = -0.00032151134513
+Sijrs (0)  ,   E = -0.16274686139300
+Sijr  (+1) ,   E = -0.02966863918942
+Srsi  (-1) ,   E = -0.16853504139618
+Srs   (-2) ,   E = -0.13090411455987
+Sij   (+2) ,   E = -0.00308642164401
+Sir   (0)' ,   E = -0.06966626192361
+Nevpt2 Energy = -0.568056919818920
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 7
+Sr    (-1)',   E = -0.00694748329686
+Si    (+1)',   E = -0.00018529135619
+Sijrs (0)  ,   E = -0.16275616289847
+Sijr  (+1) ,   E = -0.03103883556168
+Srsi  (-1) ,   E = -0.16924880586177
+Srs   (-2) ,   E = -0.13668729505929
+Sij   (+2) ,   E = -0.00814556831000
+Sir   (0)' ,   E = -0.07203026447847
+Nevpt2 Energy = -0.587039706822723
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 8
+Sr    (-1)',   E = -0.00694750484797
+Si    (+1)',   E = -0.00018529285836
+Sijrs (0)  ,   E = -0.16275616297977
+Sijr  (+1) ,   E = -0.03103884162600
+Srsi  (-1) ,   E = -0.16924880395504
+Srs   (-2) ,   E = -0.13668728940909
+Sij   (+2) ,   E = -0.00814556760969
+Sir   (0)' ,   E = -0.07203029364595
+Nevpt2 Energy = -0.587039756931868
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 41, nvir = 45
+spin = 3  root = 9
+Sr    (-1)',   E = -0.00694458453911
+Si    (+1)',   E = -0.00017017236697
+Sijrs (0)  ,   E = -0.16276433087544
+Sijr  (+1) ,   E = -0.03062992553872
+Srsi  (-1) ,   E = -0.16921655518024
+Srs   (-2) ,   E = -0.13634146125099
+Sij   (+2) ,   E = -0.00819240801500
+Sir   (0)' ,   E = -0.07081319505358
+Nevpt2 Energy = -0.585072632820049
+Attempting SA-CASSCF with
+fix_spin parameter 0.5 on spin multiplicity 2
+40 states with spin multiplicity 2
+fix_spin parameter 0.5 on spin multiplicity 4
+10 states with spin multiplicity 4
+SISO with density fitting
+size of aux basis 804
+    CPU time for 2c2e      0.14 sec, wall time      0.02 sec
+    CPU time for Cholesky 2c2e      0.22 sec, wall time      0.01 sec
+erifile 50.652 MB, IO buf size 151.956 MB
+shranges = [(0, 55, 7875)]
+int3c2e [1/1], AO [0:55], nrow = 7875
+    CPU time for gen CD eri [1/1]      5.02 sec, wall time      0.33 sec
+    CPU time for int3c2e_pvxp1      5.40 sec, wall time      0.36 sec
+2e SOC J/K1/K2 integrals [1/51]
+    CPU time for contracting vj AO [0/16], nrow = 16      0.60 sec, wall time      0.04 sec
+    CPU time for contracting vk AO [0/16], nrow = 16      0.26 sec, wall time      0.02 sec
+    CPU time for contracting vk2 AO [0/16], nrow = 16      0.09 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [1/51]      0.96 sec, wall time      0.07 sec
+2e SOC J/K1/K2 integrals [2/51]
+    CPU time for contracting vj AO [16/32], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [16/32], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [16/32], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [2/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [3/51]
+    CPU time for contracting vj AO [32/48], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [32/48], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [32/48], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [3/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [4/51]
+    CPU time for contracting vj AO [48/64], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [48/64], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [48/64], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [4/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [5/51]
+    CPU time for contracting vj AO [64/80], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [64/80], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [64/80], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [5/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [6/51]
+    CPU time for contracting vj AO [80/96], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [80/96], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [80/96], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [6/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [7/51]
+    CPU time for contracting vj AO [96/112], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [96/112], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [96/112], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [7/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [8/51]
+    CPU time for contracting vj AO [112/128], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [112/128], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [112/128], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [8/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [9/51]
+    CPU time for contracting vj AO [128/144], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [128/144], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [128/144], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [9/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [10/51]
+    CPU time for contracting vj AO [144/160], nrow = 16      0.08 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [144/160], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [144/160], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [10/51]      0.29 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [11/51]
+    CPU time for contracting vj AO [160/176], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [160/176], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [160/176], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [11/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [12/51]
+    CPU time for contracting vj AO [176/192], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [176/192], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [176/192], nrow = 16      0.08 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [12/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [13/51]
+    CPU time for contracting vj AO [192/208], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [192/208], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [192/208], nrow = 16      0.09 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [13/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [14/51]
+    CPU time for contracting vj AO [208/224], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [208/224], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [208/224], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [14/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [15/51]
+    CPU time for contracting vj AO [224/240], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [224/240], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [224/240], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [15/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [16/51]
+    CPU time for contracting vj AO [240/256], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [240/256], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [240/256], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [16/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [17/51]
+    CPU time for contracting vj AO [256/272], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [256/272], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [256/272], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [17/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [18/51]
+    CPU time for contracting vj AO [272/288], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [272/288], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [272/288], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [18/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [19/51]
+    CPU time for contracting vj AO [288/304], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [288/304], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [288/304], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [19/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [20/51]
+    CPU time for contracting vj AO [304/320], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [304/320], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [304/320], nrow = 16      0.08 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [20/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [21/51]
+    CPU time for contracting vj AO [320/336], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [320/336], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [320/336], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [21/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [22/51]
+    CPU time for contracting vj AO [336/352], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [336/352], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [336/352], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [22/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [23/51]
+    CPU time for contracting vj AO [352/368], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [352/368], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [352/368], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [23/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [24/51]
+    CPU time for contracting vj AO [368/384], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [368/384], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [368/384], nrow = 16      0.08 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [24/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [25/51]
+    CPU time for contracting vj AO [384/400], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [384/400], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [384/400], nrow = 16      0.08 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [25/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [26/51]
+    CPU time for contracting vj AO [400/416], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [400/416], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [400/416], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [26/51]      0.26 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [27/51]
+    CPU time for contracting vj AO [416/432], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [416/432], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [416/432], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [27/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [28/51]
+    CPU time for contracting vj AO [432/448], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [432/448], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [432/448], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [28/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [29/51]
+    CPU time for contracting vj AO [448/464], nrow = 16      0.08 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [448/464], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [448/464], nrow = 16      0.08 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [29/51]      0.29 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [30/51]
+    CPU time for contracting vj AO [464/480], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [464/480], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [464/480], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [30/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [31/51]
+    CPU time for contracting vj AO [480/496], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [480/496], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [480/496], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [31/51]      0.26 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [32/51]
+    CPU time for contracting vj AO [496/512], nrow = 16      0.08 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [496/512], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [496/512], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [32/51]      0.29 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [33/51]
+    CPU time for contracting vj AO [512/528], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [512/528], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [512/528], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [33/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [34/51]
+    CPU time for contracting vj AO [528/544], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [528/544], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [528/544], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [34/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [35/51]
+    CPU time for contracting vj AO [544/560], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [544/560], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [544/560], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [35/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [36/51]
+    CPU time for contracting vj AO [560/576], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [560/576], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [560/576], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [36/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [37/51]
+    CPU time for contracting vj AO [576/592], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [576/592], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [576/592], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [37/51]      0.26 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [38/51]
+    CPU time for contracting vj AO [592/608], nrow = 16      0.08 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [592/608], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [592/608], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [38/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [39/51]
+    CPU time for contracting vj AO [608/624], nrow = 16      0.08 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [608/624], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [608/624], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [39/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [40/51]
+    CPU time for contracting vj AO [624/640], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [624/640], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [624/640], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [40/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [41/51]
+    CPU time for contracting vj AO [640/656], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [640/656], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [640/656], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [41/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [42/51]
+    CPU time for contracting vj AO [656/672], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [656/672], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [656/672], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [42/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [43/51]
+    CPU time for contracting vj AO [672/688], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [672/688], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [672/688], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [43/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [44/51]
+    CPU time for contracting vj AO [688/704], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [688/704], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [688/704], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [44/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [45/51]
+    CPU time for contracting vj AO [704/720], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [704/720], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [704/720], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [45/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [46/51]
+    CPU time for contracting vj AO [720/736], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [720/736], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [720/736], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [46/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [47/51]
+    CPU time for contracting vj AO [736/752], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [736/752], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [736/752], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [47/51]      0.26 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [48/51]
+    CPU time for contracting vj AO [752/768], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [752/768], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [752/768], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [48/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [49/51]
+    CPU time for contracting vj AO [768/784], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [768/784], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [768/784], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [49/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [50/51]
+    CPU time for contracting vj AO [784/800], nrow = 16      0.06 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [784/800], nrow = 16      0.11 sec, wall time      0.01 sec
+    CPU time for contracting vk2 AO [784/800], nrow = 16      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [50/51]      0.27 sec, wall time      0.02 sec
+2e SOC J/K1/K2 integrals [51/51]
+    CPU time for contracting vj AO [800/804], nrow = 4      0.05 sec, wall time      0.00 sec
+    CPU time for contracting vk AO [800/804], nrow = 4      0.02 sec, wall time      0.00 sec
+    CPU time for contracting vk2 AO [800/804], nrow = 4      0.03 sec, wall time      0.00 sec
+    CPU time for 2e SOC J/K1/K2 integrals [51/51]      0.10 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals     19.78 sec, wall time      1.27 sec
+state 0 energy 0.0
+(S, MS, I), [3 3 0]	 coeff	 0.848+0.026j	 |coeff| ** 2	 0.720
+(S, MS, I), [3 1 0]	 coeff	 0.454+0.027j	 |coeff| ** 2	 0.207
+(S, MS, I), [ 3 -1  0]	 coeff	 0.186-0.031j	 |coeff| ** 2	 0.036
+(S, MS, I), [3 3 1]	 coeff	 -0.005+0.144j	 |coeff| ** 2	 0.021
+(S, MS, I), [3 1 1]	 coeff	 -0.001+0.081j	 |coeff| ** 2	 0.007
+(S, MS, I), [ 3 -3  0]	 coeff	 -0.042+0.066j	 |coeff| ** 2	 0.006
+(S, MS, I), [3 1 2]	 coeff	 -0.006-0.023j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 1 3]	 coeff	 0.020-0.004j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 3 -1  1]	 coeff	 -0.007+0.019j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 3 -3  1]	 coeff	 0.011+0.016j	 |coeff| ** 2	 0.000
+state 1 energy 2.9941651973786066e-07
+(S, MS, I), [ 3 -3  0]	 coeff	 -0.834+0.159j	 |coeff| ** 2	 0.720
+(S, MS, I), [ 3 -1  0]	 coeff	 0.444-0.098j	 |coeff| ** 2	 0.207
+(S, MS, I), [3 1 0]	 coeff	 -0.189-0.001j	 |coeff| ** 2	 0.036
+(S, MS, I), [ 3 -3  1]	 coeff	 0.028+0.141j	 |coeff| ** 2	 0.021
+(S, MS, I), [ 3 -1  1]	 coeff	 -0.014-0.080j	 |coeff| ** 2	 0.007
+(S, MS, I), [3 3 0]	 coeff	 -0.052-0.058j	 |coeff| ** 2	 0.006
+(S, MS, I), [ 3 -1  2]	 coeff	 -0.002+0.024j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -1  3]	 coeff	 0.020+0.001j	 |coeff| ** 2	 0.000
+(S, MS, I), [3 1 1]	 coeff	 0.010+0.017j	 |coeff| ** 2	 0.000
+(S, MS, I), [3 3 1]	 coeff	 0.008-0.018j	 |coeff| ** 2	 0.000
+state 2 energy 44.91353999107461
+(S, MS, I), [ 3 -1  0]	 coeff	 0.703-0.009j	 |coeff| ** 2	 0.495
+(S, MS, I), [3 1 0]	 coeff	 0.497-0.006j	 |coeff| ** 2	 0.247
+(S, MS, I), [3 3 0]	 coeff	 -0.406+0.005j	 |coeff| ** 2	 0.165
+(S, MS, I), [ 3 -3  0]	 coeff	 0.287-0.004j	 |coeff| ** 2	 0.082
+(S, MS, I), [3 1 1]	 coeff	 0.001+0.048j	 |coeff| ** 2	 0.002
+(S, MS, I), [3 1 3]	 coeff	 -0.043-0.001j	 |coeff| ** 2	 0.002
+(S, MS, I), [ 3 -1  2]	 coeff	 -0.003-0.032j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -3  2]	 coeff	 -0.007-0.030j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 3 2]	 coeff	 0.005-0.030j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 3 1]	 coeff	 -0.000-0.029j	 |coeff| ** 2	 0.001
+state 3 energy 44.91353999107461
+(S, MS, I), [3 1 0]	 coeff	 0.703-0.000j	 |coeff| ** 2	 0.495
+(S, MS, I), [ 3 -1  0]	 coeff	 -0.497+0.000j	 |coeff| ** 2	 0.247
+(S, MS, I), [ 3 -3  0]	 coeff	 -0.406+0.000j	 |coeff| ** 2	 0.165
+(S, MS, I), [3 3 0]	 coeff	 -0.287-0.000j	 |coeff| ** 2	 0.082
+(S, MS, I), [ 3 -1  1]	 coeff	 0.000+0.048j	 |coeff| ** 2	 0.002
+(S, MS, I), [ 3 -1  3]	 coeff	 0.043-0.002j	 |coeff| ** 2	 0.002
+(S, MS, I), [3 1 2]	 coeff	 -0.002+0.032j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 3 2]	 coeff	 0.007-0.030j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -3  2]	 coeff	 0.005+0.030j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -3  1]	 coeff	 0.000+0.029j	 |coeff| ** 2	 0.001
+mag energy [0.00000000e+00 2.99416520e-07 4.49135400e+01 4.49135400e+01
+ 2.88259690e+03 2.88259690e+03 2.99383339e+03 2.99383339e+03
+ 7.44658629e+03 7.44658629e+03 7.50264521e+03 7.50264521e+03
+ 7.51936062e+03 7.51936062e+03 7.68990948e+03 7.68990948e+03
+ 1.01042440e+04 1.01042440e+04 1.05343116e+04 1.05343116e+04]
