@@ -1,26 +1,27 @@
 '''
-Ethane C-C bond-stretch potential energy surface (PES) test for the
-"one bath orbital per bond" bath selection.
+Ethane C-C bond-stretch PES test for the "one bath orbital per bond" bath
+selection, following a two-stage validation workflow:
 
-Motivation: removing bath orbitals shifts the *absolute* DMET energy by tens
-to hundreds of mHa (see one_bath_per_bond.py).  What usually matters in
-practice is the *relative* energy along a geometry scan (a PES).  This script
-therefore compares, at a series of stretched C-C distances R, the energy
-difference dE(R) = E(R) - E(R_eq) of:
+Stage 1 - HF-in-HF exactness check:
+    E(DMET, embedded HF) + E(frozen occ)  vs  E(full HF).
+    If the embedding is exact (full bath), the deviation is ~1e-12.  A
+    truncated one-orbital-per-bond bath must FAIL this check, and the size of
+    the deviation quantifies the embedding error of the bath selection.
 
-  1. full-system RHF (x2c)          -> reference;
-  2. SSDMET, default threshold bath  -> embeds the whole molecule (sanity);
-  3. SSDMET, impurity C0, fixed 4 bath orbitals (3 C-H + 1 C-C bonds);
-  4. SSDMET, impurity CH3 group, fixed 1 bath orbital (the C-C bond),
-     i.e. the SN2-style edge-group setup;
-  5. AODMET, impurity C0, fixed 4 bath orbitals.
+Stage 2 - MP2-in-HF energy differences:
+    E(DMET, embedded MP2) + E(frozen occ)  vs  E(all-electron MP2),
+    compared as PES energy differences dE(R) = E(R) - E(R_eq) along the
+    stretched C-C coordinate.  This is the DMET-vs-all-electron comparison.
 
-The bath count is kept FIXED along the scan (as chosen at the equilibrium
-geometry) so that the comparison isolates the bath-selection error rather
-than the changing bond count.  Note that the automatic 'per_bond' mode
-counts the stretched C-C pair as non-bonded beyond ~1.98 A and then raises a
-ValueError (the leftover environment orbital is too entangled to freeze);
-that failure mode is also demonstrated below.
+Methods tested along R = 1.3 ... 3.0 A (6-31G, x2c RHF reference):
+  1. SSDMET, default threshold bath   (embeds the whole molecule: sanity);
+  2. SSDMET, impurity C0,  fixed 4 bath orbitals (3 C-H + 1 C-C bonds);
+  3. SSDMET, impurity CH3 group, fixed 1 bath orbital (the C-C bond);
+  4. AODMET, impurity C0,  fixed 4 bath orbitals.
+
+The bath count is kept fixed (chosen at equilibrium) along the scan, since the
+automatic 'per_bond' mode stops counting the stretched C-C pair as a bond
+beyond ~1.98 A and raises a ValueError.
 
 Run from the repository root (or with PYTHONPATH pointing at it):
 
@@ -30,7 +31,7 @@ Run from the repository root (or with PYTHONPATH pointing at it):
 import os
 import tempfile
 import numpy as np
-from pyscf import gto, scf
+from pyscf import gto, scf, mp
 from embed_sim import ssdmet, aodmet
 from embed_sim.bath_selection import count_imp_env_bonds
 
@@ -69,8 +70,22 @@ def ethane_mol(R, basis=BASIS):
     return gto.M(atom=atom_str, basis=basis, verbose=0)
 
 
-def dmet_energy(dmet):
+def dmet_hf_energy(dmet):
+    """HF-in-HF DMET total energy."""
     return dmet.es_mf.e_tot + dmet.fo_ene
+
+
+def dmet_mp2_energy(dmet):
+    """MP2-in-HF DMET total energy = embedded MP2 + frozen occupied energy."""
+    from pyscf import mp as _mp
+    if dmet.es_mf.mol.spin != 0:
+        mymp2 = _mp.UMP2(dmet.es_mf)
+    else:
+        mymp2 = _mp.MP2(dmet.es_mf)
+    mymp2.verbose = 0
+    mymp2.max_memory = dmet.max_mem
+    mymp2.kernel()
+    return mymp2.e_tot + dmet.fo_ene
 
 
 def run_dmet(cls, mf, title, imp_label, **kwargs):
@@ -81,115 +96,170 @@ def run_dmet(cls, mf, title, imp_label, **kwargs):
 
 def main():
     outdir = os.path.dirname(os.path.abspath(__file__))
-    results = {}   # method -> array of E(R)
-    nbath = {}     # method -> array of bath counts
-    auto_bonds = []
     imp_c = '0 C.*'
     imp_ch3 = ['0 C.*', '2 H.*', '3 H.*', '4 H.*']
+
+    e_hf = {}    # method -> HF energy array
+    e_mp2 = {}   # method -> MP2 energy array
+    nbath = {}
+    auto_bonds = []
 
     for R in R_GRID:
         mol = ethane_mol(R)
         mf = scf.RHF(mol).x2c()
         mf.verbose = 0
         mf.run()
-        e_full = mf.e_tot
         auto_bonds.append(count_imp_env_bonds(
             mol, gto.mole._aolabels2baslst(mol, imp_c, base=0)))
 
-        # default threshold-based bath (whole molecule for these systems)
-        d_def = run_dmet(ssdmet.SSDMET, mf, 'e_def', imp_c)
-        # fixed 4 bath orbitals, impurity = one carbon atom
-        d_c0 = run_dmet(ssdmet.SSDMET, mf, 'e_c0', imp_c, bath_norb=4)
-        # fixed 1 bath orbital (the C-C bond), impurity = CH3 group
-        d_ch3 = run_dmet(ssdmet.SSDMET, mf, 'e_ch3', imp_ch3, bath_norb=1)
-        # AODMET variant, impurity = one carbon atom
-        d_ao = run_dmet(aodmet.AODMET, mf, 'e_ao', imp_c, bath_norb=4)
+        e_hf.setdefault('full', []).append(mf.e_tot)
+        mymp2 = mp.MP2(mf)
+        mymp2.verbose = 0
+        mymp2.kernel()
+        e_mp2.setdefault('full', []).append(mymp2.e_tot)
 
-        for tag, d in (('full', None), ('default', d_def), ('C0/4', d_c0),
-                       ('CH3/1', d_ch3), ('AO-C0/4', d_ao)):
-            if tag == 'full':
-                results.setdefault(tag, []).append(e_full)
-                continue
-            results.setdefault(tag, []).append(dmet_energy(d))
+        specs = [('default', ssdmet.SSDMET, imp_c, {}),
+                 ('C0/4', ssdmet.SSDMET, imp_c, {'bath_norb': 4}),
+                 ('CH3/1', ssdmet.SSDMET, imp_ch3, {'bath_norb': 1}),
+                 ('AO-C0/4', aodmet.AODMET, imp_c, {'bath_norb': 4})]
+        for tag, cls, imp, kw in specs:
+            d = run_dmet(cls, mf, 'e_' + tag.replace('/', '_'), imp, **kw)
+            e_hf.setdefault(tag, []).append(dmet_hf_energy(d))
+            e_mp2.setdefault(tag, []).append(dmet_mp2_energy(d))
             nbath.setdefault(tag, []).append(d.nes - len(d.imp_idx))
 
-        print('R = %5.2f A   E_full = %.10f' % (R, e_full), flush=True)
+        print('R = %5.2f A   E_full(HF) = %.10f   E_full(MP2) = %.10f'
+              % (R, mf.e_tot, e_mp2['full'][-1]), flush=True)
 
-    for tag in results:
-        results[tag] = np.array(results[tag])
-        if tag in nbath:
-            nbath[tag] = np.array(nbath[tag])
+    for tag in e_hf:
+        e_hf[tag] = np.array(e_hf[tag])
+        e_mp2[tag] = np.array(e_mp2[tag])
+    nbath = {k: np.array(v) for k, v in nbath.items()}
     auto_bonds = np.array(auto_bonds)
-
-    # reference energy differences
-    ieq = int(np.argmin(results['full']))
-    dE_full = results['full'] - results['full'][ieq]
+    ieq = int(np.argmin(e_hf['full']))
 
     lines = []
-    sep = '-' * 92
-    header = ('{:<8s}{:>8s}{:>12s}{:>12s}{:>12s}{:>12s}{:>12s}{:>12s}'.format(
-        'R/A', 'autoNb', 'dE_full', 'dE_def', 'dE_C0/4',
-        'dE_CH3/1', 'dE_AO', 'err(C0)/mHa'))
     print()
-    print(sep)
-    print(header)
-    print(sep)
-    lines += [sep, header, sep]
+    print('=' * 96)
+    print('Stage 1: HF-in-HF exactness check   dE = E(DMET,HF-in-HF) - E(full HF)')
+    print('=' * 96)
+    h1 = ('{:<8s}{:>9s}{:>12s}{:>12s}{:>12s}{:>12s}'.format(
+        'R/A', 'autoNb', 'dE(def)/mHa', 'dE(C0/4)/mHa', 'dE(CH3/1)/mHa',
+        'dE(AO)/mHa'))
+    print(h1)
+    lines += ['=' * 96, 'Stage 1: HF-in-HF exactness check   '
+                        'dE = E(DMET,HF-in-HF) - E(full HF)', '=' * 96, h1]
     for k, R in enumerate(R_GRID):
-        err_c0 = (results['C0/4'][k] - results['C0/4'][ieq] - dE_full[k]) * 1000.0
-        row = ('{:<8.2f}{:>8d}{:>12.6f}{:>12.6f}{:>12.6f}{:>12.6f}{:>12.6f}{:>12.3f}'.format(
-            R, auto_bonds[k], dE_full[k],
-            results['default'][k] - results['default'][ieq],
-            results['C0/4'][k] - results['C0/4'][ieq],
-            results['CH3/1'][k] - results['CH3/1'][ieq],
-            results['AO-C0/4'][k] - results['AO-C0/4'][ieq],
-            err_c0))
+        row = ('{:<8.2f}{:>9d}{:>12.4f}{:>12.4f}{:>12.4f}{:>12.4f}'.format(
+            R, auto_bonds[k],
+            (e_hf['default'][k] - e_hf['full'][k]) * 1000,
+            (e_hf['C0/4'][k] - e_hf['full'][k]) * 1000,
+            (e_hf['CH3/1'][k] - e_hf['full'][k]) * 1000,
+            (e_hf['AO-C0/4'][k] - e_hf['full'][k]) * 1000))
         print(row)
         lines.append(row)
-    print(sep)
-    lines.append(sep)
-
-    # PES errors dE(method) - dE(full), in mHa
-    def pes_err(tag):
-        return (results[tag] - results[tag][ieq] - dE_full) * 1000.0
+    print('-' * 96)
+    lines.append('-' * 96)
+    for tag in ('default', 'C0/4', 'CH3/1', 'AO-C0/4'):
+        dev = (e_hf[tag] - e_hf['full']) * 1000
+        note = '  [exact HF-in-HF]' if np.max(np.abs(dev)) < 1e-6 else ''
+        msg = ('HF-in-HF %-8s: max|dE| = %10.4f mHa (at R_eq: %8.4f mHa)%s'
+               % (tag, np.max(np.abs(dev)), dev[ieq], note))
+        print(msg)
+        lines.append(msg)
 
     print()
+    print('=' * 96)
+    print('Stage 2: MP2-in-HF PES   dE_MP2(R) = E(R) - E(R_eq), R_eq = %.2f A'
+          % R_GRID[ieq])
+    print('=' * 96)
+    dE_mp2_full = e_mp2['full'] - e_mp2['full'][ieq]
+    h2 = ('{:<8s}{:>14s}{:>14s}{:>14s}{:>14s}{:>14s}'.format(
+        'R/A', 'dE(MP2-full)', 'dE(def)', 'dE(C0/4)', 'dE(CH3/1)', 'dE(AO)'))
+    print(h2)
+    lines += ['=' * 96, 'Stage 2: MP2-in-HF PES   dE_MP2(R) = E(R) - E(R_eq), '
+                        'R_eq = %.2f A' % R_GRID[ieq], '=' * 96, h2]
+    for k, R in enumerate(R_GRID):
+        row = ('{:<8.2f}{:>14.6f}{:>14.6f}{:>14.6f}{:>14.6f}{:>14.6f}'.format(
+            R, dE_mp2_full[k],
+            e_mp2['default'][k] - e_mp2['default'][ieq],
+            e_mp2['C0/4'][k] - e_mp2['C0/4'][ieq],
+            e_mp2['CH3/1'][k] - e_mp2['CH3/1'][ieq],
+            e_mp2['AO-C0/4'][k] - e_mp2['AO-C0/4'][ieq]))
+        print(row)
+        lines.append(row)
+    print('-' * 96)
+    lines.append('-' * 96)
+
+    print()
+    print('MP2 PES error vs all-electron MP2:  dE(method) - dE(MP2-full) / mHa')
+    print('-' * 96)
+    lines.append('MP2 PES error vs all-electron MP2:  dE(method) - dE(MP2-full) / mHa')
+    lines.append('-' * 96)
+    pes_err = {}
     for tag in ('default', 'C0/4', 'CH3/1', 'AO-C0/4'):
-        err = pes_err(tag)
-        print('%-8s PES error: max|dE| = %7.2f mHa, RMS = %7.2f mHa'
-              % (tag, np.max(np.abs(err)), np.sqrt(np.mean(err**2))))
-        lines.append('%-8s PES error: max|dE| = %7.2f mHa, RMS = %7.2f mHa'
-                     % (tag, np.max(np.abs(err)), np.sqrt(np.mean(err**2))))
+        err = (e_mp2[tag] - e_mp2[tag][ieq] - dE_mp2_full) * 1000
+        pes_err[tag] = err
+        msg = ('%-8s max|dE| = %8.2f mHa, RMS = %8.2f mHa'
+               % (tag, np.max(np.abs(err)), np.sqrt(np.mean(err ** 2))))
+        print(msg)
+        lines.append(msg)
+
     lines.append('')
     lines.append('# eq index: R = %.2f A (minimum of full RHF)' % R_GRID[ieq])
     lines.append('# autoNb: covalent-radius bond count of impurity C0 '
                  '(drops to 3 when C-C > ~1.98 A; automatic per_bond then raises)')
-    for tag in results:
-        lines.append('# %s E(R): %s' % (tag, ' '.join('%.10f' % x for x in results[tag])))
+    for tag in ('full', 'default', 'C0/4', 'CH3/1', 'AO-C0/4'):
+        lines.append('# %-8s E(HF) : %s' % (tag, ' '.join('%.10f' % x for x in e_hf[tag])))
+        lines.append('# %-8s E(MP2): %s' % (tag, ' '.join('%.10f' % x for x in e_mp2[tag])))
+        if tag in nbath:
+            lines.append('# %-8s nbath : %s' % (tag, ' '.join(str(x) for x in nbath[tag])))
 
     with open(os.path.join(outdir, 'one_bath_per_bond_ethane_pes_results.txt'), 'w') as fh:
         fh.write('\n'.join(lines) + '\n')
 
     if HAS_MPL:
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.2))
-        styles = [('full', 'k-', 'full RHF'),
-                  ('default', 'k--', 'DMET default'),
+        fig, axs = plt.subplots(2, 2, figsize=(11, 8))
+        styles = [('default', 'k--', 'DMET default'),
                   ('C0/4', 'ro-', 'DMET C0, 4 bath'),
                   ('CH3/1', 'bs-', 'DMET CH3, 1 bath'),
                   ('AO-C0/4', 'g^-', 'AODMET C0, 4 bath')]
+        ax = axs[0, 0]
+        ax.axhline(0, color='k', lw=0.6)
         for tag, fmt, lab in styles:
-            ax1.plot(R_GRID, results[tag] - results[tag][ieq], fmt, label=lab)
-        ax1.set_xlabel('R(C-C) / Angstrom')
-        ax1.set_ylabel('dE / Hartree')
-        ax1.set_title('Ethane C-C stretch (6-31G, RHF/x2c)')
-        ax1.legend(fontsize=8)
-        for tag, fmt, lab in styles[1:]:
-            ax2.plot(R_GRID, pes_err(tag), fmt, label=lab)
-        ax2.axhline(0, color='k', lw=0.6)
-        ax2.set_xlabel('R(C-C) / Angstrom')
-        ax2.set_ylabel('dE(method) - dE(RHF) / mHa')
-        ax2.set_title('PES error relative to full RHF')
-        ax2.legend(fontsize=8)
+            ax.plot(R_GRID, (e_hf[tag] - e_hf['full']) * 1000, fmt, label=lab)
+        ax.set_xlabel('R(C-C) / Angstrom')
+        ax.set_ylabel('mHa')
+        ax.set_title('Stage 1: HF-in-HF exactness (dE vs full HF)')
+        ax.legend(fontsize=8)
+
+        ax = axs[0, 1]
+        ax.plot(R_GRID, e_hf['full'] - e_hf['full'][ieq], 'k-', label='full RHF')
+        for tag, fmt, lab in styles:
+            ax.plot(R_GRID, e_hf[tag] - e_hf[tag][ieq], fmt, label=lab)
+        ax.set_xlabel('R(C-C) / Angstrom')
+        ax.set_ylabel('dE / Hartree')
+        ax.set_title('HF PES (sanity)')
+        ax.legend(fontsize=8)
+
+        ax = axs[1, 0]
+        ax.plot(R_GRID, dE_mp2_full, 'k-', label='full MP2')
+        for tag, fmt, lab in styles:
+            ax.plot(R_GRID, e_mp2[tag] - e_mp2[tag][ieq], fmt, label=lab)
+        ax.set_xlabel('R(C-C) / Angstrom')
+        ax.set_ylabel('dE / Hartree')
+        ax.set_title('Stage 2: MP2-in-HF PES')
+        ax.legend(fontsize=8)
+
+        ax = axs[1, 1]
+        ax.axhline(0, color='k', lw=0.6)
+        for tag, fmt, lab in styles:
+            ax.plot(R_GRID, pes_err[tag], fmt, label=lab)
+        ax.set_xlabel('R(C-C) / Angstrom')
+        ax.set_ylabel('mHa')
+        ax.set_title('MP2 PES error vs all-electron MP2')
+        ax.legend(fontsize=8)
+
         fig.tight_layout()
         png = os.path.join(outdir, 'one_bath_per_bond_ethane_pes.png')
         fig.savefig(png, dpi=150)
