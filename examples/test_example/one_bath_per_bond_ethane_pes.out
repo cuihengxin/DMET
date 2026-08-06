@@ -1,0 +1,167 @@
+Matplotlib is building the font cache; this may take a moment.
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  1.30 A   E_full = -79.1750123377
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  1.40 A   E_full = -79.2106246410
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  1.50 A   E_full = -79.2237668286
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  1.54 A   E_full = -79.2247960271
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  1.60 A   E_full = -79.2231099946
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  1.70 A   E_full = -79.2141436597
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  1.90 A   E_full = -79.1838151491
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  2.10 A   E_full = -79.1476266557
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  2.30 A   E_full = -79.1114633479
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  2.60 A   E_full = -79.0622056177
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.aodmet.AODMET'> ********
+DMET from RHF
+R =  3.00 A   E_full = -79.0087895851
+
+--------------------------------------------------------------------------------------------
+R/A       autoNb     dE_full      dE_def     dE_C0/4    dE_CH3/1       dE_AO err(C0)/mHa
+--------------------------------------------------------------------------------------------
+1.30           4    0.049784    0.049784    0.102992    0.202096   -0.354625      53.209
+1.40           4    0.014171    0.014171    0.045045    0.095675   -0.210801      30.874
+1.50           4    0.001029    0.001029    0.009588    0.022270   -0.058889       8.559
+1.54           4    0.000000    0.000000    0.000000    0.000000    0.000000       0.000
+1.60           4    0.001686    0.001686   -0.010480   -0.027189    0.082987     -12.166
+1.70           4    0.010652    0.010652   -0.019477   -0.058730    0.201638     -30.129
+1.90           4    0.040981    0.040981   -0.015086   -0.084406    0.364178     -56.067
+2.10           3    0.077169    0.077169    0.006718   -0.079393    0.462157     -70.451
+2.30           3    0.113333    0.113333    0.035667   -0.059426    0.528699     -77.666
+2.60           3    0.162590    0.162590    0.080208   -0.020732    0.598948     -82.382
+3.00           3    0.216006    0.216006    0.131254    0.028254    0.662628     -84.753
+--------------------------------------------------------------------------------------------
+
+default  PES error: max|dE| =    0.00 mHa, RMS =    0.00 mHa
+C0/4     PES error: max|dE| =   84.75 mHa, RMS =   54.79 mHa
+CH3/1    PES error: max|dE| =  187.75 mHa, RMS =  126.09 mHa
+AO-C0/4  PES error: max|dE| =  446.62 mHa, RMS =  312.75 mHa
+
+plot saved to /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane_pes.png
