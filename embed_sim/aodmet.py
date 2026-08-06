@@ -9,6 +9,7 @@ from pyscf import gto, scf, ao2mo, lib
 from pyscf.lib import logger
 
 from embed_sim import ssdmet
+from embed_sim.bath_selection import count_imp_env_bonds, partition_env_by_bath_count
 from embed_sim.BNO_bath import get_RMP2_bath, get_UMP2_bath, get_ROMP2_bath
 
 def lowdin_orth(mol, imp_idx, ovlp=None):
@@ -28,7 +29,8 @@ def lowdin_orth(mol, imp_idx, ovlp=None):
     return caolo, cloao, s
     
 
-def build_embeded_subspace(ldm, imp_idx, caolo, ovlp, lo_meth='lowdin', thres=1e-12, es_natorb=True):
+def build_embeded_subspace(ldm, imp_idx, caolo, ovlp, lo_meth='lowdin', thres=1e-12, es_natorb=True,
+                           bath_norb=None, bath_core_cutoff=0.5):
     """
     Returns C(AO->AS) and orbital composition
     """
@@ -42,14 +44,24 @@ def build_embeded_subspace(ldm, imp_idx, caolo, ovlp, lo_meth='lowdin', thres=1e
     occ_env, orb_env = np.linalg.eigh(ldm_env) # occupation and orbitals on environment
 
     nimp = len(imp_idx)
-    nfv = np.sum(occ_env <  thres) # frozen virtual 
-    nbath = np.sum(((occ_env >= thres) & (occ_env <= 2-thres)) | (occ_env >= 2+thres)) # bath orbital
-    nfo = np.sum((occ_env > 2-thres) & (occ_env < 2+thres)) # frozen occupied
+    if bath_norb is None:
+        nfv = np.sum(occ_env <  thres) # frozen virtual
+        nbath = np.sum(((occ_env >= thres) & (occ_env <= 2-thres)) | (occ_env >= 2+thres)) # bath orbital
+        nfo = np.sum((occ_env > 2-thres) & (occ_env < 2+thres)) # frozen occupied
 
-    # defined w.r.t enviroment orbital index
-    fv_idx = np.nonzero(occ_env <  thres)[0]
-    bath_idx = np.nonzero(((occ_env >= thres) & (occ_env <= 2-thres)) | (occ_env >= 2+thres))[0]
-    fo_idx = np.nonzero((occ_env > 2-thres) & (occ_env < 2+thres))[0]
+        # defined w.r.t enviroment orbital index
+        fv_idx = np.nonzero(occ_env <  thres)[0]
+        bath_idx = np.nonzero(((occ_env >= thres) & (occ_env <= 2-thres)) | (occ_env >= 2+thres))[0]
+        fo_idx = np.nonzero((occ_env > 2-thres) & (occ_env < 2+thres))[0]
+    else:
+        # Fixed-size bath: keep the `bath_norb` environment natural orbitals
+        # with occupation closest to 1 (one bath orbital per bond scheme,
+        # Sun & Chan, JCTC 10, 3784 (2014)).
+        bath_idx, fo_idx, fv_idx = partition_env_by_bath_count(
+            occ_env, bath_norb, thres=thres, core_cutoff=bath_core_cutoff)
+        nbath = len(bath_idx)
+        nfo = len(fo_idx)
+        nfv = len(fv_idx)
 
     orb_env = np.hstack((orb_env[:, bath_idx], orb_env[:, fo_idx], orb_env[:, fv_idx]))
     
@@ -92,7 +104,8 @@ class AODMET(ssdmet.SSDMET):
     """
     single-shot AO-DMET with impurity-environment partition
     """
-    def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, es_natorb=True, bath_option=None, verbose=logger.INFO):
+    def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, es_natorb=True,
+                 bath_option=None, bath_norb=None, bath_core_cutoff=0.5, verbose=logger.INFO):
         self.mf_or_cas = mf_or_cas
         self.mol = self.mf_or_cas.mol
         self.title = title
@@ -111,6 +124,12 @@ class AODMET(ssdmet.SSDMET):
         self.threshold = threshold
         self.es_natorb = es_natorb
         self.bath_option = bath_option
+        # Fixed-size bath selection (one bath orbital per bond scheme):
+        #   None       -> default threshold-based selection
+        #   int        -> exactly `bath_norb` most-entangled bath orbitals
+        #   'per_bond' -> number of impurity-environment bonds (resolved in build)
+        self.bath_norb = bath_norb
+        self.bath_core_cutoff = bath_core_cutoff
 
         # NOT inputs
         self.fo_orb = None
@@ -161,7 +180,17 @@ class AODMET(ssdmet.SSDMET):
         if not loaded:
             ldm, caolo, cloao, ovlp = self.lowdin_orth()
 
-            cloes, nimp, nbath, nfo, nfv, self.es_occ = build_embeded_subspace(ldm, self.imp_idx, caolo, ovlp, thres=self.threshold, es_natorb=self.es_natorb)
+            bath_norb = self.bath_norb
+            if isinstance(bath_norb, str):
+                if bath_norb.lower() in ('per_bond', 'perbond', 'one_per_bond'):
+                    bath_norb = count_imp_env_bonds(self.mol, self.imp_idx)
+                    self.log.info(f'one bath orbital per bond: {bath_norb} impurity-environment bond(s) detected')
+                else:
+                    raise ValueError(f'unknown bath_norb string: {bath_norb!r}; use an int or "per_bond"')
+
+            cloes, nimp, nbath, nfo, nfv, self.es_occ = build_embeded_subspace(
+                ldm, self.imp_idx, caolo, ovlp, thres=self.threshold, es_natorb=self.es_natorb,
+                bath_norb=bath_norb, bath_core_cutoff=self.bath_core_cutoff)
             caoes = caolo @ cloes
 
             self.fo_orb = caoes[:, nimp+nbath: nimp+nbath+nfo]
@@ -265,7 +294,7 @@ class AODMET(ssdmet.SSDMET):
                 pass
         
         self.es_mf = self.ROHF()
-        self.fo_ene()
+        self.calc_fo_ene()
         self.log.info('')
         self.log.info(f'energy from frozen occupied orbitals = {self.fo_ene}')
         self.log.info(f'deviation from DMET exact condition = {self.es_mf.e_tot+self.fo_ene-self.mf_or_cas.e_tot}')
@@ -293,4 +322,5 @@ class AODMET(ssdmet.SSDMET):
             else:
                 with_df = self.mf_or_cas.with_df
         return DFAODMET(self.mf_or_cas, self.title, imp_idx=self.imp_idx, threshold=self.threshold,
-                        with_df=with_df, es_natorb=self.es_natorb, bath_option=self.bath_option, verbose=self.verbose)
+                        with_df=with_df, es_natorb=self.es_natorb, bath_option=self.bath_option,
+                        bath_norb=self.bath_norb, bath_core_cutoff=self.bath_core_cutoff, verbose=self.verbose)

@@ -40,7 +40,8 @@ class DFSSDMET(ssdmet.SSDMET):
     """
     Density fitting single-shot DMET class
     """
-    def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, with_df=None, es_natorb=True, bath_option=None, verbose=logger.INFO):
+    def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, with_df=None, es_natorb=True,
+                 bath_option=None, bath_norb=None, bath_core_cutoff=0.5, verbose=logger.INFO):
         self.mf_or_cas = mf_or_cas
         self.mol = self.mf_or_cas.mol
         self.title = title
@@ -61,6 +62,8 @@ class DFSSDMET(ssdmet.SSDMET):
         self.threshold = threshold
         self.es_natorb = es_natorb
         self.bath_option = bath_option
+        self.bath_norb = bath_norb
+        self.bath_core_cutoff = bath_core_cutoff
 
         # NOT inputs
         self.fo_orb = None
@@ -94,7 +97,11 @@ class DFSSDMET(ssdmet.SSDMET):
             dm_check = np.allclose(self.dm, fh5['dm'][:], atol=1e-5)
             imp_idx_check = ssdmet.compare_imp_idx(self.imp_idx, fh5['imp_idx'][:])
             threshold_check = self.threshold == fh5['threshold'][()]
-            if dm_check & imp_idx_check & threshold_check:
+            if 'bath_norb' in fh5:
+                bath_norb_check = str(self.bath_norb) == str(fh5['bath_norb'][()])
+            else:
+                bath_norb_check = self.bath_norb is None
+            if dm_check & imp_idx_check & threshold_check & bath_norb_check:
                 self.fo_orb = fh5['fo_orb'][:]
                 self.fv_orb = fh5['fv_orb'][:]
                 self.es_orb = fh5['es_orb'][:]
@@ -111,6 +118,7 @@ class DFSSDMET(ssdmet.SSDMET):
                 self.log.info(f'density matrix check {dm_check}')
                 self.log.info(f'impurity index check {imp_idx_check}')
                 self.log.info(f'threshold check {threshold_check}')
+                self.log.info(f'bath_norb check {bath_norb_check}')
                 self.log.info(f'build dmet subspace with imp idx {self.imp_idx} threshold {self.threshold}')
                 return False
     
@@ -119,6 +127,7 @@ class DFSSDMET(ssdmet.SSDMET):
             fh5['dm'] = self.dm
             fh5['imp_idx'] = self.imp_idx
             fh5['threshold'] = self.threshold
+            fh5['bath_norb'] = str(self.bath_norb)
 
             fh5['fo_orb'] = self.fo_orb
             fh5['fv_orb'] = self.fv_orb
@@ -144,7 +153,17 @@ class DFSSDMET(ssdmet.SSDMET):
         if not loaded:
             ldm, caolo, cloao = self.lowdin_orth(restore_imp)
 
-            cloes, nimp, nbath, nfo, nfv, self.es_occ = ssdmet.build_embeded_subspace(ldm, self.imp_idx, thres=self.threshold)
+            bath_norb = self.bath_norb
+            if isinstance(bath_norb, str):
+                if bath_norb.lower() in ('per_bond', 'perbond', 'one_per_bond'):
+                    bath_norb = ssdmet.count_imp_env_bonds(self.mol, self.imp_idx)
+                    self.log.info(f'one bath orbital per bond: {bath_norb} impurity-environment bond(s) detected')
+                else:
+                    raise ValueError(f'unknown bath_norb string: {bath_norb!r}; use an int or "per_bond"')
+
+            cloes, nimp, nbath, nfo, nfv, self.es_occ = ssdmet.build_embeded_subspace(
+                ldm, self.imp_idx, thres=self.threshold, es_natorb=self.es_natorb,
+                bath_norb=bath_norb, bath_core_cutoff=self.bath_core_cutoff)
             
             self.caolo = caolo
             self.cloao = cloao
@@ -300,7 +319,8 @@ class DFAODMET(aodmet.AODMET):
     """
     Density fitting single-shot AO-DMET class
     """
-    def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, with_df=None, es_natorb=True, bath_option=None, verbose=logger.INFO):
+    def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, with_df=None, es_natorb=True,
+                 bath_option=None, bath_norb=None, bath_core_cutoff=0.5, verbose=logger.INFO):
         self.mf_or_cas = mf_or_cas
         self.mol = self.mf_or_cas.mol
         self.title = title
@@ -320,6 +340,8 @@ class DFAODMET(aodmet.AODMET):
         self.threshold = threshold
         self.es_natorb = es_natorb
         self.bath_option = bath_option
+        self.bath_norb = bath_norb
+        self.bath_core_cutoff = bath_core_cutoff
 
         # NOT inputs
         self.fo_orb = None
@@ -353,7 +375,11 @@ class DFAODMET(aodmet.AODMET):
             dm_check = np.allclose(self.dm, fh5['dm'][:], atol=1e-5)
             imp_idx_check = ssdmet.compare_imp_idx(self.imp_idx, fh5['imp_idx'][:])
             threshold_check = self.threshold == fh5['threshold'][()]
-            if dm_check & imp_idx_check & threshold_check:
+            if 'bath_norb' in fh5:
+                bath_norb_check = str(self.bath_norb) == str(fh5['bath_norb'][()])
+            else:
+                bath_norb_check = self.bath_norb is None
+            if dm_check & imp_idx_check & threshold_check & bath_norb_check:
                 self.fo_orb = fh5['fo_orb'][:]
                 self.fv_orb = fh5['fv_orb'][:]
                 self.es_orb = fh5['es_orb'][:]
@@ -369,6 +395,7 @@ class DFAODMET(aodmet.AODMET):
                 self.log.info(f'density matrix check {dm_check}')
                 self.log.info(f'impurity index check {imp_idx_check}')
                 self.log.info(f'threshold check {threshold_check}')
+                self.log.info(f'bath_norb check {bath_norb_check}')
                 self.log.info(f'build dmet subspace with imp idx {self.imp_idx} threshold {self.threshold}')
                 return False
     
@@ -377,6 +404,7 @@ class DFAODMET(aodmet.AODMET):
             fh5['dm'] = self.dm
             fh5['imp_idx'] = self.imp_idx
             fh5['threshold'] = self.threshold
+            fh5['bath_norb'] = str(self.bath_norb)
 
             fh5['fo_orb'] = self.fo_orb
             fh5['fv_orb'] = self.fv_orb
@@ -400,7 +428,17 @@ class DFAODMET(aodmet.AODMET):
         if not loaded:
             ldm, caolo, cloao, ovlp = self.lowdin_orth()
 
-            cloes, nimp, nbath, nfo, nfv, self.es_occ = aodmet.build_embeded_subspace(ldm, self.imp_idx, caolo, ovlp, thres=self.threshold, es_natorb=self.es_natorb)
+            bath_norb = self.bath_norb
+            if isinstance(bath_norb, str):
+                if bath_norb.lower() in ('per_bond', 'perbond', 'one_per_bond'):
+                    bath_norb = aodmet.count_imp_env_bonds(self.mol, self.imp_idx)
+                    self.log.info(f'one bath orbital per bond: {bath_norb} impurity-environment bond(s) detected')
+                else:
+                    raise ValueError(f'unknown bath_norb string: {bath_norb!r}; use an int or "per_bond"')
+
+            cloes, nimp, nbath, nfo, nfv, self.es_occ = aodmet.build_embeded_subspace(
+                ldm, self.imp_idx, caolo, ovlp, thres=self.threshold, es_natorb=self.es_natorb,
+                bath_norb=bath_norb, bath_core_cutoff=self.bath_core_cutoff)
             caoes = caolo @ cloes
 
             self.fo_orb = caoes[:, nimp+nbath: nimp+nbath+nfo]
