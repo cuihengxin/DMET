@@ -129,12 +129,12 @@ R = 1.3–3.0 Å,平衡 1.54 Å,扫描中 bath 数固定为平衡点取值):
 
 ### Stage 2 结果(MP2-in-HF PES 误差,相对全电子 MP2)
 
-| R/Å | dE(全MP2)/Ha | dE(默认)/Ha | dE(C0,4)/Ha | dE(CH3,1)/Ha |
-|----:|------------:|-----------:|------------:|-------------:|
-| 1.30 | 0.053607 | 0.054442 | 0.108225 | 0.205564 |
-| 1.54 | 0.000000 | 0.000000 | 0.000000 | 0.000000 |
-| 2.10 | 0.066870 | 0.069013 | −0.003370 | −0.089065 |
-| 3.00 | 0.175297 | 0.183218 | 0.096327 | −0.009252 |
+| R/Å | dE(全MP2)/Ha | dE(默认)/Ha | dE(C0,4)/Ha | dE(CH3,1)/Ha | dE(grow-hf)/Ha | dE(grow-full)/Ha |
+|----:|------------:|-----------:|------------:|-------------:|---------------:|-----------------:|
+| 1.30 | 0.053607 | 0.054442 | 0.108225 | 0.205564 | 0.063268 | 0.053607 |
+| 1.54 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 | 0.000000 |
+| 2.10 | 0.066870 | 0.069013 | −0.003370 | −0.089065 | 0.054553 | 0.066870 |
+| 3.00 | 0.175297 | 0.183218 | 0.096327 | −0.009252 | 0.171152 | 0.175297 |
 
 PES 误差统计(`dE(method) − dE(全MP2)`,mHa):
 
@@ -144,6 +144,8 @@ PES 误差统计(`dE(method) − dE(全MP2)`,mHa):
 | SSDMET C0, 4 bath | 79.71 | 53.68 |
 | SSDMET CH3, 1 bath | 184.55 | 125.14 |
 | AODMET C0, 4 bath | 442.02 | 310.86 |
+| **grow-hf**(先满足精确条件再算 MP2) | **12.79** | **7.63** |
+| grow-full(全空间,对照) | 0.00 | 0.00 |
 
 ### 结果解读(重要)
 
@@ -163,6 +165,15 @@ PES 误差统计(`dE(method) − dE(全MP2)`,mHa):
 5. 结论:每键一个 bath 方案对共价键拉伸这类强纠缠、能量差敏感的性质不满足
    定量要求(单点 SSDMET);误差主要来自 bath 截断,需要更大 bath(或 MP2/
    BNO bath 扩展、自洽 DMET/多参考嵌入)才能可靠地做 DMET 与全电子对比。
+6. **grow-to-exact 正是把"先满足精确条件再计算"落地的方案**(见第 5 节):
+   从 C0/4 出发,用 concentric 壳加轨道(1 轮 = 10 个虚轨道 + 4 个占据轨道),
+   把 HFinHF 偏差从 102–155 mHa 降到 <1e-6 mHa;通过 gate 后再做 MP2-in-HF,
+   PES 误差从 C0/4 的 RMS 53.7 mHa 降到 7.6 mHa。
+7. grow-hf 剩余的 ~8–13 mHa 是**冻结虚轨道的相关贡献**:HFinHF 精确条件只
+   要求冻结轨道在平均场层面可忽略(近零占据),但 MP2 相关仍用到这些虚轨道;
+   这部分就是"DMET 与全电子计算的差异"中的环境相关项。grow-full(把剩余
+   虚轨道也并入,嵌入空间=全分子)则精确复现全电子 MP2(0.00 mHa),作为
+   把"嵌入误差"与"相关截断误差"分离的对照。
 
 运行与产物:
 
@@ -175,7 +186,56 @@ python examples/test_example/one_bath_per_bond_ethane_pes.py
 `one_bath_per_bond_ethane_pes.png`(2×2 图:HFinHF 偏差、HF PES、
 MP2-in-HF PES、MP2 PES 误差)。
 
-## 5. 实现与进度记录
+## 5. QC-DMET 如何保证精确条件 + grow-to-exact 工作流
+
+### QC-DMET 的机制
+
+QC-DMET 中"确保精确条件"有两个层次:
+
+1. **完整 bath(默认)**:`constructbath` 把所有环境自然轨道中占据数
+   0 < λ < 2 的轨道全部保留(`tokeep`,见 `qcdmet_helper.py` 第 133–136 行;
+   默认 `numBathOrbs = numImpOrbs` 再被 `tokeep` 截断)。由嵌入定理,完整
+   分数占据 NO 集使杂质+bath 内任何一体算符的期望与全分子严格一致,因此
+   HFinHF 精确是**构造上保证**的,不需要事后检查。
+2. **自洽嵌入势(SCmethod='LSTSQ'/'BFGS')**:拟合单粒子势 u,使嵌入高阶解
+   的杂质 1-RDM 匹配全分子低阶 1-RDM(密度匹配条件)。这是 DMET 的*自洽*
+   条件,与 HFinHF 能量精确条件互补。
+
+而 sn2 测试的 one-bath-per-bond 走的是 `SCmethod='NONE'` 的单发截断路径,
+**并不主动确保 HFinHF 精确**:它只通过 `core_cutoff=0.5` 断言保证被冻结的
+轨道占据接近 2/0,并在饱和 C–C 单键链上被经验验证足够好。也就是说
+QC-DMET 的 sn2 把"每键一个 bath"当作近似方案使用,精确条件只由完整 bath
+路径保证。
+
+### DMET_main 的 grow-to-exact(新实现,`embed_sim/exact_bath.py`)
+
+思路与 QC-DMET 互补:嵌入空间**从初始 bath 出发(如每键方案),按 concentric
+壳逐步加轨道,每步检查 HFinHF 偏差,偏差 ≤ tol 才允许做相关计算**。接口:
+
+```python
+from embed_sim import ssdmet
+from embed_sim.exact_bath import grow_bath_to_exact, hf_in_hf_deviation
+
+d = ssdmet.SSDMET(mf, title='ethane', imp_idx='0 C.*',
+                  bath_norb=4, es_natorb=False)   # concentric 增长要求 es_natorb=False
+d.build()
+print(hf_in_hf_deviation(d))                      # 未满足精确条件
+d, hist = grow_bath_to_exact(d, tol=1e-6)         # 加壳直到精确
+# 只有到这里,d 才允许用于 MP2/CCSD(T) 等计算
+e_mp2, e_corr = d.mp2_solver()
+```
+
+`grow_bath_to_exact` 选项:
+
+- `tol`:HFinHF 偏差阈值(Hartree),默认 1e-6;
+- `include_all_virtuals=True`:`grow-full` gate,额外并入剩余冻结虚轨道
+  (嵌入空间=全分子),作为 MP2 全复现的对照;
+- `proj_bas` / `atoms`:concentric 局部化的投影基与增长中心(默认杂质原子)。
+
+注意:增长机制(`concentric_loc`)通过 `lo2es` 刷新 `es_dm`,因此要求
+`es_natorb=False`(与 MP2 bath 扩展同一约束)。
+
+## 6. 实现与进度记录
 
 ### 已实现(2026-08-06)
 
@@ -196,6 +256,14 @@ MP2-in-HF PES、MP2 PES 误差)。
 - 乙烷 C–C 拉伸 PES 测试脚本 `one_bath_per_bond_ethane_pes.py`(2026-08-06),
   按两阶段流程:先 HFinHF 精确性检查,再 MP2-in-HF 与全电子 MP2 的 PES 对比,
   见第 4 节。
+- 新增 `embed_sim/exact_bath.py`(2026-08-06):`hf_in_hf_deviation` +
+  `grow_bath_to_exact`(concentric 增长 + 精确条件 gate,含 grow-full 对照),
+  见第 5 节;乙烷 PES 脚本加入 grow-hf / grow-full 两条曲线。
+
+### 当前进度(未提交 git,待确认后提交)
+
+- `embed_sim/exact_bath.py`(新文件)、`one_bath_per_bond_ethane_pes.py`
+  (更新)与 README 已修改,尚未 `git add`/`git commit`。
 
 ### 已知限制
 
