@@ -1,47 +1,40 @@
 '''
-Ethane C-C bond-stretch PES test for bath-orbital selection, following a
-two-stage validation workflow with an explicit exactness gate:
+Ethane C-C bond-stretch PES test for the "one bath orbital per bond" bath
+selection, following a two-stage validation workflow:
 
 Stage 1 - HF-in-HF exactness check:
-    |E(DMET, embedded HF) + E(frozen occ) - E(full HF)| must be below a
-    tolerance before any correlated calculation is performed.
-    * default (threshold) bath   -> exact by construction (whole molecule);
-    * one-bath-per-bond (truncated) -> NOT exact; deviation = embedding error;
-    * grow-to-exact: start from one-bath-per-bond and add concentric shells
-      (virtual + occupied, `embed_sim.exact_bath.grow_bath_to_exact`) until
-      the exact condition holds.  This is the "impurity -> add orbitals"
-      strategy implemented with `concentric_loc`.
+    E(DMET, embedded HF) + E(frozen occ)  vs  E(full HF).
+    If the embedding is exact (full bath), the deviation is ~1e-12.  A
+    truncated one-orbital-per-bond bath must FAIL this check, and the size of
+    the deviation quantifies the embedding error of the bath selection.
 
 Stage 2 - MP2-in-HF energy differences:
-    E(DMET, embedded MP2) + E(frozen occ) vs E(all-electron MP2), compared as
-    PES energy differences dE(R) = E(R) - E(R_eq).  Two gates are compared:
-    * grow-hf : stop when the HF-in-HF exact condition holds (near-empty
-      virtuals may remain frozen; their MP2 correlation is then part of the
-      DMET-vs-full gap);
-    * grow-full: additionally grow until no virtual stays frozen (embedded
-      space = whole molecule), so MP2-in-HF reproduces all-electron MP2.
+    E(DMET, embedded MP2) + E(frozen occ)  vs  E(all-electron MP2),
+    compared as PES energy differences dE(R) = E(R) - E(R_eq) along the
+    stretched C-C coordinate.  This is the DMET-vs-all-electron comparison.
 
-Methods along R = 1.3 ... 3.0 A (6-31G, x2c RHF):
-  1. SSDMET, default threshold bath;
-  2. SSDMET, impurity C0,  fixed 4 bath orbitals (one per bond);
+Methods tested along R = 1.3 ... 3.0 A (6-31G, x2c RHF reference):
+  1. SSDMET, default threshold bath   (embeds the whole molecule: sanity);
+  2. SSDMET, impurity C0,  fixed 4 bath orbitals (3 C-H + 1 C-C bonds);
   3. SSDMET, impurity CH3 group, fixed 1 bath orbital (the C-C bond);
-  4. AODMET, impurity C0,  fixed 4 bath orbitals;
-  5. grow-hf / grow-full starting from C0/4.
+  4. AODMET, impurity C0,  fixed 4 bath orbitals.
+
+The bath count is kept fixed (chosen at equilibrium) along the scan, since the
+automatic 'per_bond' mode stops counting the stretched C-C pair as a bond
+beyond ~1.98 A and raises a ValueError.
 
 Run from the repository root (or with PYTHONPATH pointing at it):
 
     python examples/test_example/one_bath_per_bond_ethane_pes.py
 '''
 
-import io
-import os
+import os, sys
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main/')
 import tempfile
-import contextlib
 import numpy as np
 from pyscf import gto, scf, mp
 from embed_sim import ssdmet, aodmet
 from embed_sim.bath_selection import count_imp_env_bonds
-from embed_sim.exact_bath import grow_bath_to_exact
 
 try:
     # keep matplotlib/fontconfig caches away from a possibly non-writable HOME
@@ -79,14 +72,17 @@ def ethane_mol(R, basis=BASIS):
 
 
 def dmet_hf_energy(dmet):
+    """HF-in-HF DMET total energy."""
     return dmet.es_mf.e_tot + dmet.fo_ene
 
 
 def dmet_mp2_energy(dmet):
+    """MP2-in-HF DMET total energy = embedded MP2 + frozen occupied energy."""
+    from pyscf import mp as _mp
     if dmet.es_mf.mol.spin != 0:
-        mymp2 = mp.UMP2(dmet.es_mf)
+        mymp2 = _mp.UMP2(dmet.es_mf)
     else:
-        mymp2 = mp.MP2(dmet.es_mf)
+        mymp2 = _mp.MP2(dmet.es_mf)
     mymp2.verbose = 0
     mymp2.max_memory = dmet.max_mem
     mymp2.kernel()
@@ -104,11 +100,10 @@ def main():
     imp_c = '0 C.*'
     imp_ch3 = ['0 C.*', '2 H.*', '3 H.*', '4 H.*']
 
-    e_hf = {}
-    e_mp2 = {}
+    e_hf = {}    # method -> HF energy array
+    e_mp2 = {}   # method -> MP2 energy array
     nbath = {}
     auto_bonds = []
-    grow_summary = {'grow-hf': [], 'grow-full': []}
 
     for R in R_GRID:
         mol = ethane_mol(R)
@@ -134,24 +129,6 @@ def main():
             e_mp2.setdefault(tag, []).append(dmet_mp2_energy(d))
             nbath.setdefault(tag, []).append(d.nes - len(d.imp_idx))
 
-        for gate in ('grow-hf', 'grow-full'):
-            with contextlib.redirect_stdout(io.StringIO()):
-                d = run_dmet(ssdmet.SSDMET, mf, 'e_' + gate, imp_c,
-                             bath_norb=4, es_natorb=False)
-                d0 = dmet_hf_energy(d) - mf.e_tot
-                d, hist = grow_bath_to_exact(
-                    d, tol=1e-6,
-                    include_all_virtuals=(gate == 'grow-full'))
-            e_hf.setdefault(gate, []).append(dmet_hf_energy(d))
-            e_mp2.setdefault(gate, []).append(dmet_mp2_energy(d))
-            nbath.setdefault(gate, []).append(d.nes - len(d.imp_idx))
-            grow_summary[gate].append(dict(
-                dev0_mha=d0 * 1000, rounds=len(hist),
-                add_vir=sum(h['add_vir'] for h in hist),
-                add_occ=sum(h['add_occ'] for h in hist),
-                nbath=d.nes - len(d.imp_idx), nfo=d.nfo, nfv=d.nfv,
-                dev_final=hf_in_hf(d)))
-
         print('R = %5.2f A   E_full(HF) = %.10f   E_full(MP2) = %.10f'
               % (R, mf.e_tot, e_mp2['full'][-1]), flush=True)
 
@@ -164,15 +141,15 @@ def main():
 
     lines = []
     print()
-    print('=' * 100)
+    print('=' * 96)
     print('Stage 1: HF-in-HF exactness check   dE = E(DMET,HF-in-HF) - E(full HF)')
-    print('=' * 100)
+    print('=' * 96)
     h1 = ('{:<8s}{:>9s}{:>12s}{:>12s}{:>12s}{:>12s}'.format(
         'R/A', 'autoNb', 'dE(def)/mHa', 'dE(C0/4)/mHa', 'dE(CH3/1)/mHa',
         'dE(AO)/mHa'))
     print(h1)
-    lines += ['=' * 100, 'Stage 1: HF-in-HF exactness check   '
-                        'dE = E(DMET,HF-in-HF) - E(full HF)', '=' * 100, h1]
+    lines += ['=' * 96, 'Stage 1: HF-in-HF exactness check   '
+                        'dE = E(DMET,HF-in-HF) - E(full HF)', '=' * 96, h1]
     for k, R in enumerate(R_GRID):
         row = ('{:<8.2f}{:>9d}{:>12.4f}{:>12.4f}{:>12.4f}{:>12.4f}'.format(
             R, auto_bonds[k],
@@ -182,8 +159,8 @@ def main():
             (e_hf['AO-C0/4'][k] - e_hf['full'][k]) * 1000))
         print(row)
         lines.append(row)
-    print('-' * 100)
-    lines.append('-' * 100)
+    print('-' * 96)
+    lines.append('-' * 96)
     for tag in ('default', 'C0/4', 'CH3/1', 'AO-C0/4'):
         dev = (e_hf[tag] - e_hf['full']) * 1000
         note = '  [exact HF-in-HF]' if np.max(np.abs(dev)) < 1e-6 else ''
@@ -193,56 +170,35 @@ def main():
         lines.append(msg)
 
     print()
-    print('Grow-to-exact summary (start: C0 impurity, 4 bath orbitals):')
-    print('-' * 100)
-    lines.append('')
-    lines.append('Grow-to-exact summary (start: C0 impurity, 4 bath orbitals):')
-    lines.append('-' * 100)
-    hg = ('{:<8s}{:>10s}{:>11s}{:>10s}{:>10s}{:>10s}{:>10s}{:>10s}'.format(
-        'gate', 'R/A', 'dev0/mHa', 'rounds', 'addVir', 'addOcc', 'nbath',
-        'devF/mHa'))
-    print(hg)
-    lines.append(hg)
-    for gate in ('grow-hf', 'grow-full'):
-        for k, R in enumerate(R_GRID):
-            s = grow_summary[gate][k]
-            row = ('{:<8s}{:>10.2f}{:>11.3f}{:>10d}{:>10d}{:>10d}{:>10d}{:>10.6f}'.format(
-                gate, R, s['dev0_mha'], s['rounds'], s['add_vir'],
-                s['add_occ'], s['nbath'], s['dev_final'] * 1000))
-            print(row)
-            lines.append(row)
-    print('-' * 100)
-    lines.append('-' * 100)
-
-    print()
-    print('=' * 100)
+    print('=' * 96)
     print('Stage 2: MP2-in-HF PES   dE_MP2(R) = E(R) - E(R_eq), R_eq = %.2f A'
           % R_GRID[ieq])
-    print('=' * 100)
+    print('=' * 96)
     dE_mp2_full = e_mp2['full'] - e_mp2['full'][ieq]
-    tags2 = ('default', 'C0/4', 'CH3/1', 'grow-hf', 'grow-full')
-    h2 = ('{:<8s}{:>13s}{:>13s}{:>13s}{:>13s}{:>13s}{:>13s}'.format(
-        'R/A', 'dE(MP2-full)', 'dE(def)', 'dE(C0/4)', 'dE(CH3/1)',
-        'dE(grow-hf)', 'dE(grow-full)'))
+    h2 = ('{:<8s}{:>14s}{:>14s}{:>14s}{:>14s}{:>14s}'.format(
+        'R/A', 'dE(MP2-full)', 'dE(def)', 'dE(C0/4)', 'dE(CH3/1)', 'dE(AO)'))
     print(h2)
-    lines += ['=' * 100, 'Stage 2: MP2-in-HF PES   dE_MP2(R) = E(R) - E(R_eq), '
-                        'R_eq = %.2f A' % R_GRID[ieq], '=' * 100, h2]
+    lines += ['=' * 96, 'Stage 2: MP2-in-HF PES   dE_MP2(R) = E(R) - E(R_eq), '
+                        'R_eq = %.2f A' % R_GRID[ieq], '=' * 96, h2]
     for k, R in enumerate(R_GRID):
-        row = ('{:<8.2f}{:>13.6f}'.format(R, dE_mp2_full[k]))
-        for tag in tags2:
-            row += '{:>13.6f}'.format(e_mp2[tag][k] - e_mp2[tag][ieq])
+        row = ('{:<8.2f}{:>14.6f}{:>14.6f}{:>14.6f}{:>14.6f}{:>14.6f}'.format(
+            R, dE_mp2_full[k],
+            e_mp2['default'][k] - e_mp2['default'][ieq],
+            e_mp2['C0/4'][k] - e_mp2['C0/4'][ieq],
+            e_mp2['CH3/1'][k] - e_mp2['CH3/1'][ieq],
+            e_mp2['AO-C0/4'][k] - e_mp2['AO-C0/4'][ieq]))
         print(row)
         lines.append(row)
-    print('-' * 100)
-    lines.append('-' * 100)
+    print('-' * 96)
+    lines.append('-' * 96)
 
     print()
     print('MP2 PES error vs all-electron MP2:  dE(method) - dE(MP2-full) / mHa')
-    print('-' * 100)
+    print('-' * 96)
     lines.append('MP2 PES error vs all-electron MP2:  dE(method) - dE(MP2-full) / mHa')
-    lines.append('-' * 100)
+    lines.append('-' * 96)
     pes_err = {}
-    for tag in tags2:
+    for tag in ('default', 'C0/4', 'CH3/1', 'AO-C0/4'):
         err = (e_mp2[tag] - e_mp2[tag][ieq] - dE_mp2_full) * 1000
         pes_err[tag] = err
         msg = ('%-8s max|dE| = %8.2f mHa, RMS = %8.2f mHa'
@@ -253,8 +209,8 @@ def main():
     lines.append('')
     lines.append('# eq index: R = %.2f A (minimum of full RHF)' % R_GRID[ieq])
     lines.append('# autoNb: covalent-radius bond count of impurity C0 '
-                 '(drops to 3 when C-C > ~1.98 A)')
-    for tag in ('full',) + tags2:
+                 '(drops to 3 when C-C > ~1.98 A; automatic per_bond then raises)')
+    for tag in ('full', 'default', 'C0/4', 'CH3/1', 'AO-C0/4'):
         lines.append('# %-8s E(HF) : %s' % (tag, ' '.join('%.10f' % x for x in e_hf[tag])))
         lines.append('# %-8s E(MP2): %s' % (tag, ' '.join('%.10f' % x for x in e_mp2[tag])))
         if tag in nbath:
@@ -268,11 +224,10 @@ def main():
         styles = [('default', 'k--', 'DMET default'),
                   ('C0/4', 'ro-', 'DMET C0, 4 bath'),
                   ('CH3/1', 'bs-', 'DMET CH3, 1 bath'),
-                  ('grow-hf', 'm^-', 'grow-to-exact (HF gate)'),
-                  ('grow-full', 'cD-', 'grow-to-exact (full space)')]
+                  ('AO-C0/4', 'g^-', 'AODMET C0, 4 bath')]
         ax = axs[0, 0]
         ax.axhline(0, color='k', lw=0.6)
-        for tag, fmt, lab in styles[:4]:
+        for tag, fmt, lab in styles:
             ax.plot(R_GRID, (e_hf[tag] - e_hf['full']) * 1000, fmt, label=lab)
         ax.set_xlabel('R(C-C) / Angstrom')
         ax.set_ylabel('mHa')
@@ -281,7 +236,7 @@ def main():
 
         ax = axs[0, 1]
         ax.plot(R_GRID, e_hf['full'] - e_hf['full'][ieq], 'k-', label='full RHF')
-        for tag, fmt, lab in styles[:4]:
+        for tag, fmt, lab in styles:
             ax.plot(R_GRID, e_hf[tag] - e_hf[tag][ieq], fmt, label=lab)
         ax.set_xlabel('R(C-C) / Angstrom')
         ax.set_ylabel('dE / Hartree')
@@ -310,10 +265,6 @@ def main():
         png = os.path.join(outdir, 'one_bath_per_bond_ethane_pes.png')
         fig.savefig(png, dpi=150)
         print('\nplot saved to', png)
-
-
-def hf_in_hf(dmet):
-    return abs(dmet.es_mf.e_tot + dmet.fo_ene - dmet.mf_or_cas.e_tot)
 
 
 if __name__ == '__main__':

@@ -221,10 +221,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:03 2026
+Date: Thu Aug 13 13:49:47 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -252,7 +252,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.38
+CPU time:         0.36
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -269,7 +269,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpat62emtw
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpi60xhtq5
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -331,7 +331,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpp95g6h4s
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpd27qv6w1
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -586,10 +586,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:03 2026
+Date: Thu Aug 13 13:49:48 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -617,7 +617,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.62
+CPU time:         0.58
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -634,7 +634,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmppgirfcn1
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpu3ytoa17
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -696,7 +696,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp946po2k_
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpyyxomh4a
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -951,10 +951,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:03 2026
+Date: Thu Aug 13 13:49:48 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -982,7 +982,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.78
+CPU time:         0.74
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -999,7 +999,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmptqlw29jr
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpb9ub4zak
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1061,7 +1061,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpx409hse6
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp8b4unupw
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1316,10 +1316,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:03 2026
+Date: Thu Aug 13 13:49:48 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -1347,7 +1347,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.94
+CPU time:         0.90
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -1364,7 +1364,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpp0m4ft08
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpi0e6nqh1
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1426,7 +1426,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp4qgw6ggl
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpakhjv515
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1681,10 +1681,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:04 2026
+Date: Thu Aug 13 13:49:48 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -1712,7 +1712,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.11
+CPU time:         1.05
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -1729,7 +1729,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpr5kkbzqr
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpa8k32_op
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1791,7 +1791,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp50vjlmmk
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpi6fenoi3
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2046,10 +2046,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:04 2026
+Date: Thu Aug 13 13:49:48 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -2077,7 +2077,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.27
+CPU time:         1.20
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -2094,7 +2094,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp2055tjtn
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpxqt0z0nc
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2156,7 +2156,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpr7taly3x
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpnca30x3a
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2411,10 +2411,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:04 2026
+Date: Thu Aug 13 13:49:48 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -2442,7 +2442,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.43
+CPU time:         1.35
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -2459,7 +2459,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmphiz4kqw7
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpr3vdxmet
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2521,7 +2521,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpuazs21a9
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmphyk5w81d
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2776,10 +2776,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:04 2026
+Date: Thu Aug 13 13:49:49 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -2807,7 +2807,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.58
+CPU time:         1.51
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -2824,7 +2824,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpih8h_rj7
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp75qki5ow
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2888,7 +2888,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp0sc5028l
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp7l2yq3m9
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3145,10 +3145,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:04 2026
+Date: Thu Aug 13 13:49:49 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -3176,7 +3176,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.73
+CPU time:         1.65
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -3193,7 +3193,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpbqx98drt
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpk1fob3bf
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3257,7 +3257,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpw4sbmntw
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp5hulll1v
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3514,10 +3514,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:04 2026
+Date: Thu Aug 13 13:49:49 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -3545,7 +3545,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.88
+CPU time:         1.80
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -3562,7 +3562,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmppwd7f3kx
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp8xhc8idz
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3626,7 +3626,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpoh4nw1st
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpx40gp67i
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3883,10 +3883,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:05 2026
+Date: Thu Aug 13 13:49:49 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -3914,7 +3914,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         2.03
+CPU time:         1.94
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -3931,7 +3931,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpzvhyr5q3
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpj7sfs4o5
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3995,7 +3995,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpdbz7lt9l
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpr325lqs4
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -4286,10 +4286,10 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='HUAWEI-Matebook-X-Pro.local', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
 Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
 numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
-Date: Sun Aug  9 09:38:05 2026
+Date: Thu Aug 13 13:49:49 2026
 PySCF version 2.13.1
 PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
@@ -4317,7 +4317,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         2.17
+CPU time:         2.08
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
@@ -4337,5 +4337,5 @@ Bath selection report at R = 1.54 A (equilibrium):
   (criterion: occupation closest to 1 = largest min(lambda, 2-lambda))
 
 full results written to /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes_results.txt
-end time: 2026-08-09 09:38:05
+end time: 2026-08-13 13:49:49
 elapsed: 00:00:03
