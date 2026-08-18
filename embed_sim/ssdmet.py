@@ -8,6 +8,8 @@ from pyscf import gto, scf, ao2mo
 
 from embed_sim.BNO_bath import get_RMP2_bath, get_UMP2_bath, get_ROMP2_bath
 from embed_sim.bath_selection import count_imp_env_bonds, partition_env_by_bath_count
+from embed_sim import iao_helper
+from embed_sim import ic_helper
 
 import os
 
@@ -203,11 +205,12 @@ class SSDMET(lib.StreamObject):
     single-shot DMET with impurity-environment partition
     """
     def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, es_natorb=True,
-                 bath_option=None, bath_norb=None, bath_core_cutoff=0.5, verbose=logger.INFO):
+                 bath_option=None, bath_norb=None, readmp2=False, bath_core_cutoff=0.5, verbose=logger.INFO):
         self.mf_or_cas = mf_or_cas
         self.mol = self.mf_or_cas.mol
         self.title = title
         self.max_mem = mf_or_cas.max_memory # TODO
+        self.readmp2 = readmp2
         self.verbose = verbose # TODO
         self.log = lib.logger.new_logger(self.mol, self.verbose)
 
@@ -325,9 +328,10 @@ class SSDMET(lib.StreamObject):
             fh5['es_dm'] = self.es_dm
         return 
     
-    def lowdin_orth(self, restore_imp = False):
+    def lowdin_orth(self, restore_imp = False, iaopao = False):
         # lowdin orthonormalize
         caolo, cloao = lowdin_orth(self.mol)
+        lo2ao = cloao
         if restore_imp:
             imp_idx = self.imp_idx
             mask_env = np.ones(len(caolo), dtype=bool)
@@ -345,11 +349,13 @@ class SSDMET(lib.StreamObject):
             Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
             cloao = Q.T.conj() @ cloao
             caolo = caolo @ Q
-
+        if iaopao:
+            caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, lo2ao)
+            cloao = np.linalg.inv(caolo)
         ldm = reduce(lib.dot, (cloao, self.dm, cloao.conj().T))
         return ldm, caolo, cloao
         
-    def build(self, restore_imp = False, chk_fname_load='', save_chk=True, xc = None):
+    def build(self, restore_imp = False, iaopao = False, chk_fname_load='', save_chk=True, xc = None):
         self.dump_flags()
         dm = mf_or_cas_make_rdm1s(self.mf_or_cas)
         if dm.ndim == 3: # ROHF density matrix have dimension (2, nao, nao)
@@ -363,7 +369,7 @@ class SSDMET(lib.StreamObject):
         loaded = self.load_chk(chk_fname_load)
         
         if not loaded:
-            ldm, caolo, cloao = self.lowdin_orth(restore_imp)
+            ldm, caolo, cloao = self.lowdin_orth(restore_imp, iaopao)
 
             bath_norb = self.bath_norb
             if isinstance(bath_norb, str):
@@ -391,6 +397,8 @@ class SSDMET(lib.StreamObject):
             self.nfo = nfo
             self.nfv = nfv
             self.nes = nimp + nbath
+            self.log.info(f"****Restore imp: {restore_imp}")
+            self.log.info(f"****IAOPAO: {iaopao}")
             self.log.info(f'number of impurity orbitals = {nimp}')
             self.log.info(f'number of bath orbitals = {nbath}')
             self.log.info(f'number of embedded cluster orbitals = {nimp+nbath}')
@@ -436,7 +444,7 @@ class SSDMET(lib.StreamObject):
                             self.es_mf = self.ROHF()
                             if open_shell:
                                 lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                      lo2core, lo2vir, eta=self.bath_option['ROMP2'])
+                                                                                      lo2core, lo2vir, readmp2 = self.readmp2, eta=self.bath_option['ROMP2'])
                             else:
                                 self.log.info('ROMP2 bath expansion is degraded to RMP2 for closed-shell systems')
                                 lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,

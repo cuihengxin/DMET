@@ -22,7 +22,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
+sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
 
 import os
 import numpy as np
@@ -89,7 +89,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False)
+        d.build(save_chk=False, iaopao=True)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0

@@ -1,4 +1,4 @@
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -23,7 +23,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -90,7 +90,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -221,14 +221,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:01 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:47 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -252,7 +252,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.28
+CPU time:         0.36
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -269,7 +269,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpt5omlqym
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpi60xhtq5
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -278,51 +278,35 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -79.7571991414779
-  HOMO = -0.354199225846838  LUMO = 0.154587241944952
-cycle= 1 E= -79.1616892028147  delta_E= 0.596  |g|= 0.197  |ddm|= 2.13
-  HOMO = -0.456181968631473  LUMO = 0.233125338795472
-cycle= 2 E= -79.1743006390194  delta_E= -0.0126  |g|= 0.0423  |ddm|= 0.225
-  HOMO = -0.458341719873506  LUMO = 0.236097974428478
-cycle= 3 E= -79.1750006890221  delta_E= -0.0007  |g|= 0.00608  |ddm|= 0.0638
-  HOMO = -0.456795282411917  LUMO = 0.236962777541079
-cycle= 4 E= -79.1750116083836  delta_E= -1.09e-05  |g|= 0.00139  |ddm|= 0.00618
-  HOMO = -0.457289397267159  LUMO = 0.236758981769227
-cycle= 5 E= -79.1750123326249  delta_E= -7.24e-07  |g|= 9.54e-05  |ddm|= 0.00235
-  HOMO = -0.457286667680919  LUMO = 0.236756244646287
-cycle= 6 E= -79.1750123375673  delta_E= -4.94e-09  |g|= 1.61e-05  |ddm|= 0.000194
-  HOMO = -0.457286293067304  LUMO = 0.236754894816169
-cycle= 7 E= -79.1750123377066  delta_E= -1.39e-10  |g|= 1.34e-06  |ddm|= 4.18e-05
-  HOMO = -0.457286229663012  LUMO = 0.236754915246189
-Extra cycle  E= -79.1750123377079  delta_E= -1.28e-12  |g|= 4.59e-07  |ddm|= 4.19e-06
-converged SCF energy = -79.1750123377079
+init E= -79.7571991414301
+  HOMO = -0.354199225855139  LUMO = 0.154587241948295
+cycle= 1 E= -79.1616892027914  delta_E= 0.596  |g|= 0.197  |ddm|= 2.13
+  HOMO = -0.456181968633154  LUMO = 0.233125338801531
+cycle= 2 E= -79.1743006389962  delta_E= -0.0126  |g|= 0.0423  |ddm|= 0.225
+  HOMO = -0.458341719878734  LUMO = 0.236097974432472
+cycle= 3 E= -79.1750006889989  delta_E= -0.0007  |g|= 0.00608  |ddm|= 0.0638
+  HOMO = -0.456795282415471  LUMO = 0.236962777545965
+cycle= 4 E= -79.1750116083604  delta_E= -1.09e-05  |g|= 0.00139  |ddm|= 0.00618
+  HOMO = -0.457289397270629  LUMO = 0.23675898177429
+cycle= 5 E= -79.1750123326017  delta_E= -7.24e-07  |g|= 9.54e-05  |ddm|= 0.00235
+  HOMO = -0.457286667684403  LUMO = 0.236756244651278
+cycle= 6 E= -79.1750123375441  delta_E= -4.94e-09  |g|= 1.61e-05  |ddm|= 0.000194
+  HOMO = -0.457286293070772  LUMO = 0.236754894821189
+cycle= 7 E= -79.1750123376834  delta_E= -1.39e-10  |g|= 1.34e-06  |ddm|= 4.18e-05
+  HOMO = -0.457286229666482  LUMO = 0.236754915251085
+Extra cycle  E= -79.1750123376848  delta_E= -1.39e-12  |g|= 4.59e-07  |ddm|= 4.19e-06
+converged SCF energy = -79.1750123376848
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.3616987319456  E_corr = -0.186686394237689
-E(SCS-RMP2) = -79.3681447321227  E_corr = -0.193132394414835
-E_corr(same-spin) = -0.0356437830812217
-E_corr(oppo-spin) = -0.151042611156468
+E(RMP2) = -79.3616987319225  E_corr = -0.186686394237754
+E(SCS-RMP2) = -79.3681447320996  E_corr = -0.193132394414823
+E_corr(same-spin) = -0.0356437830813255
+E_corr(oppo-spin) = -0.151042611156429
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 1.430e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 5.631715839175742e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -347,7 +331,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpp9y81gvk
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpd27qv6w1
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -355,31 +339,31 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -34.084959659045
-  HOMO = -3.12347566067444  LUMO = -1.68628494029194
-cycle= 1 E= -51.7845533010132  delta_E= -17.7  |g|= 3.07  |ddm|= 2.87
-  HOMO = 0.00179040002018924  LUMO = 0.401178840828828
-cycle= 2 E= -54.2025643236254  delta_E= -2.42  |g|= 1.37  |ddm|=  3.5
-  HOMO = -0.538266606507373  LUMO = 0.237159411690657
-cycle= 3 E= -54.782182290255  delta_E= -0.58  |g|= 0.0745  |ddm|= 1.23
-  HOMO = -0.545562247373544  LUMO = 0.288123368137117
-cycle= 4 E= -54.7845565690115  delta_E= -0.00237  |g|= 0.0135  |ddm|= 0.0943
-  HOMO = -0.538592742186193  LUMO = 0.285975287279853
-cycle= 5 E= -54.7846152747472  delta_E= -5.87e-05  |g|= 0.00247  |ddm|= 0.0126
-  HOMO = -0.537540328679016  LUMO = 0.286162949979157
-cycle= 6 E= -54.7846171379741  delta_E= -1.86e-06  |g|= 0.000154  |ddm|= 0.00239
-  HOMO = -0.53757741025544  LUMO = 0.286177234807097
-cycle= 7 E= -54.7846171496088  delta_E= -1.16e-08  |g|= 1.26e-05  |ddm|= 0.00022
-  HOMO = -0.537578945406971  LUMO = 0.28617682775152
-cycle= 8 E= -54.7846171496981  delta_E= -8.93e-11  |g|= 2.26e-06  |ddm|= 2.16e-05
-converged SCF energy = -54.7846171496981
+init E= -34.0267617532249
+  HOMO = -3.14504422196859  LUMO = -1.69795068945074
+cycle= 1 E= -51.6233967427927  delta_E= -17.6  |g|=  3.1  |ddm|= 2.89
+  HOMO = 0.00153067063552866  LUMO = 0.392274987959778
+cycle= 2 E= -54.1204123596418  delta_E= -2.5  |g|= 1.42  |ddm|= 3.58
+  HOMO = -0.553976211022549  LUMO = 0.225210825646448
+cycle= 3 E= -54.753086123546  delta_E= -0.633  |g|= 0.0797  |ddm|= 1.29
+  HOMO = -0.563673439742347  LUMO = 0.277038960589699
+cycle= 4 E= -54.7560029046954  delta_E= -0.00292  |g|= 0.0157  |ddm|= 0.106
+  HOMO = -0.55670826098978  LUMO = 0.27435903400854
+cycle= 5 E= -54.7560892512113  delta_E= -8.63e-05  |g|= 0.00298  |ddm|= 0.016
+  HOMO = -0.555639257421841  LUMO = 0.274591903063011
+cycle= 6 E= -54.7560921270345  delta_E= -2.88e-06  |g|= 0.000201  |ddm|= 0.00306
+  HOMO = -0.555695934578375  LUMO = 0.274618388802885
+cycle= 7 E= -54.7560921473648  delta_E= -2.03e-08  |g|= 2.07e-05  |ddm|= 0.000291
+  HOMO = -0.555700121422885  LUMO = 0.274617952710356
+cycle= 8 E= -54.7560921476001  delta_E= -2.35e-10  |g|= 3.34e-06  |ddm|= 3.53e-05
+converged SCF energy = -54.7560921476001
 
-energy from frozen occupied orbitals = -24.300094644407878
-deviation from DMET exact condition = 0.0903005436019555
-energy from embedded cluster with low level calculation = -54.78461714969805
-total energy with low level calculation = -79.17501233770788
+energy from frozen occupied orbitals = -24.077145471984537
+deviation from DMET exact condition = 0.34177471810009763
+energy from embedded cluster with low level calculation = -54.75609214760013
+total energy with low level calculation = -79.17501233768476
 R =  1.30 A  E_full_HF=-79.1750123377  E_full_MP2=-79.3616987319
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -404,7 +388,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -471,7 +455,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -602,14 +586,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:01 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:48 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -633,7 +617,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.43
+CPU time:         0.58
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -650,7 +634,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpt0ta0tjp
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpu3ytoa17
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -659,51 +643,35 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -79.5274817577933
-  HOMO = -0.368646160041965  LUMO = 0.157633530276302
-cycle= 1 E= -79.1980340496347  delta_E= 0.329  |g|= 0.188  |ddm|= 2.07
-  HOMO = -0.473180235653528  LUMO = 0.231913004994847
-cycle= 2 E= -79.2099767793377  delta_E= -0.0119  |g|= 0.0413  |ddm|=  0.2
-  HOMO = -0.469557006950925  LUMO = 0.237559228648796
-cycle= 3 E= -79.2106196400468  delta_E= -0.000643  |g|= 0.00365  |ddm|= 0.0533
-  HOMO = -0.471100975817324  LUMO = 0.236943690307246
-cycle= 4 E= -79.2106241170959  delta_E= -4.48e-06  |g|= 0.00128  |ddm|= 0.00548
-  HOMO = -0.470884336314915  LUMO = 0.23707197830432
-cycle= 5 E= -79.2106246385803  delta_E= -5.21e-07  |g|= 6.7e-05  |ddm|= 0.0016
-  HOMO = -0.470891493183483  LUMO = 0.237066577770766
-cycle= 6 E= -79.210624640749  delta_E= -2.17e-09  |g|= 1.32e-05  |ddm|= 0.000101
-  HOMO = -0.470890917208568  LUMO = 0.237065567771806
-cycle= 7 E= -79.2106246408432  delta_E= -9.42e-11  |g|= 1.06e-06  |ddm|= 2.65e-05
-  HOMO = -0.470890885788493  LUMO = 0.23706558942639
-Extra cycle  E= -79.210624640844  delta_E= -7.67e-13  |g|= 3.54e-07  |ddm|= 2.75e-06
-converged SCF energy = -79.210624640844
+init E= -79.5274817579391
+  HOMO = -0.368646160059305  LUMO = 0.157633530262438
+cycle= 1 E= -79.1980340497472  delta_E= 0.329  |g|= 0.188  |ddm|= 2.07
+  HOMO = -0.473180235675363  LUMO = 0.231913004978938
+cycle= 2 E= -79.2099767794505  delta_E= -0.0119  |g|= 0.0413  |ddm|=  0.2
+  HOMO = -0.469557006969397  LUMO = 0.23755922863437
+cycle= 3 E= -79.2106196401595  delta_E= -0.000643  |g|= 0.00365  |ddm|= 0.0533
+  HOMO = -0.471100975837236  LUMO = 0.236943690292217
+cycle= 4 E= -79.2106241172089  delta_E= -4.48e-06  |g|= 0.00128  |ddm|= 0.00548
+  HOMO = -0.470884336335112  LUMO = 0.237071978289219
+cycle= 5 E= -79.210624638693  delta_E= -5.21e-07  |g|= 6.7e-05  |ddm|= 0.0016
+  HOMO = -0.470891493203671  LUMO = 0.237066577755541
+cycle= 6 E= -79.2106246408619  delta_E= -2.17e-09  |g|= 1.32e-05  |ddm|= 0.000101
+  HOMO = -0.47089091722874  LUMO = 0.237065567756629
+cycle= 7 E= -79.210624640956  delta_E= -9.41e-11  |g|= 1.06e-06  |ddm|= 2.65e-05
+  HOMO = -0.470890885808676  LUMO = 0.237065589411152
+Extra cycle  E= -79.2106246409568  delta_E= -7.11e-13  |g|= 3.54e-07  |ddm|= 2.75e-06
+converged SCF energy = -79.2106246409568
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.3988343787758  E_corr = -0.188209737931768
-E(SCS-RMP2) = -79.4055231329892  E_corr = -0.194898492145227
-E_corr(same-spin) = -0.0357152231225703
-E_corr(oppo-spin) = -0.152494514809197
+E(RMP2) = -79.3988343788893  E_corr = -0.188209737932584
+E(SCS-RMP2) = -79.405523133103  E_corr = -0.194898492146223
+E_corr(same-spin) = -0.0357152231225506
+E_corr(oppo-spin) = -0.152494514810033
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 1.634e-13
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 2.3006279941152605e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -728,7 +696,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp2xdqm031
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpyyxomh4a
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -736,31 +704,31 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -33.7512938488565
-  HOMO = -3.09792701015752  LUMO = -1.67301754648259
-cycle= 1 E= -51.1709299186734  delta_E= -17.4  |g|=  3.1  |ddm|= 2.88
-  HOMO = 0.0149927045871456  LUMO = 0.40889341427229
-cycle= 2 E= -53.6574001170788  delta_E= -2.49  |g|= 1.41  |ddm|= 3.58
-  HOMO = -0.538578875675159  LUMO = 0.233588923885062
-cycle= 3 E= -54.2812731639273  delta_E= -0.624  |g|= 0.0755  |ddm|= 1.28
-  HOMO = -0.545615048687699  LUMO = 0.285814380490627
-cycle= 4 E= -54.2837704984934  delta_E= -0.0025  |g|= 0.014  |ddm|= 0.0976
-  HOMO = -0.539036544942981  LUMO = 0.283536225405232
-cycle= 5 E= -54.2838388697274  delta_E= -6.84e-05  |g|= 0.00271  |ddm|= 0.0141
-  HOMO = -0.538000345509115  LUMO = 0.283750465695017
-cycle= 6 E= -54.2838412204359  delta_E= -2.35e-06  |g|= 0.000173  |ddm|= 0.00276
-  HOMO = -0.53804684398663  LUMO = 0.283772756728857
-cycle= 7 E= -54.2838412350716  delta_E= -1.46e-08  |g|= 1.51e-05  |ddm|= 0.000245
-  HOMO = -0.538048684923368  LUMO = 0.283772610282967
-cycle= 8 E= -54.2838412351992  delta_E= -1.28e-10  |g|= 2.56e-06  |ddm|= 2.56e-05
-converged SCF energy = -54.2838412351992
+init E= -33.7125114374365
+  HOMO = -3.11557720886237  LUMO = -1.68359282595494
+cycle= 1 E= -51.0517165415567  delta_E= -17.3  |g|= 3.12  |ddm|= 2.91
+  HOMO = 0.0164947378726628  LUMO = 0.401808035355564
+cycle= 2 E= -53.6009583627107  delta_E= -2.55  |g|= 1.44  |ddm|= 3.65
+  HOMO = -0.550488226558167  LUMO = 0.223514990304876
+cycle= 3 E= -54.2734219011503  delta_E= -0.672  |g|= 0.0811  |ddm|= 1.33
+  HOMO = -0.558950097839101  LUMO = 0.277025855829258
+cycle= 4 E= -54.2765051645591  delta_E= -0.00308  |g|= 0.0162  |ddm|= 0.11
+  HOMO = -0.552527610748102  LUMO = 0.274168904731508
+cycle= 5 E= -54.2766087129341  delta_E= -0.000104  |g|= 0.00312  |ddm|= 0.0184
+  HOMO = -0.55158142206857  LUMO = 0.274419130777583
+cycle= 6 E= -54.2766121035403  delta_E= -3.39e-06  |g|= 0.000218  |ddm|= 0.00345
+  HOMO = -0.55165612740217  LUMO = 0.274451006115122
+cycle= 7 E= -54.2766121252401  delta_E= -2.17e-08  |g|= 2.11e-05  |ddm|= 0.000289
+  HOMO = -0.551659842274281  LUMO = 0.27445066803065
+cycle= 8 E= -54.2766121254801  delta_E= -2.4e-10  |g|= 3.53e-06  |ddm|= 3.46e-05
+converged SCF energy = -54.2766121254801
 
-energy from frozen occupied orbitals = -24.864462976212344
-deviation from DMET exact condition = 0.062320429432475066
-energy from embedded cluster with low level calculation = -54.28384123519918
-total energy with low level calculation = -79.210624640844
-R =  1.40 A  E_full_HF=-79.2106246408  E_full_MP2=-79.3988343788
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+energy from frozen occupied orbitals = -24.663046119215174
+deviation from DMET exact condition = 0.2709663962614286
+energy from embedded cluster with low level calculation = -54.27661212548015
+total energy with low level calculation = -79.21062464095675
+R =  1.40 A  E_full_HF=-79.2106246410  E_full_MP2=-79.3988343789
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -785,7 +753,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -852,7 +820,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -983,14 +951,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:01 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:48 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -1014,7 +982,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.54
+CPU time:         0.74
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -1031,7 +999,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpplceatd4
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpb9ub4zak
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1040,51 +1008,35 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -79.3363384544805
-  HOMO = -0.38136170057587  LUMO = 0.160595658040868
-cycle= 1 E= -79.2114037885134  delta_E= 0.125  |g|= 0.183  |ddm|= 2.03
-  HOMO = -0.487507021018463  LUMO = 0.231519430810254
-cycle= 2 E= -79.2231317733485  delta_E= -0.0117  |g|= 0.0419  |ddm|= 0.186
-  HOMO = -0.479891551428154  LUMO = 0.238857228834045
-cycle= 3 E= -79.2237486900546  delta_E= -0.000617  |g|= 0.00782  |ddm|= 0.0488
-  HOMO = -0.482692089773372  LUMO = 0.237740497626099
-cycle= 4 E= -79.2237661764782  delta_E= -1.75e-05  |g|= 0.00125  |ddm|= 0.00748
-  HOMO = -0.482677032227778  LUMO = 0.237801362512402
-cycle= 5 E= -79.223766827258  delta_E= -6.51e-07  |g|= 5.62e-05  |ddm|= 0.00236
-  HOMO = -0.482679389601369  LUMO = 0.237800425410437
-cycle= 6 E= -79.2237668286941  delta_E= -1.44e-09  |g|= 9.17e-06  |ddm|= 0.000119
-  HOMO = -0.482677689415681  LUMO = 0.2378003852199
-cycle= 7 E= -79.2237668287349  delta_E= -4.08e-11  |g|= 7.72e-07  |ddm|= 2.3e-05
-  HOMO = -0.482677523833844  LUMO = 0.237800473797143
-Extra cycle  E= -79.2237668287352  delta_E= -3.41e-13  |g|= 2.47e-07  |ddm|= 1.52e-06
-converged SCF energy = -79.2237668287352
+init E= -79.3363384543564
+  HOMO = -0.381361700566634  LUMO = 0.1605956580446
+cycle= 1 E= -79.2114037883966  delta_E= 0.125  |g|= 0.183  |ddm|= 2.03
+  HOMO = -0.487507021009766  LUMO = 0.231519430813802
+cycle= 2 E= -79.2231317732323  delta_E= -0.0117  |g|= 0.0419  |ddm|= 0.186
+  HOMO = -0.479891551419657  LUMO = 0.238857228837397
+cycle= 3 E= -79.2237486899384  delta_E= -0.000617  |g|= 0.00782  |ddm|= 0.0488
+  HOMO = -0.482692089764833  LUMO = 0.237740497629528
+cycle= 4 E= -79.223766176362  delta_E= -1.75e-05  |g|= 0.00125  |ddm|= 0.00748
+  HOMO = -0.482677032219214  LUMO = 0.23780136251587
+cycle= 5 E= -79.2237668271418  delta_E= -6.51e-07  |g|= 5.62e-05  |ddm|= 0.00236
+  HOMO = -0.482679389592811  LUMO = 0.237800425413941
+cycle= 6 E= -79.2237668285778  delta_E= -1.44e-09  |g|= 9.17e-06  |ddm|= 0.000119
+  HOMO = -0.482677689407127  LUMO = 0.237800385223354
+cycle= 7 E= -79.2237668286187  delta_E= -4.1e-11  |g|= 7.72e-07  |ddm|= 2.3e-05
+  HOMO = -0.482677523825284  LUMO = 0.23780047380073
+Extra cycle  E= -79.2237668286189  delta_E= -1.99e-13  |g|= 2.47e-07  |ddm|= 1.52e-06
+converged SCF energy = -79.2237668286189
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.4136130911104  E_corr = -0.189846262375166
-E(SCS-RMP2) = -79.420543512119  E_corr = -0.196776683383762
-E_corr(same-spin) = -0.0358140363074274
-E_corr(oppo-spin) = -0.154032226067739
+E(RMP2) = -79.4136130909946  E_corr = -0.189846262375699
+E(SCS-RMP2) = -79.4205435120033  E_corr = -0.196776683384333
+E_corr(same-spin) = -0.0358140363075061
+E_corr(oppo-spin) = -0.154032226068192
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 2.281e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 7.040794755449782e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -1109,7 +1061,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpb_pbylqk
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp8b4unupw
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1117,31 +1069,31 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -33.4557538947264
-  HOMO = -3.07586200480901  LUMO = -1.66136231353
-cycle= 1 E= -50.6153142194405  delta_E= -17.2  |g|= 3.12  |ddm|= 2.91
-  HOMO = 0.0296937629831249  LUMO = 0.417304968107759
-cycle= 2 E= -53.1636565513267  delta_E= -2.55  |g|= 1.45  |ddm|= 3.67
-  HOMO = -0.539362124250214  LUMO = 0.229281760126614
-cycle= 3 E= -53.8428698286665  delta_E= -0.679  |g|= 0.0775  |ddm|= 1.33
-  HOMO = -0.545636996761034  LUMO = 0.283600979777072
-cycle= 4 E= -53.845555708075  delta_E= -0.00269  |g|= 0.0146  |ddm|= 0.101
-  HOMO = -0.539567288888001  LUMO = 0.28115762801487
-cycle= 5 E= -53.8456400801057  delta_E= -8.44e-05  |g|= 0.00294  |ddm|= 0.0165
-  HOMO = -0.538614826924616  LUMO = 0.281404197468971
-cycle= 6 E= -53.8456430949285  delta_E= -3.01e-06  |g|= 0.000195  |ddm|= 0.00327
-  HOMO = -0.538679385360402  LUMO = 0.281433821563232
-cycle= 7 E= -53.845643112575  delta_E= -1.76e-08  |g|= 1.72e-05  |ddm|= 0.000262
-  HOMO = -0.538681747582471  LUMO = 0.281433653450956
-cycle= 8 E= -53.8456431127328  delta_E= -1.58e-10  |g|= 2.87e-06  |ddm|= 2.78e-05
-converged SCF energy = -53.8456431127328
+init E= -33.4342621602251
+  HOMO = -3.09070902984703  LUMO = -1.67059094956157
+cycle= 1 E= -50.5334674231363  delta_E= -17.1  |g|= 3.13  |ddm|= 2.93
+  HOMO = 0.0322556339601162  LUMO = 0.411508336131672
+cycle= 2 E= -53.1279936252032  delta_E= -2.59  |g|= 1.48  |ddm|= 3.73
+  HOMO = -0.548808026366196  LUMO = 0.220294791279528
+cycle= 3 E= -53.8527446549802  delta_E= -0.725  |g|= 0.0829  |ddm|= 1.38
+  HOMO = -0.555231909777491  LUMO = 0.276285029381645
+cycle= 4 E= -53.8559916576613  delta_E= -0.00325  |g|= 0.0166  |ddm|= 0.112
+  HOMO = -0.549395937504686  LUMO = 0.273297959773199
+cycle= 5 E= -53.8561157765768  delta_E= -0.000124  |g|= 0.00326  |ddm|= 0.0211
+  HOMO = -0.548597714485482  LUMO = 0.273552464900881
+cycle= 6 E= -53.8561198669274  delta_E= -4.09e-06  |g|= 0.00024  |ddm|= 0.00399
+  HOMO = -0.548693813363708  LUMO = 0.273587021624537
+cycle= 7 E= -53.8561198911066  delta_E= -2.42e-08  |g|= 2.19e-05  |ddm|= 0.000294
+  HOMO = -0.54869710675211  LUMO = 0.273586249281991
+cycle= 8 E= -53.8561198913446  delta_E= -2.38e-10  |g|= 3.48e-06  |ddm|= 3.26e-05
+converged SCF energy = -53.8561198913446
 
-energy from frozen occupied orbitals = -25.335339704915796
-deviation from DMET exact condition = 0.042784011086553164
-energy from embedded cluster with low level calculation = -53.845643112732844
-total energy with low level calculation = -79.2237668287352
-R =  1.50 A  E_full_HF=-79.2237668287  E_full_MP2=-79.4136130911
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+energy from frozen occupied orbitals = -25.15694377797523
+deviation from DMET exact condition = 0.2107031592991575
+energy from embedded cluster with low level calculation = -53.856119891344555
+total energy with low level calculation = -79.22376682861895
+R =  1.50 A  E_full_HF=-79.2237668286  E_full_MP2=-79.4136130910
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -1166,7 +1118,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -1233,7 +1185,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -1364,14 +1316,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:48 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -1395,7 +1347,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.65
+CPU time:         0.90
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -1412,7 +1364,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp2ec_j2oi
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpi0e6nqh1
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1421,51 +1373,35 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -79.2700251719336
-  HOMO = -0.385989721294455  LUMO = 0.161759918467779
-cycle= 1 E= -79.2124053868678  delta_E= 0.0576  |g|= 0.182  |ddm|= 2.02
-  HOMO = -0.492579237112025  LUMO = 0.231555635815376
-cycle= 2 E= -79.2241568202956  delta_E= -0.0118  |g|= 0.0423  |ddm|= 0.183
-  HOMO = -0.483801281977866  LUMO = 0.239361628732141
-cycle= 3 E= -79.2247724318499  delta_E= -0.000616  |g|= 0.00893  |ddm|= 0.048
-  HOMO = -0.486946116339852  LUMO = 0.238137053699159
-cycle= 4 E= -79.224795340234  delta_E= -2.29e-05  |g|= 0.00127  |ddm|= 0.00828
-  HOMO = -0.486939146390391  LUMO = 0.238198651682614
-cycle= 5 E= -79.2247960252195  delta_E= -6.85e-07  |g|= 6.32e-05  |ddm|= 0.00241
-  HOMO = -0.486940059264648  LUMO = 0.238199244763474
-cycle= 6 E= -79.2247960271826  delta_E= -1.96e-09  |g|= 1.04e-05  |ddm|= 0.000156
-  HOMO = -0.486937552537098  LUMO = 0.238199678149512
-cycle= 7 E= -79.2247960272406  delta_E= -5.81e-11  |g|= 9.45e-07  |ddm|= 3.31e-05
-  HOMO = -0.486937315325447  LUMO = 0.238199817311844
-Extra cycle  E= -79.2247960272412  delta_E= -5.97e-13  |g|= 2.87e-07  |ddm|= 2.12e-06
-converged SCF energy = -79.2247960272412
+init E= -79.2700251718765
+  HOMO = -0.385989721282287  LUMO = 0.161759918461727
+cycle= 1 E= -79.2124053867629  delta_E= 0.0576  |g|= 0.182  |ddm|= 2.02
+  HOMO = -0.492579237103247  LUMO = 0.231555635808166
+cycle= 2 E= -79.2241568201907  delta_E= -0.0118  |g|= 0.0423  |ddm|= 0.183
+  HOMO = -0.483801281968431  LUMO = 0.239361628725622
+cycle= 3 E= -79.2247724317451  delta_E= -0.000616  |g|= 0.00893  |ddm|= 0.048
+  HOMO = -0.486946116330933  LUMO = 0.238137053692392
+cycle= 4 E= -79.2247953401292  delta_E= -2.29e-05  |g|= 0.00127  |ddm|= 0.00828
+  HOMO = -0.486939146381545  LUMO = 0.23819865167565
+cycle= 5 E= -79.2247960251147  delta_E= -6.85e-07  |g|= 6.32e-05  |ddm|= 0.00241
+  HOMO = -0.486940059255803  LUMO = 0.238199244756572
+cycle= 6 E= -79.2247960270779  delta_E= -1.96e-09  |g|= 1.04e-05  |ddm|= 0.000156
+  HOMO = -0.486937552528255  LUMO = 0.23819967814261
+cycle= 7 E= -79.2247960271357  delta_E= -5.78e-11  |g|= 9.45e-07  |ddm|= 3.31e-05
+  HOMO = -0.48693731531661  LUMO = 0.238199817304978
+Extra cycle  E= -79.2247960271363  delta_E= -5.97e-13  |g|= 2.87e-07  |ddm|= 2.12e-06
+converged SCF energy = -79.2247960271363
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.4153053738094  E_corr = -0.190509346568128
-E(SCS-RMP2) = -79.4223370630812  E_corr = -0.197541035839995
-E_corr(same-spin) = -0.0358502077404902
-E_corr(oppo-spin) = -0.154659138827638
+E(RMP2) = -79.4153053737057  E_corr = -0.190509346569416
+E(SCS-RMP2) = -79.4223370629778  E_corr = -0.197541035841443
+E_corr(same-spin) = -0.0358502077406039
+E_corr(oppo-spin) = -0.154659138828812
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 1.280e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 2.279817481730192e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -1490,7 +1426,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp7on1ap3k
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpakhjv515
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1498,31 +1434,31 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -33.3475560654875
-  HOMO = -3.06779459524839  LUMO = -1.65711464707237
-cycle= 1 E= -50.409963296915  delta_E= -17.1  |g|= 3.13  |ddm|= 2.92
-  HOMO = 0.0357708980183859  LUMO = 0.420733178383326
-cycle= 2 E= -52.9788868718626  delta_E= -2.57  |g|= 1.47  |ddm|= 3.71
-  HOMO = -0.539990356506076  LUMO = 0.227288767584741
-cycle= 3 E= -53.6835348550251  delta_E= -0.705  |g|= 0.0785  |ddm|= 1.35
-  HOMO = -0.545642525258577  LUMO = 0.282719275080604
-cycle= 4 E= -53.686305085325  delta_E= -0.00277  |g|= 0.0149  |ddm|= 0.103
-  HOMO = -0.539802273932855  LUMO = 0.280212034381798
-cycle= 5 E= -53.686397496482  delta_E= -9.24e-05  |g|= 0.00302  |ddm|= 0.0176
-  HOMO = -0.538898414262537  LUMO = 0.280468930660609
-cycle= 6 E= -53.6864008136563  delta_E= -3.32e-06  |g|= 0.000203  |ddm|= 0.00351
-  HOMO = -0.538970202071128  LUMO = 0.280500949766956
-cycle= 7 E= -53.6864008323135  delta_E= -1.87e-08  |g|= 1.79e-05  |ddm|= 0.000266
-  HOMO = -0.538972740441598  LUMO = 0.280500689767568
-cycle= 8 E= -53.6864008324796  delta_E= -1.66e-10  |g|= 2.96e-06  |ddm|= 2.8e-05
-converged SCF energy = -53.6864008324796
+init E= -33.332015536656
+  HOMO = -3.08137137902338  LUMO = -1.66578367461892
+cycle= 1 E= -50.3403536095  delta_E=  -17  |g|= 3.14  |ddm|= 2.94
+  HOMO = 0.0386586039417814  LUMO = 0.41534773549226
+cycle= 2 E= -52.9499345368368  delta_E= -2.61  |g|=  1.5  |ddm|= 3.77
+  HOMO = -0.548727585546986  LUMO = 0.21850833750232
+cycle= 3 E= -53.6990940171977  delta_E= -0.749  |g|= 0.0837  |ddm|=  1.4
+  HOMO = -0.554021662508097  LUMO = 0.275725093443435
+cycle= 4 E= -53.702400066272  delta_E= -0.00331  |g|= 0.0168  |ddm|= 0.113
+  HOMO = -0.54840469163483  LUMO = 0.272710817660441
+cycle= 5 E= -53.702532550886  delta_E= -0.000132  |g|= 0.00331  |ddm|= 0.0221
+  HOMO = -0.547669293214201  LUMO = 0.272962184213331
+cycle= 6 E= -53.7025369705362  delta_E= -4.42e-06  |g|= 0.000251  |ddm|= 0.00424
+  HOMO = -0.547774608588884  LUMO = 0.272996575396527
+cycle= 7 E= -53.7025369961812  delta_E= -2.56e-08  |g|= 2.24e-05  |ddm|= 0.0003
+  HOMO = -0.547777671425576  LUMO = 0.272995449651949
+cycle= 8 E= -53.7025369964223  delta_E= -2.41e-10  |g|= 3.4e-06  |ddm|= 3.2e-05
+converged SCF energy = -53.7025369964223
 
-energy from frozen occupied orbitals = -25.501649174844857
-deviation from DMET exact condition = 0.036746019916748196
-energy from embedded cluster with low level calculation = -53.686400832479634
-total energy with low level calculation = -79.22479602724124
-R =  1.54 A  E_full_HF=-79.2247960272  E_full_MP2=-79.4153053738
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+energy from frozen occupied orbitals = -25.33279619190462
+deviation from DMET exact condition = 0.18946283880943326
+energy from embedded cluster with low level calculation = -53.70253699642227
+total energy with low level calculation = -79.22479602713632
+R =  1.54 A  E_full_HF=-79.2247960271  E_full_MP2=-79.4153053737
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -1547,7 +1483,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -1614,7 +1550,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -1745,14 +1681,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:48 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -1776,7 +1712,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.75
+CPU time:         1.05
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -1793,7 +1729,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpfz3azw8f
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpa8k32_op
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1802,51 +1738,35 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -79.1805931127781
-  HOMO = -0.39246752292769  LUMO = 0.163482728924597
-cycle= 1 E= -79.2105652202629  delta_E= -0.03  |g|= 0.182  |ddm|=    2
-  HOMO = -0.487523947389976  LUMO = 0.231781866602559
-cycle= 2 E= -79.2224562819606  delta_E= -0.0119  |g|= 0.043  |ddm|= 0.18
-  HOMO = -0.476006358892221  LUMO = 0.24013355586875
-cycle= 3 E= -79.2230794525621  delta_E= -0.000623  |g|= 0.0101  |ddm|= 0.0475
-  HOMO = -0.481660163175283  LUMO = 0.238816629197044
-cycle= 4 E= -79.2231092131623  delta_E= -2.98e-05  |g|= 0.00133  |ddm|= 0.00922
-  HOMO = -0.481587854120187  LUMO = 0.238890001922721
-cycle= 5 E= -79.2231099907353  delta_E= -7.78e-07  |g|= 8.22e-05  |ddm|= 0.00249
-  HOMO = -0.481597893310094  LUMO = 0.238892992153457
-cycle= 6 E= -79.223109994517  delta_E= -3.78e-09  |g|= 1.44e-05  |ddm|= 0.00023
-  HOMO = -0.481594613187067  LUMO = 0.238894099584828
-cycle= 7 E= -79.2231099946418  delta_E= -1.25e-10  |g|= 1.29e-06  |ddm|= 5.27e-05
-  HOMO = -0.48159422948828  LUMO = 0.238894275070171
-Extra cycle  E= -79.2231099946428  delta_E= -9.38e-13  |g|= 3.93e-07  |ddm|= 2.89e-06
-converged SCF energy = -79.2231099946428
+init E= -79.180593112699
+  HOMO = -0.3924675229249  LUMO = 0.163482728932489
+cycle= 1 E= -79.2105652202065  delta_E= -0.03  |g|= 0.182  |ddm|=    2
+  HOMO = -0.487523947381162  LUMO = 0.231781866610767
+cycle= 2 E= -79.222456281904  delta_E= -0.0119  |g|= 0.043  |ddm|= 0.18
+  HOMO = -0.476006358883869  LUMO = 0.240133555876436
+cycle= 3 E= -79.2230794525054  delta_E= -0.000623  |g|= 0.0101  |ddm|= 0.0475
+  HOMO = -0.481660163166541  LUMO = 0.238816629204922
+cycle= 4 E= -79.2231092131057  delta_E= -2.98e-05  |g|= 0.00133  |ddm|= 0.00922
+  HOMO = -0.481587854111433  LUMO = 0.238890001930604
+cycle= 5 E= -79.2231099906785  delta_E= -7.78e-07  |g|= 8.22e-05  |ddm|= 0.00249
+  HOMO = -0.481597893301354  LUMO = 0.238892992161345
+cycle= 6 E= -79.2231099944603  delta_E= -3.78e-09  |g|= 1.44e-05  |ddm|= 0.00023
+  HOMO = -0.481594613178325  LUMO = 0.238894099592723
+cycle= 7 E= -79.2231099945851  delta_E= -1.25e-10  |g|= 1.29e-06  |ddm|= 5.27e-05
+  HOMO = -0.48159422947953  LUMO = 0.238894275078077
+Extra cycle  E= -79.2231099945861  delta_E= -9.95e-13  |g|= 3.93e-07  |ddm|= 2.89e-06
+converged SCF energy = -79.2231099945861
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.4146148048836  E_corr = -0.191504810240865
-E(SCS-RMP2) = -79.4218053954919  E_corr = -0.198695400849111
-E_corr(same-spin) = -0.0358965824306844
-E_corr(oppo-spin) = -0.15560822781018
+E(RMP2) = -79.4146148048271  E_corr = -0.191504810240999
+E(SCS-RMP2) = -79.4218053954354  E_corr = -0.198695400849311
+E_corr(same-spin) = -0.0358965824306405
+E_corr(oppo-spin) = -0.155608227810359
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 1.204e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 4.231906143575633e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -1871,7 +1791,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpt1cx1prt
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpi6fenoi3
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -1879,31 +1799,31 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -33.1953633732029
-  HOMO = -3.02777215590757  LUMO = -1.65115511279492
-cycle= 1 E= -50.1204172252082  delta_E= -16.9  |g|= 3.13  |ddm|= 2.93
-  HOMO = 0.0449122175849161  LUMO = 0.425832813857738
-cycle= 2 E= -52.7138236784357  delta_E= -2.59  |g|=  1.5  |ddm|= 3.77
-  HOMO = -0.541455885529892  LUMO = 0.223935209313274
-cycle= 3 E= -53.4604226659557  delta_E= -0.747  |g|= 0.0801  |ddm|=  1.4
-  HOMO = -0.545671669798388  LUMO = 0.281365169523187
-cycle= 4 E= -53.4633184714134  delta_E= -0.0029  |g|= 0.0153  |ddm|= 0.105
-  HOMO = -0.540178292206356  LUMO = 0.278776403405477
-cycle= 5 E= -53.4634242509714  delta_E= -0.000106  |g|= 0.00313  |ddm|= 0.0194
-  HOMO = -0.539358276198799  LUMO = 0.2790416586089
-cycle= 6 E= -53.4634280481707  delta_E= -3.8e-06  |g|= 0.000214  |ddm|= 0.00388
-  HOMO = -0.539440277293882  LUMO = 0.279076257802772
-cycle= 7 E= -53.4634280681937  delta_E= -2e-08  |g|= 1.89e-05  |ddm|= 0.000271
-  HOMO = -0.539443001846923  LUMO = 0.279075762406807
-cycle= 8 E= -53.4634280683701  delta_E= -1.76e-10  |g|= 3e-06  |ddm|= 2.81e-05
-converged SCF energy = -53.4634280683701
+init E= -33.187574924373
+  HOMO = -3.04640158664335  LUMO = -1.65899213389741
+cycle= 1 E= -50.0654933420101  delta_E= -16.9  |g|= 3.15  |ddm|= 2.95
+  HOMO = 0.0482602799954355  LUMO = 0.421007475410585
+cycle= 2 E= -52.6933980783852  delta_E= -2.63  |g|= 1.52  |ddm|= 3.83
+  HOMO = -0.549305617902295  LUMO = 0.215194404775918
+cycle= 3 E= -53.4828787847051  delta_E= -0.789  |g|= 0.085  |ddm|= 1.44
+  HOMO = -0.552506301963308  LUMO = 0.274522006638144
+cycle= 4 E= -53.4862644986546  delta_E= -0.00339  |g|= 0.017  |ddm|= 0.113
+  HOMO = -0.547167329081445  LUMO = 0.271503196269544
+cycle= 5 E= -53.4864088164609  delta_E= -0.000144  |g|= 0.00339  |ddm|= 0.0234
+  HOMO = -0.546527305338491  LUMO = 0.271746520200875
+cycle= 6 E= -53.4864137762733  delta_E= -4.96e-06  |g|= 0.000269  |ddm|= 0.00465
+  HOMO = -0.546647642698062  LUMO = 0.271778806607502
+cycle= 7 E= -53.4864138048697  delta_E= -2.86e-08  |g|= 2.38e-05  |ddm|= 0.000312
+  HOMO = -0.54665024730752  LUMO = 0.271776950178359
+cycle= 8 E= -53.4864138051264  delta_E= -2.57e-10  |g|= 3.25e-06  |ddm|= 3.19e-05
+converged SCF energy = -53.4864138051264
 
-energy from frozen occupied orbitals = -25.73048958692047
-deviation from DMET exact condition = 0.029192339352192676
-energy from embedded cluster with low level calculation = -53.46342806837009
-total energy with low level calculation = -79.22310999464275
-R =  1.60 A  E_full_HF=-79.2231099946  E_full_MP2=-79.4146148049
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+energy from frozen occupied orbitals = -25.57610868152068
+deviation from DMET exact condition = 0.1605875079389989
+energy from embedded cluster with low level calculation = -53.48641380512642
+total energy with low level calculation = -79.2231099945861
+R =  1.60 A  E_full_HF=-79.2231099946  E_full_MP2=-79.4146148048
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -1928,7 +1848,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -1995,7 +1915,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -2126,14 +2046,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:48 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -2157,7 +2077,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.86
+CPU time:         1.20
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -2174,7 +2094,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp9ltkvg5w
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpxqt0z0nc
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2183,51 +2103,35 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -79.0558056164901
-  HOMO = -0.376170661949854  LUMO = 0.166282502370699
-cycle= 1 E= -79.2010762791413  delta_E= -0.145  |g|= 0.183  |ddm|= 1.98
-  HOMO = -0.467224497120091  LUMO = 0.232523791818347
-cycle= 2 E= -79.2134451876085  delta_E= -0.0124  |g|= 0.0444  |ddm|= 0.178
-  HOMO = -0.453716230801266  LUMO = 0.241503909490132
-cycle= 3 E= -79.2141046100576  delta_E= -0.000659  |g|= 0.0111  |ddm|= 0.0478
-  HOMO = -0.459904662092882  LUMO = 0.240141939994368
-cycle= 4 E= -79.2141426055802  delta_E= -3.8e-05  |g|= 0.00152  |ddm|= 0.0103
-  HOMO = -0.459725094204028  LUMO = 0.24024582861672
-cycle= 5 E= -79.21414364989  delta_E= -1.04e-06  |g|= 0.000122  |ddm|= 0.00274
-  HOMO = -0.459729129689734  LUMO = 0.240252698953415
-cycle= 6 E= -79.2141436594537  delta_E= -9.56e-09  |g|= 2.08e-05  |ddm|= 0.000393
-  HOMO = -0.459722971295193  LUMO = 0.240254561916024
-cycle= 7 E= -79.2141436597384  delta_E= -2.85e-10  |g|= 1.75e-06  |ddm|= 8.67e-05
-  HOMO = -0.459722589532797  LUMO = 0.240254726432515
-Extra cycle  E= -79.2141436597404  delta_E= -2.02e-12  |g|= 5.59e-07  |ddm|= 4.06e-06
-converged SCF energy = -79.2141436597404
+init E= -79.0558056164677
+  HOMO = -0.37617066194276  LUMO = 0.166282502371126
+cycle= 1 E= -79.201076279121  delta_E= -0.145  |g|= 0.183  |ddm|= 1.98
+  HOMO = -0.46722449710981  LUMO = 0.232523791819979
+cycle= 2 E= -79.2134451875879  delta_E= -0.0124  |g|= 0.0444  |ddm|= 0.178
+  HOMO = -0.453716230794345  LUMO = 0.24150390949075
+cycle= 3 E= -79.2141046100369  delta_E= -0.000659  |g|= 0.0111  |ddm|= 0.0478
+  HOMO = -0.459904662085082  LUMO = 0.240141939995164
+cycle= 4 E= -79.2141426055597  delta_E= -3.8e-05  |g|= 0.00152  |ddm|= 0.0103
+  HOMO = -0.459725094196182  LUMO = 0.240245828617554
+cycle= 5 E= -79.2141436498695  delta_E= -1.04e-06  |g|= 0.000122  |ddm|= 0.00274
+  HOMO = -0.459729129681906  LUMO = 0.240252698954278
+cycle= 6 E= -79.2141436594329  delta_E= -9.56e-09  |g|= 2.08e-05  |ddm|= 0.000393
+  HOMO = -0.459722971287356  LUMO = 0.240254561916924
+cycle= 7 E= -79.2141436597177  delta_E= -2.85e-10  |g|= 1.75e-06  |ddm|= 8.67e-05
+  HOMO = -0.459722589524951  LUMO = 0.24025472643341
+Extra cycle  E= -79.2141436597197  delta_E= -1.95e-12  |g|= 5.59e-07  |ddm|= 4.06e-06
+converged SCF energy = -79.2141436597197
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.4073147105281  E_corr = -0.193171050787742
-E(SCS-RMP2) = -79.4147894877444  E_corr = -0.200645828004046
-E_corr(same-spin) = -0.0359531918552827
-E_corr(oppo-spin) = -0.15721785893246
+E(RMP2) = -79.4073147105084  E_corr = -0.193171050788719
+E(SCS-RMP2) = -79.4147894877246  E_corr = -0.200645828004942
+E_corr(same-spin) = -0.035953191855601
+E_corr(oppo-spin) = -0.157217858933118
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 7.400e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 2.7427532958867065e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -2252,7 +2156,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp_ab3e3m7
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpnca30x3a
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2260,31 +2164,31 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -32.9668478926206
-  HOMO = -2.96724631630251  LUMO = -1.64223571042849
-cycle= 1 E= -49.6868613902488  delta_E= -16.7  |g|= 3.14  |ddm|= 2.96
-  HOMO = 0.0598229357801119  LUMO = 0.434002649281258
-cycle= 2 E= -52.3003071734455  delta_E= -2.61  |g|= 1.55  |ddm|= 3.88
-  HOMO = -0.531885103911458  LUMO = 0.217156082653576
-cycle= 3 E= -53.1275551653883  delta_E= -0.827  |g|= 0.0827  |ddm|= 1.48
-  HOMO = -0.534607366862156  LUMO = 0.278860494628884
-cycle= 4 E= -53.1306359349733  delta_E= -0.00308  |g|= 0.016  |ddm|= 0.107
-  HOMO = -0.525156010361679  LUMO = 0.276202175447705
-cycle= 5 E= -53.1307657734244  delta_E= -0.00013  |g|= 0.00327  |ddm|= 0.0222
-  HOMO = -0.52332472315485  LUMO = 0.276455806354603
-cycle= 6 E= -53.1307704210418  delta_E= -4.65e-06  |g|= 0.000235  |ddm|= 0.00453
-  HOMO = -0.523416002484686  LUMO = 0.276490277090075
-cycle= 7 E= -53.1307704440012  delta_E= -2.3e-08  |g|= 2.11e-05  |ddm|= 0.000284
-  HOMO = -0.52341840275005  LUMO = 0.276489055644652
-cycle= 8 E= -53.1307704442035  delta_E= -2.02e-10  |g|= 2.88e-06  |ddm|= 2.86e-05
-converged SCF energy = -53.1307704442035
+init E= -32.96883940541
+  HOMO = -2.99016049984244  LUMO = -1.6487567949903
+cycle= 1 E= -49.6461642482489  delta_E= -16.7  |g|= 3.16  |ddm|= 2.97
+  HOMO = 0.0639970207930268  LUMO = 0.430111728240463
+cycle= 2 E= -52.2911885923913  delta_E= -2.65  |g|= 1.57  |ddm|= 3.93
+  HOMO = -0.547440356978886  LUMO = 0.207376793187676
+cycle= 3 E= -53.1573164781779  delta_E= -0.866  |g|= 0.0874  |ddm|= 1.52
+  HOMO = -0.543793284343048  LUMO = 0.271158306799486
+cycle= 4 E= -53.1608186990503  delta_E= -0.0035  |g|= 0.0173  |ddm|= 0.114
+  HOMO = -0.534886952884934  LUMO = 0.26823911690354
+cycle= 5 E= -53.1609790501578  delta_E= -0.00016  |g|= 0.00351  |ddm|= 0.0249
+  HOMO = -0.532993729288626  LUMO = 0.26848121579421
+cycle= 6 E= -53.1609849954004  delta_E= -5.95e-06  |g|= 0.000308  |ddm|= 0.00534
+  HOMO = -0.533089525426307  LUMO = 0.268504154022042
+cycle= 7 E= -53.1609850320052  delta_E= -3.66e-08  |g|= 2.73e-05  |ddm|= 0.000347
+  HOMO = -0.533090623714252  LUMO = 0.268500620220418
+cycle= 8 E= -53.1609850323317  delta_E= -3.27e-10  |g|= 3.1e-06  |ddm|= 3.53e-05
+converged SCF energy = -53.1609850323317
 
-energy from frozen occupied orbitals = -26.063585608135767
-deviation from DMET exact condition = 0.019787607401113405
-energy from embedded cluster with low level calculation = -53.13077044420352
-total energy with low level calculation = -79.2141436597404
+energy from frozen occupied orbitals = -25.933078361348663
+deviation from DMET exact condition = 0.1200802660392668
+energy from embedded cluster with low level calculation = -53.16098503233172
+total energy with low level calculation = -79.21414365971965
 R =  1.70 A  E_full_HF=-79.2141436597  E_full_MP2=-79.4073147105
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -2309,7 +2213,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -2376,7 +2280,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -2507,14 +2411,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:48 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -2538,7 +2442,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         0.98
+CPU time:         1.35
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -2555,7 +2459,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpllpx54fl
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpr3vdxmet
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2564,51 +2468,35 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -78.880153388809
-  HOMO = -0.338269353827746  LUMO = 0.117199202941026
-cycle= 1 E= -79.1689582147737  delta_E= -0.289  |g|= 0.189  |ddm|= 1.95
-  HOMO = -0.427915188771051  LUMO = 0.225891910279106
-cycle= 2 E= -79.1829568733034  delta_E= -0.014  |g|= 0.0479  |ddm|= 0.183
-  HOMO = -0.413006201973244  LUMO = 0.244545510994405
-cycle= 3 E= -79.1837635598382  delta_E= -0.000807  |g|= 0.0121  |ddm|= 0.0511
-  HOMO = -0.419474362350588  LUMO = 0.241584205373858
-cycle= 4 E= -79.1838132087045  delta_E= -4.96e-05  |g|= 0.00197  |ddm|= 0.0119
-  HOMO = -0.419016079448124  LUMO = 0.242054538893684
-cycle= 5 E= -79.1838151180114  delta_E= -1.91e-06  |g|= 0.000198  |ddm|= 0.00376
-  HOMO = -0.419014941709431  LUMO = 0.24209068492781
-cycle= 6 E= -79.1838151483512  delta_E= -3.03e-08  |g|= 3.03e-05  |ddm|= 0.000812
-  HOMO = -0.419007183153487  LUMO = 0.242097593086514
-cycle= 7 E= -79.1838151490848  delta_E= -7.34e-10  |g|= 3.24e-06  |ddm|= 0.000156
-  HOMO = -0.41900716740111  LUMO = 0.242097974635579
-Extra cycle  E= -79.1838151490929  delta_E= -8.1e-12  |g|= 1.14e-06  |ddm|= 7.97e-06
-converged SCF energy = -79.1838151490929
+init E= -78.8801533888554
+  HOMO = -0.338269353827557  LUMO = 0.117199202936349
+cycle= 1 E= -79.1689582148258  delta_E= -0.289  |g|= 0.189  |ddm|= 1.95
+  HOMO = -0.427915188772523  LUMO = 0.225891910274758
+cycle= 2 E= -79.1829568733561  delta_E= -0.014  |g|= 0.0479  |ddm|= 0.183
+  HOMO = -0.413006201974657  LUMO = 0.244545510991969
+cycle= 3 E= -79.1837635598908  delta_E= -0.000807  |g|= 0.0121  |ddm|= 0.0511
+  HOMO = -0.419474362352173  LUMO = 0.241584205369752
+cycle= 4 E= -79.1838132087573  delta_E= -4.96e-05  |g|= 0.00197  |ddm|= 0.0119
+  HOMO = -0.419016079449725  LUMO = 0.24205453888954
+cycle= 5 E= -79.1838151180643  delta_E= -1.91e-06  |g|= 0.000198  |ddm|= 0.00376
+  HOMO = -0.419014941711014  LUMO = 0.242090684923717
+cycle= 6 E= -79.1838151484039  delta_E= -3.03e-08  |g|= 3.03e-05  |ddm|= 0.000812
+  HOMO = -0.419007183155077  LUMO = 0.242097593082424
+cycle= 7 E= -79.1838151491376  delta_E= -7.34e-10  |g|= 3.24e-06  |ddm|= 0.000156
+  HOMO = -0.419007167402692  LUMO = 0.242097974631493
+Extra cycle  E= -79.1838151491457  delta_E= -8.1e-12  |g|= 1.14e-06  |ddm|= 7.97e-06
+converged SCF energy = -79.1838151491457
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.3805065454928  E_corr = -0.196691396399844
-E(SCS-RMP2) = -79.3886067192304  E_corr = -0.204791570137486
-E_corr(same-spin) = -0.0360439679334542
-E_corr(oppo-spin) = -0.16064742846639
+E(RMP2) = -79.3805065455455  E_corr = -0.196691396399866
+E(SCS-RMP2) = -79.3886067192832  E_corr = -0.204791570137561
+E_corr(same-spin) = -0.0360439679333988
+E_corr(oppo-spin) = -0.160647428466468
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 1.073e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 4.056656737342609e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -2633,7 +2521,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpn_g7cxuu
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmphyk5w81d
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2641,31 +2529,31 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -32.5912270610251
-  HOMO = -2.87308023075792  LUMO = -1.62762736448134
-cycle= 1 E= -48.9895949133673  delta_E= -16.4  |g|= 3.14  |ddm|= 3.01
-  HOMO = 0.0868706591213756  LUMO = 0.448639704379986
-cycle= 2 E= -51.5622894877426  delta_E= -2.57  |g|= 1.64  |ddm|= 4.09
-  HOMO = -0.445512212926508  LUMO = 0.191671565491808
-cycle= 3 E= -52.5855377955553  delta_E= -1.02  |g|= 0.089  |ddm|= 1.71
-  HOMO = -0.470994846560355  LUMO = 0.268120419264731
-cycle= 4 E= -52.5889465549551  delta_E= -0.00341  |g|= 0.0181  |ddm|= 0.107
-  HOMO = -0.459601217737449  LUMO = 0.26579288839239
-cycle= 5 E= -52.5891262190347  delta_E= -0.00018  |g|= 0.00341  |ddm|= 0.0263
-  HOMO = -0.457669606997061  LUMO = 0.26618630397421
-cycle= 6 E= -52.5891328158027  delta_E= -6.6e-06  |g|= 0.000355  |ddm|= 0.00592
-  HOMO = -0.457787259404902  LUMO = 0.266198273679079
-cycle= 7 E= -52.5891328620281  delta_E= -4.62e-08  |g|= 2.81e-05  |ddm|= 0.000379
-  HOMO = -0.457785101602077  LUMO = 0.266194327019953
-cycle= 8 E= -52.5891328623656  delta_E= -3.37e-10  |g|= 2.72e-06  |ddm|= 3.64e-05
-converged SCF energy = -52.5891328623656
+init E= -32.602831468579
+  HOMO = -2.89743260560145  LUMO = -1.63195873744777
+cycle= 1 E= -48.9472628652336  delta_E= -16.3  |g|= 3.17  |ddm|= 3.02
+  HOMO = 0.0931464528102258  LUMO = 0.447419878633664
+cycle= 2 E= -51.5729244914604  delta_E= -2.63  |g|= 1.66  |ddm|= 4.12
+  HOMO = -0.470868459964863  LUMO = 0.164722416830874
+cycle= 3 E= -52.6176822614707  delta_E= -1.04  |g|= 0.0939  |ddm|= 1.72
+  HOMO = -0.479007055583875  LUMO = 0.253214333613926
+cycle= 4 E= -52.6214992046289  delta_E= -0.00382  |g|= 0.0184  |ddm|= 0.115
+  HOMO = -0.469573501141803  LUMO = 0.250202362662451
+cycle= 5 E= -52.6216786863006  delta_E= -0.000179  |g|= 0.00368  |ddm|= 0.0257
+  HOMO = -0.467534451537994  LUMO = 0.250881243002236
+cycle= 6 E= -52.6216864821825  delta_E= -7.8e-06  |g|= 0.000448  |ddm|= 0.00647
+  HOMO = -0.467621375075661  LUMO = 0.250892116059247
+cycle= 7 E= -52.6216865593725  delta_E= -7.72e-08  |g|= 4e-05  |ddm|= 0.000515
+  HOMO = -0.467619097872304  LUMO = 0.250883828111702
+cycle= 8 E= -52.6216865600776  delta_E= -7.05e-10  |g|= 3.31e-06  |ddm|= 5.41e-05
+converged SCF energy = -52.6216865600776
 
-energy from frozen occupied orbitals = -26.58577516133446
-deviation from DMET exact condition = 0.008907125392880744
-energy from embedded cluster with low level calculation = -52.5891328623656
-total energy with low level calculation = -79.18381514909294
+energy from frozen occupied orbitals = -26.49805274688078
+deviation from DMET exact condition = 0.0640758421872647
+energy from embedded cluster with low level calculation = -52.621686560077606
+total energy with low level calculation = -79.18381514914566
 R =  1.90 A  E_full_HF=-79.1838151491  E_full_MP2=-79.3805065455
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -2690,7 +2578,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -2757,7 +2645,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -2888,14 +2776,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:49 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -2919,7 +2807,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.08
+CPU time:         1.51
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -2936,7 +2824,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpt7gkwo2c
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp75qki5ow
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -2945,53 +2833,37 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -78.7747417344331
-  HOMO = -0.304538132327386  LUMO = 0.051931482227349
-cycle= 1 E= -79.1304729360945  delta_E= -0.356  |g|= 0.197  |ddm|= 1.94
-  HOMO = -0.392482699870241  LUMO = 0.172333251926785
-cycle= 2 E= -79.1465370869299  delta_E= -0.0161  |g|= 0.0519  |ddm|= 0.192
-  HOMO = -0.377444242174504  LUMO = 0.195541271524465
-cycle= 3 E= -79.1475606630313  delta_E= -0.00102  |g|= 0.0131  |ddm|= 0.0565
-  HOMO = -0.383870369568038  LUMO = 0.190774324680201
-cycle= 4 E= -79.1476235683449  delta_E= -6.29e-05  |g|= 0.0024  |ddm|= 0.0137
-  HOMO = -0.38314781123074  LUMO = 0.191564838439932
-cycle= 5 E= -79.1476265912803  delta_E= -3.02e-06  |g|= 0.000266  |ddm|= 0.00514
-  HOMO = -0.383149466329555  LUMO = 0.191608551999221
-cycle= 6 E= -79.1476266540959  delta_E= -6.28e-08  |g|= 4.21e-05  |ddm|= 0.00129
-  HOMO = -0.383142526584884  LUMO = 0.191616456870103
-cycle= 7 E= -79.1476266557341  delta_E= -1.64e-09  |g|= 4.87e-06  |ddm|= 0.000241
-  HOMO = -0.383143024352519  LUMO = 0.191616829652361
-cycle= 8 E= -79.1476266557552  delta_E= -2.11e-11  |g|= 4.11e-07  |ddm|= 1.82e-05
-  HOMO = -0.383143236841248  LUMO = 0.191616625825901
-Extra cycle  E= -79.1476266557554  delta_E= -1.71e-13  |g|= 1.11e-07  |ddm|= 1.13e-06
-converged SCF energy = -79.1476266557554
+init E= -78.7747417343733
+  HOMO = -0.304538132327962  LUMO = 0.0519314822303645
+cycle= 1 E= -79.1304729360782  delta_E= -0.356  |g|= 0.197  |ddm|= 1.94
+  HOMO = -0.392482699866044  LUMO = 0.172333251934798
+cycle= 2 E= -79.146537086914  delta_E= -0.0161  |g|= 0.0519  |ddm|= 0.192
+  HOMO = -0.377444242172175  LUMO = 0.195541271531285
+cycle= 3 E= -79.1475606630153  delta_E= -0.00102  |g|= 0.0131  |ddm|= 0.0565
+  HOMO = -0.383870369565223  LUMO = 0.190774324687254
+cycle= 4 E= -79.1476235683288  delta_E= -6.29e-05  |g|= 0.0024  |ddm|= 0.0137
+  HOMO = -0.383147811227853  LUMO = 0.191564838447057
+cycle= 5 E= -79.1476265912643  delta_E= -3.02e-06  |g|= 0.000266  |ddm|= 0.00514
+  HOMO = -0.383149466326681  LUMO = 0.191608552006354
+cycle= 6 E= -79.1476266540801  delta_E= -6.28e-08  |g|= 4.21e-05  |ddm|= 0.00129
+  HOMO = -0.383142526582023  LUMO = 0.191616456877196
+cycle= 7 E= -79.1476266557179  delta_E= -1.64e-09  |g|= 4.87e-06  |ddm|= 0.000241
+  HOMO = -0.383143024349674  LUMO = 0.191616829659507
+cycle= 8 E= -79.1476266557392  delta_E= -2.13e-11  |g|= 4.11e-07  |ddm|= 1.82e-05
+  HOMO = -0.383143236838393  LUMO = 0.191616625832991
+Extra cycle  E= -79.1476266557393  delta_E= -4.26e-14  |g|= 1.11e-07  |ddm|= 1.13e-06
+converged SCF energy = -79.1476266557393
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.3484353687092  E_corr = -0.200808712953803
-E(SCS-RMP2) = -79.3572080220573  E_corr = -0.20958136630193
-E_corr(same-spin) = -0.0362181798953466
-E_corr(oppo-spin) = -0.164590533058456
+E(RMP2) = -79.3484353686926  E_corr = -0.200808712953303
+E(SCS-RMP2) = -79.3572080220406  E_corr = -0.209581366301369
+E_corr(same-spin) = -0.0362181798953015
+E_corr(oppo-spin) = -0.164590533058002
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 1.254e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 1.6641779761981818e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -3016,7 +2888,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpmtwab_p2
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp7l2yq3m9
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3024,31 +2896,33 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -32.3008931035235
-  HOMO = -2.80896977322702  LUMO = -1.61636328814741
-cycle= 1 E= -48.4743130049529  delta_E= -16.2  |g|= 3.15  |ddm|= 3.05
-  HOMO = 0.109521340620709  LUMO = 0.462035926168027
-cycle= 2 E= -50.9495831949944  delta_E= -2.48  |g|= 1.71  |ddm|= 4.26
-  HOMO = -0.373237151296585  LUMO = 0.10659606593233
-cycle= 3 E= -52.1700163202022  delta_E= -1.22  |g|= 0.108  |ddm|= 1.99
-  HOMO = -0.422285284161613  LUMO = 0.218238671110908
-cycle= 4 E= -52.1744050734615  delta_E= -0.00439  |g|= 0.0215  |ddm|= 0.11
-  HOMO = -0.407590089438948  LUMO = 0.216893211654874
-cycle= 5 E= -52.1746669973908  delta_E= -0.000262  |g|= 0.00369  |ddm|= 0.032
-  HOMO = -0.405621475580986  LUMO = 0.218798563097585
-cycle= 6 E= -52.1746770073557  delta_E= -1e-05  |g|= 0.000738  |ddm|= 0.00779
-  HOMO = -0.405757213895962  LUMO = 0.218827049198957
-cycle= 7 E= -52.1746771803769  delta_E= -1.73e-07  |g|= 3e-05  |ddm|= 0.000711
-  HOMO = -0.405751009543344  LUMO = 0.21881523182306
-cycle= 8 E= -52.1746771807632  delta_E= -3.86e-10  |g|= 5.75e-06  |ddm|= 4.02e-05
-converged SCF energy = -52.1746771807632
+init E= -32.3138245563243
+  HOMO = -2.83414083567869  LUMO = -1.61915876402348
+cycle= 1 E= -48.4169998045736  delta_E= -16.1  |g|= 3.17  |ddm|= 3.06
+  HOMO = 0.11790048409619  LUMO = 0.464761900357512
+cycle= 2 E= -50.9757381066595  delta_E= -2.56  |g|= 1.72  |ddm|= 4.28
+  HOMO = -0.40206493117559  LUMO = 0.0877115188400301
+cycle= 3 E= -52.1966318535419  delta_E= -1.22  |g|= 0.105  |ddm|= 1.95
+  HOMO = -0.425283012466396  LUMO = 0.215089436811251
+cycle= 4 E= -52.2010967340038  delta_E= -0.00446  |g|= 0.0207  |ddm|= 0.121
+  HOMO = -0.414768187693071  LUMO = 0.210047425228748
+cycle= 5 E= -52.2013050787144  delta_E= -0.000208  |g|= 0.00374  |ddm|= 0.0267
+  HOMO = -0.412693312132472  LUMO = 0.211507732796571
+cycle= 6 E= -52.2013145235526  delta_E= -9.44e-06  |g|= 0.00074  |ddm|= 0.00742
+  HOMO = -0.412750130901062  LUMO = 0.211532352615889
+cycle= 7 E= -52.2013147248963  delta_E= -2.01e-07  |g|= 6.6e-05  |ddm|= 0.000853
+  HOMO = -0.412748390161261  LUMO = 0.211516319181573
+cycle= 8 E= -52.2013147266267  delta_E= -1.73e-09  |g|= 4.38e-06  |ddm|= 8.4e-05
+  HOMO = -0.412748079427785  LUMO = 0.211517323117383
+cycle= 9 E= -52.2013147266366  delta_E= -9.86e-12  |g|= 3.98e-07  |ddm|= 6.78e-06
+converged SCF energy = -52.2013147266366
 
-energy from frozen occupied orbitals = -26.969047576981538
-deviation from DMET exact condition = 0.0039018980106391155
-energy from embedded cluster with low level calculation = -52.174677180763204
-total energy with low level calculation = -79.14762665575537
-R =  2.10 A  E_full_HF=-79.1476266558  E_full_MP2=-79.3484353687
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+energy from frozen occupied orbitals = -26.913411487429315
+deviation from DMET exact condition = 0.03290044167334827
+energy from embedded cluster with low level calculation = -52.2013147266366
+total energy with low level calculation = -79.14762665573926
+R =  2.10 A  E_full_HF=-79.1476266557  E_full_MP2=-79.3484353687
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -3073,7 +2947,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -3140,7 +3014,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -3271,14 +3145,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:49 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -3302,7 +3176,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.19
+CPU time:         1.65
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -3319,7 +3193,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpk4yok_ua
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpk1fob3bf
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3328,53 +3202,37 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -78.7132665058657
-  HOMO = -0.275523316649724  LUMO = -0.000115485727836699
-cycle= 1 E= -79.0920109719358  delta_E= -0.379  |g|= 0.205  |ddm|= 1.94
-  HOMO = -0.362021617148372  LUMO = 0.125602586866119
-cycle= 2 E= -79.1101088300482  delta_E= -0.0181  |g|= 0.0557  |ddm|= 0.203
-  HOMO = -0.346925272134678  LUMO = 0.150889994268256
-cycle= 3 E= -79.1113785311284  delta_E= -0.00127  |g|= 0.0142  |ddm|= 0.063
-  HOMO = -0.353218893759674  LUMO = 0.145918526945765
-cycle= 4 E= -79.1114589806284  delta_E= -8.04e-05  |g|= 0.00273  |ddm|= 0.016
-  HOMO = -0.352290413672059  LUMO = 0.146977146604252
-cycle= 5 E= -79.1114632400993  delta_E= -4.26e-06  |g|= 0.000325  |ddm|= 0.00665
-  HOMO = -0.352295988995766  LUMO = 0.147024167620747
-cycle= 6 E= -79.1114633448737  delta_E= -1.05e-07  |g|= 5.51e-05  |ddm|= 0.00177
-  HOMO = -0.352290444874622  LUMO = 0.147031666051036
-cycle= 7 E= -79.111463347944  delta_E= -3.07e-09  |g|= 6.01e-06  |ddm|= 0.000336
-  HOMO = -0.35229140676347  LUMO = 0.147031679352705
-cycle= 8 E= -79.1114633479756  delta_E= -3.16e-11  |g|= 4.96e-07  |ddm|= 2.22e-05
-  HOMO = -0.352291660847302  LUMO = 0.147031415890812
-Extra cycle  E= -79.1114633479757  delta_E= -8.53e-14  |g|= 1.28e-07  |ddm|= 1.32e-06
-converged SCF energy = -79.1114633479757
+init E= -78.7132665057373
+  HOMO = -0.275523316643711  LUMO = -0.000115485728476195
+cycle= 1 E= -79.0920109718165  delta_E= -0.379  |g|= 0.205  |ddm|= 1.94
+  HOMO = -0.362021617146542  LUMO = 0.125602586858963
+cycle= 2 E= -79.1101088299291  delta_E= -0.0181  |g|= 0.0557  |ddm|= 0.203
+  HOMO = -0.346925272130061  LUMO = 0.150889994263322
+cycle= 3 E= -79.1113785310095  delta_E= -0.00127  |g|= 0.0142  |ddm|= 0.063
+  HOMO = -0.353218893755619  LUMO = 0.145918526940569
+cycle= 4 E= -79.1114589805097  delta_E= -8.04e-05  |g|= 0.00273  |ddm|= 0.016
+  HOMO = -0.352290413668051  LUMO = 0.146977146599015
+cycle= 5 E= -79.1114632399804  delta_E= -4.26e-06  |g|= 0.000325  |ddm|= 0.00665
+  HOMO = -0.352295988991748  LUMO = 0.147024167615514
+cycle= 6 E= -79.1114633447548  delta_E= -1.05e-07  |g|= 5.51e-05  |ddm|= 0.00177
+  HOMO = -0.352290444870619  LUMO = 0.14703166604578
+cycle= 7 E= -79.1114633478251  delta_E= -3.07e-09  |g|= 6.01e-06  |ddm|= 0.000336
+  HOMO = -0.35229140675945  LUMO = 0.147031679347473
+cycle= 8 E= -79.1114633478569  delta_E= -3.18e-11  |g|= 4.96e-07  |ddm|= 2.22e-05
+  HOMO = -0.352291660843288  LUMO = 0.147031415885564
+Extra cycle  E= -79.111463347857  delta_E= -1.56e-13  |g|= 1.28e-07  |ddm|= 1.32e-06
+converged SCF energy = -79.111463347857
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.3172497085439  E_corr = -0.205786360568165
-E(SCS-RMP2) = -79.3267390524769  E_corr = -0.215275704501242
-E_corr(same-spin) = -0.0365399171314115
-E_corr(oppo-spin) = -0.169246443436754
+E(RMP2) = -79.317249708425  E_corr = -0.205786360567962
+E(SCS-RMP2) = -79.3267390523579  E_corr = -0.215275704500849
+E_corr(same-spin) = -0.0365399171315831
+E_corr(oppo-spin) = -0.169246443436379
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 9.657e-15
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 1.9753925360968753e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -3399,7 +3257,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp0yy1qmkn
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp5hulll1v
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3407,33 +3265,33 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -32.0722461696002
-  HOMO = -2.76555572558744  LUMO = -1.60751142876699
-cycle= 1 E= -48.0859165777034  delta_E=  -16  |g|= 3.15  |ddm|= 3.08
-  HOMO = 0.128453717618014  LUMO = 0.475702083529872
-cycle= 2 E= -50.4787453765252  delta_E= -2.39  |g|= 1.74  |ddm|= 4.36
-  HOMO = -0.320212878919002  LUMO = 0.0326663509437885
-cycle= 3 E= -51.8430563038497  delta_E= -1.36  |g|= 0.148  |ddm|= 2.26
-  HOMO = -0.386061934069088  LUMO = 0.160896099739669
-cycle= 4 E= -51.8505969685405  delta_E= -0.00754  |g|= 0.0259  |ddm|= 0.137
-  HOMO = -0.367100657380205  LUMO = 0.163652536895196
-cycle= 5 E= -51.8510488160327  delta_E= -0.000452  |g|= 0.00661  |ddm|= 0.0466
-  HOMO = -0.365110121492522  LUMO = 0.166128092074072
-cycle= 6 E= -51.8510724268158  delta_E= -2.36e-05  |g|= 0.00146  |ddm|= 0.0111
-  HOMO = -0.365228635976541  LUMO = 0.166030374724402
-cycle= 7 E= -51.8510730995342  delta_E= -6.73e-07  |g|= 0.000114  |ddm|= 0.00151
-  HOMO = -0.365218805080055  LUMO = 0.1660176985509
-cycle= 8 E= -51.8510731030816  delta_E= -3.55e-09  |g|= 1.66e-05  |ddm|= 8.52e-05
-  HOMO = -0.365219841077977  LUMO = 0.166020997839685
-cycle= 9 E= -51.8510731031701  delta_E= -8.85e-11  |g|= 7.87e-07  |ddm|= 1.64e-05
-converged SCF energy = -51.8510731031701
+init E= -32.0831985432383
+  HOMO = -2.79349342133216  LUMO = -1.60931068659589
+cycle= 1 E= -48.0225862182244  delta_E= -15.9  |g|= 3.17  |ddm|= 3.09
+  HOMO = 0.138121807434  LUMO = 0.482005046528909
+cycle= 2 E= -50.5081851286297  delta_E= -2.49  |g|= 1.76  |ddm|= 4.38
+  HOMO = -0.346784330294192  LUMO = 0.019954521795994
+cycle= 3 E= -51.864564623933  delta_E= -1.36  |g|= 0.121  |ddm|= 2.15
+  HOMO = -0.384213515737725  LUMO = 0.173445593249067
+cycle= 4 E= -51.8700439108055  delta_E= -0.00548  |g|= 0.0236  |ddm|= 0.127
+  HOMO = -0.371540551818893  LUMO = 0.167515206397641
+cycle= 5 E= -51.8703234942084  delta_E= -0.00028  |g|= 0.00401  |ddm|= 0.032
+  HOMO = -0.369468054766099  LUMO = 0.169540564689738
+cycle= 6 E= -51.8703367567528  delta_E= -1.33e-05  |g|= 0.00135  |ddm|= 0.00941
+  HOMO = -0.369514790280229  LUMO = 0.16947772362669
+cycle= 7 E= -51.8703373621705  delta_E= -6.05e-07  |g|= 7.47e-05  |ddm|= 0.00143
+  HOMO = -0.369516092243363  LUMO = 0.169454062106691
+cycle= 8 E= -51.8703373643607  delta_E= -2.19e-09  |g|= 1.05e-05  |ddm|= 9.49e-05
+  HOMO = -0.369517159037226  LUMO = 0.169456684637175
+cycle= 9 E= -51.8703373644043  delta_E= -4.36e-11  |g|= 1.09e-06  |ddm|= 1.28e-05
+converged SCF energy = -51.8703373644043
 
-energy from frozen occupied orbitals = -27.25872344257182
-deviation from DMET exact condition = 0.001666802233813769
-energy from embedded cluster with low level calculation = -51.85107310317006
-total energy with low level calculation = -79.1114633479757
-R =  2.30 A  E_full_HF=-79.1114633480  E_full_MP2=-79.3172497085
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+energy from frozen occupied orbitals = -27.224421593539148
+deviation from DMET exact condition = 0.016704389913570594
+energy from embedded cluster with low level calculation = -51.87033736440429
+total energy with low level calculation = -79.11146334785701
+R =  2.30 A  E_full_HF=-79.1114633479  E_full_MP2=-79.3172497084
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -3458,7 +3316,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -3525,7 +3383,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -3656,14 +3514,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:49 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -3687,7 +3545,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.29
+CPU time:         1.80
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -3704,7 +3562,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpdleo4gs1
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmp8xhc8idz
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3713,53 +3571,37 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -78.6667533831223
-  HOMO = -0.240988826641535  LUMO = -0.0558737309862026
-cycle= 1 E= -79.0400131447795  delta_E= -0.373  |g|= 0.214  |ddm|= 1.95
-  HOMO = -0.325644141210566  LUMO = 0.0698099223875945
-cycle= 2 E= -79.060475268564  delta_E= -0.0205  |g|= 0.0599  |ddm|= 0.217
-  HOMO = -0.309922172342327  LUMO = 0.0969669201075764
-cycle= 3 E= -79.0620874379497  delta_E= -0.00161  |g|= 0.0161  |ddm|= 0.0732
-  HOMO = -0.315922370216218  LUMO = 0.0921510943662807
-cycle= 4 E= -79.0621992960461  delta_E= -0.000112  |g|= 0.00308  |ddm|= 0.02
-  HOMO = -0.314803617234123  LUMO = 0.0934795902004115
-cycle= 5 E= -79.0622054417743  delta_E= -6.15e-06  |g|= 0.000392  |ddm|= 0.0089
-  HOMO = -0.314809364701796  LUMO = 0.0935317755814299
-cycle= 6 E= -79.0622056121943  delta_E= -1.7e-07  |g|= 7.16e-05  |ddm|= 0.00242
-  HOMO = -0.314806141043276  LUMO = 0.093537708229572
-cycle= 7 E= -79.0622056178182  delta_E= -5.62e-09  |g|= 6.91e-06  |ddm|= 0.000476
-  HOMO = -0.31480743919835  LUMO = 0.0935373317193538
-cycle= 8 E= -79.06220561786  delta_E= -4.18e-11  |g|= 5.99e-07  |ddm|= 2.66e-05
-  HOMO = -0.314807745521967  LUMO = 0.0935370073972822
-Extra cycle  E= -79.0622056178602  delta_E= -1.85e-13  |g|= 1.54e-07  |ddm|= 1.6e-06
-converged SCF energy = -79.0622056178602
+init E= -78.666753382988
+  HOMO = -0.240988826636273  LUMO = -0.055873730971052
+cycle= 1 E= -79.0400131446647  delta_E= -0.373  |g|= 0.214  |ddm|= 1.95
+  HOMO = -0.325644141203371  LUMO = 0.0698099224044995
+cycle= 2 E= -79.0604752684494  delta_E= -0.0205  |g|= 0.0599  |ddm|= 0.217
+  HOMO = -0.309922172335309  LUMO = 0.0969669201242527
+cycle= 3 E= -79.0620874378352  delta_E= -0.00161  |g|= 0.0161  |ddm|= 0.0732
+  HOMO = -0.315922370209045  LUMO = 0.0921510943829589
+cycle= 4 E= -79.0621992959315  delta_E= -0.000112  |g|= 0.00308  |ddm|= 0.02
+  HOMO = -0.314803617226935  LUMO = 0.0934795902170975
+cycle= 5 E= -79.0622054416597  delta_E= -6.15e-06  |g|= 0.000392  |ddm|= 0.0089
+  HOMO = -0.314809364694622  LUMO = 0.0935317755980887
+cycle= 6 E= -79.0622056120797  delta_E= -1.7e-07  |g|= 7.16e-05  |ddm|= 0.00242
+  HOMO = -0.314806141036089  LUMO = 0.0935377082462543
+cycle= 7 E= -79.0622056177036  delta_E= -5.62e-09  |g|= 6.91e-06  |ddm|= 0.000476
+  HOMO = -0.314807439191178  LUMO = 0.0935373317360135
+cycle= 8 E= -79.0622056177455  delta_E= -4.18e-11  |g|= 5.99e-07  |ddm|= 2.66e-05
+  HOMO = -0.31480774551478  LUMO = 0.0935370074139525
+Extra cycle  E= -79.0622056177456  delta_E= -1.56e-13  |g|= 1.54e-07  |ddm|= 1.6e-06
+converged SCF energy = -79.0622056177456
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.2772901520197  E_corr = -0.215084534159469
-E(SCS-RMP2) = -79.2879918551883  E_corr = -0.225786237328108
-E_corr(same-spin) = -0.0372867734576015
-E_corr(oppo-spin) = -0.177797760701867
+E(RMP2) = -79.2772901519046  E_corr = -0.215084534159006
+E(SCS-RMP2) = -79.2879918550732  E_corr = -0.225786237327584
+E_corr(same-spin) = -0.0372867734575663
+E_corr(oppo-spin) = -0.17779776070144
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 1.022e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 1.5471052308953987e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -3784,7 +3626,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpm5w3xhxz
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpx40gp67i
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -3792,33 +3634,33 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -31.8090028680216
-  HOMO = -2.72497544532086  LUMO = -1.5973325686903
-cycle= 1 E= -47.6571280553616  delta_E= -15.8  |g|= 3.16  |ddm|= 3.11
-  HOMO = 0.151828279044188  LUMO = 0.496288828413334
-cycle= 2 E= -49.982727099909  delta_E= -2.33  |g|= 1.77  |ddm|= 4.44
-  HOMO = -0.269992585440419  LUMO = -0.0393144860891244
-cycle= 3 E= -51.4594797743116  delta_E= -1.48  |g|= 0.237  |ddm|= 2.58
-  HOMO = -0.346748739579534  LUMO = 0.0846782681460904
-cycle= 4 E= -51.4808680219499  delta_E= -0.0214  |g|= 0.039  |ddm|= 0.279
-  HOMO = -0.323496974679558  LUMO = 0.103717839305466
-cycle= 5 E= -51.4820189726967  delta_E= -0.00115  |g|= 0.0204  |ddm|= 0.0872
-  HOMO = -0.320289437165127  LUMO = 0.105862360208613
-cycle= 6 E= -51.4821689963302  delta_E= -0.00015  |g|= 0.00254  |ddm|= 0.0219
-  HOMO = -0.320364069894598  LUMO = 0.105553480959082
-cycle= 7 E= -51.4821712687802  delta_E= -2.27e-06  |g|= 0.000473  |ddm|= 0.00326
-  HOMO = -0.320362951270393  LUMO = 0.105559505026138
-cycle= 8 E= -51.4821713348176  delta_E= -6.6e-08  |g|= 2.27e-05  |ddm|= 0.000408
-  HOMO = -0.320368022609155  LUMO = 0.105567401024867
-cycle= 9 E= -51.4821713349881  delta_E= -1.71e-10  |g|= 4.71e-06  |ddm|= 2.87e-05
-converged SCF energy = -51.4821713349881
+init E= -31.8161632349983
+  HOMO = -2.75766920580573  LUMO = -1.59828567763932
+cycle= 1 E= -47.605911483896  delta_E= -15.8  |g|= 3.16  |ddm|= 3.12
+  HOMO = 0.161651983530883  LUMO = 0.504401068720482
+cycle= 2 E= -50.0066029802013  delta_E= -2.4  |g|= 1.79  |ddm|= 4.46
+  HOMO = -0.288186041054886  LUMO = -0.0535315658116158
+cycle= 3 E= -51.4834128820084  delta_E= -1.48  |g|= 0.161  |ddm|= 2.42
+  HOMO = -0.342150180000903  LUMO = 0.113583548083703
+cycle= 4 E= -51.4925062909198  delta_E= -0.00909  |g|= 0.0273  |ddm|= 0.151
+  HOMO = -0.324124058176356  LUMO = 0.112133601132425
+cycle= 5 E= -51.4930666845965  delta_E= -0.00056  |g|= 0.0108  |ddm|= 0.0574
+  HOMO = -0.322222069573082  LUMO = 0.114417634223571
+cycle= 6 E= -51.4931167661501  delta_E= -5.01e-05  |g|= 0.00295  |ddm|= 0.0148
+  HOMO = -0.322212591885501  LUMO = 0.113982142508877
+cycle= 7 E= -51.4931196045754  delta_E= -2.84e-06  |g|= 0.00035  |ddm|= 0.00335
+  HOMO = -0.322219409589397  LUMO = 0.11400318433918
+cycle= 8 E= -51.4931196406993  delta_E= -3.61e-08  |g|= 3.82e-05  |ddm|= 0.000296
+  HOMO = -0.322222602160597  LUMO = 0.114011003170125
+cycle= 9 E= -51.4931196411794  delta_E= -4.8e-10  |g|= 2.31e-06  |ddm|= 3.88e-05
+converged SCF energy = -51.4931196411794
 
-energy from frozen occupied orbitals = -27.579586247704952
-deviation from DMET exact condition = 0.0004480351671389826
-energy from embedded cluster with low level calculation = -51.48217133498814
-total energy with low level calculation = -79.06220561786023
-R =  2.60 A  E_full_HF=-79.0622056179  E_full_MP2=-79.2772901520
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+energy from frozen occupied orbitals = -27.562945736703185
+deviation from DMET exact condition = 0.006140239863043462
+energy from embedded cluster with low level calculation = -51.493119641179405
+total energy with low level calculation = -79.06220561774563
+R =  2.60 A  E_full_HF=-79.0622056177  E_full_MP2=-79.2772901519
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -3843,7 +3685,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -3910,7 +3752,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -4041,14 +3883,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:49 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -4072,7 +3914,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.39
+CPU time:         1.94
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
@@ -4089,7 +3931,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpgiv8mt6f
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpj7sfs4o5
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -4098,53 +3940,37 @@ approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
 Initial guess from minao.
-init E= -78.6436251873316
-  HOMO = -0.209488776271461  LUMO = -0.101154470891635
-cycle= 1 E= -78.9848538227667  delta_E= -0.341  |g|= 0.218  |ddm|= 1.97
-  HOMO = -0.291325806269754  LUMO = 0.0156668768570993
-cycle= 2 E= -79.0067390178016  delta_E= -0.0219  |g|= 0.0623  |ddm|= 0.231
-  HOMO = -0.274153715446839  LUMO = 0.0437113693173604
-cycle= 3 E= -79.0086342852551  delta_E= -0.0019  |g|= 0.0181  |ddm|= 0.0857
-  HOMO = -0.279665005425556  LUMO = 0.0393033529253645
-cycle= 4 E= -79.0087813253608  delta_E= -0.000147  |g|= 0.00329  |ddm|= 0.0248
-  HOMO = -0.278469378089818  LUMO = 0.0407694341373266
-cycle= 5 E= -79.0087893524191  delta_E= -8.03e-06  |g|= 0.000432  |ddm|= 0.0113
-  HOMO = -0.278465001394508  LUMO = 0.0408308962857467
-cycle= 6 E= -79.0087895768474  delta_E= -2.24e-07  |g|= 8.32e-05  |ddm|= 0.00301
-  HOMO = -0.278464158002428  LUMO = 0.0408348761320826
-cycle= 7 E= -79.0087895849357  delta_E= -8.09e-09  |g|= 7.44e-06  |ddm|= 0.000608
-  HOMO = -0.278465577484576  LUMO = 0.0408342489664537
-cycle= 8 E= -79.0087895849867  delta_E= -5.1e-11  |g|= 6.54e-07  |ddm|= 3.26e-05
-  HOMO = -0.278465926416052  LUMO = 0.0408338783647957
-Extra cycle  E= -79.0087895849869  delta_E= -1.71e-13  |g|= 1.67e-07  |ddm|= 1.9e-06
-converged SCF energy = -79.0087895849869
+init E= -78.6436251874038
+  HOMO = -0.20948877628157  LUMO = -0.101154470890219
+cycle= 1 E= -78.9848538228561  delta_E= -0.341  |g|= 0.218  |ddm|= 1.97
+  HOMO = -0.291325806280858  LUMO = 0.0156668768586226
+cycle= 2 E= -79.0067390178911  delta_E= -0.0219  |g|= 0.0623  |ddm|= 0.231
+  HOMO = -0.27415371545772  LUMO = 0.0437113693192357
+cycle= 3 E= -79.0086342853445  delta_E= -0.0019  |g|= 0.0181  |ddm|= 0.0857
+  HOMO = -0.27966500543639  LUMO = 0.0393033529272417
+cycle= 4 E= -79.0087813254503  delta_E= -0.000147  |g|= 0.00329  |ddm|= 0.0248
+  HOMO = -0.278469378100674  LUMO = 0.0407694341391536
+cycle= 5 E= -79.0087893525083  delta_E= -8.03e-06  |g|= 0.000432  |ddm|= 0.0113
+  HOMO = -0.278465001405368  LUMO = 0.0408308962875565
+cycle= 6 E= -79.0087895769369  delta_E= -2.24e-07  |g|= 8.32e-05  |ddm|= 0.00301
+  HOMO = -0.278464158013273  LUMO = 0.040834876133899
+cycle= 7 E= -79.0087895850251  delta_E= -8.09e-09  |g|= 7.44e-06  |ddm|= 0.000608
+  HOMO = -0.278465577495425  LUMO = 0.0408342489682727
+cycle= 8 E= -79.008789585076  delta_E= -5.09e-11  |g|= 6.54e-07  |ddm|= 3.26e-05
+  HOMO = -0.27846592642691  LUMO = 0.0408338783666016
+Extra cycle  E= -79.0087895850763  delta_E= -3.13e-13  |g|= 1.67e-07  |ddm|= 1.9e-06
+converged SCF energy = -79.0087895850763
 
 ******** <class 'pyscf.mp.mp2.RMP2'> ********
 nocc = 9, nmo = 30
 max_memory 4000 MB (current use 0 MB)
-E(RMP2) = -79.2400088428958  E_corr = -0.231219257908941
-E(SCS-RMP2) = -79.2527679210072  E_corr = -0.243978336020331
-E_corr(same-spin) = -0.0386362770812292
-E_corr(oppo-spin) = -0.192582980827712
+E(RMP2) = -79.2400088429818  E_corr = -0.231219257905539
+E(SCS-RMP2) = -79.2527679210929  E_corr = -0.243978336016659
+E_corr(same-spin) = -0.0386362770807542
+E_corr(oppo-spin) = -0.192582980824784
 
 ******** <class 'embed_sim.ssdmet.SSDMET'> ********
 DMET from RHF
-This is imp_inds_comp []
-========== Check the orth and norm of IAO ==========
-A_normalized True
-A_orthogonal True
-
-A deviation from identity matrix: 1.158e-14
-Number of electrons:  18
-Number of closed orbitals:  9
-Number of open orbitals:  0
-========== Check the most important property of IAO: lo2mo in lo2iao ==========
-subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1.]  | rA,rB: 9 16
-QC-DMET :: iao_helper :: num_orb pmol = 16
-QC-DMET :: iao_helper :: num_orb mol  = 30
-QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 3.6947654499152296e-13
-****Restore imp: False
-****IAOPAO: True
 number of impurity orbitals = 15
 number of bath orbitals = 1
 number of embedded cluster orbitals = 16
@@ -4169,7 +3995,7 @@ SCF conv_tol_grad = None
 SCF max_cycles = 50
 direct_scf = True
 direct_scf_tol = 1e-13
-chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpt83e7qe4
+chkfile to save SCF result = /var/folders/96/mtgq8vdn0llg5663r2qq06_w0000gn/T/tmpr325lqs4
 max_memory 4000 MB (current use 0 MB)
 
 
@@ -4177,69 +4003,67 @@ max_memory 4000 MB (current use 0 MB)
 approx = 1e
 xuncontract = 1
 Set gradient conv threshold to 3.16228e-05
-init E= -31.5552879753824
-  HOMO = -2.69745779717562  LUMO = -1.587345797262
-cycle= 1 E= -47.263963916093  delta_E= -15.7  |g|= 3.15  |ddm|= 3.13
-  HOMO = 0.176440639401615  LUMO = 0.519685282759541
-cycle= 2 E= -49.5452475907071  delta_E= -2.28  |g|=  1.8  |ddm|= 4.49
-  HOMO = -0.237254644030948  LUMO = -0.0851523811640534
-cycle= 3 E= -51.0541235518211  delta_E= -1.51  |g|= 0.392  |ddm|= 2.92
-  HOMO = -0.306242935604818  LUMO = -0.00802118820559041
-cycle= 4 E= -51.1257324294227  delta_E= -0.0716  |g|= 0.092  |ddm|= 0.682
-  HOMO = -0.286977792321839  LUMO = 0.0472645391005105
-cycle= 5 E= -51.1292772682234  delta_E= -0.00354  |g|= 0.0547  |ddm|= 0.145
-  HOMO = -0.279128469256645  LUMO = 0.0481609352749222
-cycle= 6 E= -51.1303007776116  delta_E= -0.00102  |g|= 0.00202  |ddm|= 0.0573
-  HOMO = -0.280381937366307  LUMO = 0.0490539803611545
-cycle= 7 E= -51.1303026181196  delta_E= -1.84e-06  |g|= 0.0011  |ddm|= 0.00354
-  HOMO = -0.280351826023021  LUMO = 0.048899787624104
-cycle= 8 E= -51.1303029953354  delta_E= -3.77e-07  |g|= 5.75e-05  |ddm|= 0.00102
-  HOMO = -0.280362061833489  LUMO = 0.0489259344216036
-cycle= 9 E= -51.1303029965107  delta_E= -1.18e-09  |g|= 1.38e-05  |ddm|= 9.11e-05
-  HOMO = -0.280360444751844  LUMO = 0.0489250522279715
-cycle= 10 E= -51.1303029965752  delta_E= -6.45e-11  |g|= 3.27e-07  |ddm|= 1.48e-05
-converged SCF energy = -51.1303029965752
+init E= -31.5591030218603
+  HOMO = -2.73174375719493  LUMO = -1.58776931810333
+cycle= 1 E= -47.238564604138  delta_E= -15.7  |g|= 3.15  |ddm|= 3.14
+  HOMO = 0.184694693916299  LUMO = 0.526048445084439
+cycle= 2 E= -49.5648824154919  delta_E= -2.33  |g|= 1.81  |ddm|=  4.5
+  HOMO = -0.244521710061577  LUMO = -0.107676327123945
+cycle= 3 E= -51.0972378911582  delta_E= -1.53  |g|= 0.294  |ddm|= 2.76
+  HOMO = -0.30753049866072  LUMO = 0.0310460562942307
+cycle= 4 E= -51.1330017258056  delta_E= -0.0358  |g|= 0.0628  |ddm|= 0.425
+  HOMO = -0.285083060186064  LUMO = 0.0555960774077824
+cycle= 5 E= -51.1350931979919  delta_E= -0.00209  |g|= 0.0397  |ddm|= 0.119
+  HOMO = -0.280463084951103  LUMO = 0.0552261450754616
+cycle= 6 E= -51.1356315750339  delta_E= -0.000538  |g|= 0.00248  |ddm|= 0.0406
+  HOMO = -0.280967371853429  LUMO = 0.0550509132405177
+cycle= 7 E= -51.1356340393795  delta_E= -2.46e-06  |g|= 0.000945  |ddm|= 0.00417
+  HOMO = -0.280947832235478  LUMO = 0.0550627033333637
+cycle= 8 E= -51.1356343141576  delta_E= -2.75e-07  |g|= 3.4e-05  |ddm|= 0.000881
+  HOMO = -0.280959946156183  LUMO = 0.0550802775982415
+cycle= 9 E= -51.1356343146263  delta_E= -4.69e-10  |g|= 1.33e-05  |ddm|= 5.84e-05
+converged SCF energy = -51.1356343146263
 
-energy from frozen occupied orbitals = -27.878412002240005
-deviation from DMET exact condition = 7.458617167799275e-05
-energy from embedded cluster with low level calculation = -51.13030299657518
-total energy with low level calculation = -79.00878958498686
-R =  3.00 A  E_full_HF=-79.0087895850  E_full_MP2=-79.2400088429
+energy from frozen occupied orbitals = -27.871445297054812
+deviation from DMET exact condition = 0.0017099733951653207
+energy from embedded cluster with low level calculation = -51.135634314626294
+total energy with low level calculation = -79.00878958507627
+R =  3.00 A  E_full_HF=-79.0087895851  E_full_MP2=-79.2400088430
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 R/A        E_full_HF    E_full_MP2      E_emb_HF     E_emb_MP2    e_corr_emb      E_Direct        E_Corr    lam_bath  dE_fullMP2     dE_Corr
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-1.30    -79.17501234  -79.36169873  -79.08471179  -79.17217347   -0.08746167  -79.17217347  -79.26247401      1.0000    0.053607    0.055025
-1.40    -79.21062464  -79.39883438  -79.14830421  -79.23792710   -0.08962289  -79.23792710  -79.30024753      1.0000    0.016471    0.017252
-1.50    -79.22376683  -79.41361309  -79.18098282  -79.27280791   -0.09182509  -79.27280791  -79.31559192      1.0000    0.001692    0.001908
-1.54    -79.22479603  -79.41530537  -79.18805001  -79.28075342   -0.09270342  -79.28075342  -79.31749944      1.0000    0.000000    0.000000
-1.60    -79.22310999  -79.41461480  -79.19391766  -79.28793051   -0.09401286  -79.28793051  -79.31712285      1.0000    0.000691    0.000377
-1.70    -79.21414366  -79.40731471  -79.19435605  -79.29053269   -0.09617664  -79.29053269  -79.31032030      1.0000    0.007991    0.007179
-1.90    -79.18381515  -79.38050655  -79.17490802  -79.27545210   -0.10054408  -79.27545210  -79.28435922      1.0000    0.034799    0.033140
-2.10    -79.14762666  -79.34843537  -79.14372476  -79.24894496   -0.10522020  -79.24894496  -79.25284686      1.0000    0.066870    0.064653
-2.30    -79.11146335  -79.31724971  -79.10979655  -79.22022126   -0.11042471  -79.22022126  -79.22188806      1.0000    0.098056    0.095611
-2.60    -79.06220562  -79.27729015  -79.06175758  -79.18124352   -0.11948594  -79.18124352  -79.18169155      1.0000    0.138015    0.135808
-3.00    -79.00878958  -79.24000884  -79.00871500  -79.14322286   -0.13450786  -79.14322286  -79.14329744      1.0000    0.175297    0.174202
+1.30    -79.17501234  -79.36169873  -78.83323762  -78.92111048   -0.08787286  -78.92111048  -79.26288520      1.0000    0.053607    0.053253
+1.40    -79.21062464  -79.39883438  -78.93965824  -79.02891597   -0.08925772  -79.02891597  -79.29988236      1.0000    0.016471    0.016255
+1.50    -79.22376683  -79.41361309  -79.01306367  -79.10379946   -0.09073580  -79.10379946  -79.31450262      1.0000    0.001692    0.001635
+1.54    -79.22479603  -79.41530537  -79.03533319  -79.12667495   -0.09134176  -79.12667495  -79.31613779      1.0000    0.000000    0.000000
+1.60    -79.22310999  -79.41461480  -79.06252249  -79.15478399   -0.09226151  -79.15478399  -79.31537150      1.0000    0.000691    0.000766
+1.70    -79.21414366  -79.40731471  -79.09406339  -79.18788742   -0.09382402  -79.18788742  -79.30796768      1.0000    0.007991    0.008170
+1.90    -79.18381515  -79.38050655  -79.11973931  -79.21689481   -0.09715550  -79.21689481  -79.28097065      1.0000    0.034799    0.035167
+2.10    -79.14762666  -79.34843537  -79.11472621  -79.21574026   -0.10101405  -79.21574026  -79.24864070      1.0000    0.066870    0.067497
+2.30    -79.11146335  -79.31724971  -79.09475896  -79.20038857   -0.10562961  -79.20038857  -79.21709296      1.0000    0.098056    0.099045
+2.60    -79.06220562  -79.27729015  -79.05606538  -79.17024463   -0.11417925  -79.17024463  -79.17638487      1.0000    0.138015    0.139753
+3.00    -79.00878959  -79.24000884  -79.00707961  -79.13592721   -0.12884760  -79.13592721  -79.13763719      1.0000    0.175297    0.178501
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
 PES error vs all-electron MP2 (mHa):  dE(method) - dE(full MP2)
 ------------------------------------------------------------------------------
 R/A   err_Direct/mHa  err_Corr/mHa     dE_Direct
-1.30          54.973         1.419      0.108580
-1.40          26.355         0.781      0.042826
-1.50           6.253         0.215      0.007946
+1.30         151.958        -0.354      0.205564
+1.40          81.288        -0.216      0.097759
+1.50          21.183        -0.057      0.022875
 1.54           0.000         0.000      0.000000
-1.60          -7.868        -0.314     -0.007177
-1.70         -17.770        -0.812     -0.009779
-1.90         -29.498        -1.659      0.005301
-2.10         -35.062        -2.217      0.031808
-2.30         -37.524        -2.444      0.060532
-2.60         -38.505        -2.207      0.099510
-3.00         -37.766        -1.095      0.137531
+1.60         -28.800         0.076     -0.028109
+1.70         -69.203         0.179     -0.061212
+1.90        -125.019         0.368     -0.090220
+2.10        -155.935         0.627     -0.089065
+2.30        -171.769         0.989     -0.073714
+2.60        -181.585         1.738     -0.043570
+3.00        -184.549         3.204     -0.009252
 ------------------------------------------------------------------------------
-Direct  formula: max|PES err| =    54.97 mHa, RMS =    30.97 mHa
-Corr    formula: max|PES err| =     2.44 mHa, RMS =     1.45 mHa
-#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
+Direct  formula: max|PES err| =   184.55 mHa, RMS =   125.14 mHa
+Corr    formula: max|PES err| =     3.20 mHa, RMS =     1.17 mHa
+#INFO: **** input file is /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes.py ****
 '''
 Ethane C-C stretch PES with ONE bath orbital per bond (CH3-group impurity).
 
@@ -4264,7 +4088,7 @@ Run (from the repository root or with PYTHONPATH pointing at it):
 Required Python environment: pyscf, numpy, scipy, sympy (see DMET_main/CLAUDE.md).
 '''
 import sys
-sys.path.insert(0, '/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET')
+sys.path.append('/Users/cuihengxin/Desktop/2026phd/DMET_main')
 
 import os
 import numpy as np
@@ -4331,7 +4155,7 @@ def main():
         # embedded cluster: CH3 impurity + 1 bath orbital
         d = ssdmet.SSDMET(mf, title='ethane_1bath', imp_idx=IMP_LABELS,
                           bath_norb=BATH_NORB, verbose=4)
-        d.build(save_chk=False, iaopao=True)
+        d.build(save_chk=False)
         e_emb_hf = d.es_mf.e_tot + d.fo_ene
         mymp2 = mp.MP2(d.es_mf)
         mymp2.verbose = 0
@@ -4462,14 +4286,14 @@ if __name__ == '__main__':
 #INFO: ******************** input file end ********************
 
 
-System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
-Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
-numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
-Date: Tue Aug 18 21:12:02 2026
-PySCF version 2.11.0
-PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+System: uname_result(system='Darwin', node='192.168.1.177', release='24.5.0', version='Darwin Kernel Version 24.5.0: Tue Apr 22 19:48:46 PDT 2025; root:xnu-11417.121.6~2/RELEASE_ARM64_T8103', machine='arm64')  Threads 1
+Python 3.12.12 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 20:07:49) [Clang 20.1.8 ]
+numpy 2.4.6  scipy 1.18.0  h5py 3.16.0
+Date: Thu Aug 13 13:49:49 2026
+PySCF version 2.13.1
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.12/site-packages/pyscf
 
-[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[CONFIG] conf_file None
 [INPUT] verbose = 4
 [INPUT] num. atoms = 8
 [INPUT] num. electrons = 18
@@ -4493,7 +4317,7 @@ number of NR pGTOs = 68
 number of NR cGTOs = 30
 basis = 6-31g
 ecp = {}
-CPU time:         1.49
+CPU time:         2.08
 
 
 ******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
@@ -4512,6 +4336,7 @@ Bath selection report at R = 1.54 A (equilibrium):
   selected bath orbital: env index 10, lambda = 1.000000
   (criterion: occupation closest to 1 = largest min(lambda, 2-lambda))
 
-full results written to /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes_results.txt
-end time: 2026-08-18 21:12:02
-elapsed: 00:00:01
+full results written to /Users/cuihengxin/Desktop/2026phd/DMET_main/examples/test_example/one_bath_per_bond_ethane/ethane_one_bath_pes_results.txt
+end time: 2026-08-13 13:49:49
+elapsed: 00:00:03
+

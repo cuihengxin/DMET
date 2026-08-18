@@ -5,7 +5,7 @@ echo "start time: $(date +"%Y-%m-%d %H:%M:%S")" >> ethane_one_bath_pes.log
 start_ts=$(date +%s)
 #module load icc/latest
 #module load mkl/32/2023.2.0
-source activate base
+#source activate mokit-py39
 python ethane_one_bath_pes.py >ethane_one_bath_pes.log
 
 end_ts=$(date +%s)
@@ -26,4 +26,3 @@ else
         printf "elapsed: %02d:%02d:%02d\n" $hh $mm $ss >> ethane_one_bath_pes.log
     fi
 fi
-
