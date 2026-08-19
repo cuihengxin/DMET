@@ -137,7 +137,7 @@ class DFSSDMET(ssdmet.SSDMET):
             fh5['es_dm'] = self.es_dm
         return 
 
-    def build(self, restore_imp = False, chk_fname_load='', save_chk=True, xc=None):
+    def build(self, restore_imp = False, iaopao = False, chk_fname_load='', save_chk=True, xc=None):
         self.dump_flags()
         dm = ssdmet.mf_or_cas_make_rdm1s(self.mf_or_cas)
         if dm.ndim == 3: # ROHF density matrix have dimension (2, nao, nao)
@@ -151,7 +151,7 @@ class DFSSDMET(ssdmet.SSDMET):
         loaded = self.load_chk(chk_fname_load)
         
         if not loaded:
-            ldm, caolo, cloao = self.lowdin_orth(restore_imp)
+            ldm, caolo, cloao = self.lowdin_orth(restore_imp, iaopao)
 
             bath_norb = self.bath_norb
             if isinstance(bath_norb, str):
@@ -179,6 +179,8 @@ class DFSSDMET(ssdmet.SSDMET):
             self.nfo = nfo
             self.nfv = nfv
             self.nes = nimp + nbath
+            self.log.info(f"****Restore imp: {restore_imp}")
+            self.log.info(f"****IAOPAO: {iaopao}")
             self.log.info(f'number of impurity orbitals = {nimp}')
             self.log.info(f'number of bath orbitals = {nbath}')
             self.log.info(f'number of embedded cluster orbitals = {nimp+nbath}')
