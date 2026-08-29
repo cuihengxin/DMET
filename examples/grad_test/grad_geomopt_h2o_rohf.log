@@ -1,0 +1,4547 @@
+======================================================================
+H2O 结构优化（SSDMET 解析梯度 + scipy BFGS）
+  imp = O.*,  bath_norb = 2,  basis = ccpvdz
+======================================================================
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpyh2dfzk6
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -80.2827396191009
+  HOMO = -0.167333069247063  LUMO = 0.0447386732850726
+cycle= 1 E= -80.2827396191009  delta_E= -4.26e-14  |g|= 9.96e-08  |ddm|= 1.38e-07
+converged SCF energy = -80.2827396191009
+
+energy from frozen occupied orbitals = 4.632350299305816
+deviation from DMET exact condition = -4.263256414560601e-14
+energy from embedded cluster with low level calculation = -80.28273961910091
+total energy with low level calculation = -75.65038931979505
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000   -0.000000000   -0.077241197
+1   H      0.041331524    0.000000000    0.038620598
+2   H     -0.041331524    0.000000000    0.038620598
+------------------------------------
+  step   1:  E=-75.6503893198  R(OH)= 3.5905 Bohr  angle= 104.50°  |grad|= 7.72e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpds5f9h5z
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -80.4294283025246
+  HOMO = -0.161300775618465  LUMO = 0.0679197365027362
+cycle= 1 E= -80.4294283025246  delta_E= -7.11e-14  |g|= 1.27e-07  |ddm|= 1.94e-07
+converged SCF energy = -80.4294283025246
+
+energy from frozen occupied orbitals = 4.766540657630831
+deviation from DMET exact condition = 1.4210854715202004e-14
+energy from embedded cluster with low level calculation = -80.42942830252464
+total energy with low level calculation = -75.66288764489383
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000   -0.000000000   -0.078054929
+1   H      0.043249661   -0.000000000    0.039027465
+2   H     -0.043249661   -0.000000000    0.039027465
+------------------------------------
+  step   2:  E=-75.6628876449  R(OH)= 3.4875 Bohr  angle= 106.68°  |grad|= 7.81e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpa721zapb
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.0816302614228
+  HOMO = -0.134881586816306  LUMO = 0.20546687857017
+cycle= 1 E= -81.0816302614226  delta_E= 1.85e-13  |g|= 4.37e-08  |ddm|= 9.35e-08
+converged SCF energy = -81.0816302614226
+
+energy from frozen occupied orbitals = 5.367522351324435
+deviation from DMET exact condition = 9.947598300641403e-14
+energy from embedded cluster with low level calculation = -81.08163026142257
+total energy with low level calculation = -75.71410791009824
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000   -0.000000000   -0.075003864
+1   H      0.048575443    0.000000000    0.037501932
+2   H     -0.048575443    0.000000000    0.037501932
+------------------------------------
+  step   3:  E=-75.7141079101  R(OH)= 3.0903 Bohr  angle= 116.82°  |grad|= 7.50e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp1m_ks75m
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -84.1017405213879
+  HOMO = -0.0165994748273822  LUMO = 0.548515800313896
+cycle= 1 E= -84.1017405213878  delta_E= 1.42e-13  |g|= 8.26e-09  |ddm|= 4.17e-08
+converged SCF energy = -84.1017405213878
+
+energy from frozen occupied orbitals = 8.314351245374972
+deviation from DMET exact condition = 1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -84.10174052138777
+total energy with low level calculation = -75.7873892760129
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000    0.000000000   -0.018908029
+1   H     -0.058642142    0.000000000    0.009454014
+2   H      0.058642142   -0.000000000    0.009454014
+------------------------------------
+  step   4:  E=-75.7873892760  R(OH)= 1.9849 Bohr  angle= 166.40°  |grad|= 5.86e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpm72kmzu3
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.46421338258
+  HOMO = -0.0469143553885398  LUMO = 0.541139852304695
+cycle= 1 E= -83.4642133825798  delta_E= 1.85e-13  |g|= 1.39e-08  |ddm|= 6.46e-08
+converged SCF energy = -83.4642133825798
+
+energy from frozen occupied orbitals = 7.665181497903093
+deviation from DMET exact condition = 5.684341886080802e-14
+energy from embedded cluster with low level calculation = -83.46421338257983
+total energy with low level calculation = -75.7990318846768
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000    0.000000000    0.002064652
+1   H     -0.014660058   -0.000000000   -0.001032326
+2   H      0.014660058   -0.000000000   -0.001032326
+------------------------------------
+  step   5:  E=-75.7990318847  R(OH)= 2.1527 Bohr  angle= 174.24°  |grad|= 1.47e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpxpt8jotq
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.7428143718605
+  HOMO = -0.0759212116185841  LUMO = 0.559285584840768
+cycle= 1 E= -82.74281437186  delta_E= 4.69e-13  |g|= 2.69e-09  |ddm|= 8.36e-09
+converged SCF energy = -82.74281437186
+
+energy from frozen occupied orbitals = 6.947300078281145
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -82.74281437186005
+total energy with low level calculation = -75.7955142935789
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000   -0.000000000   -0.014769588
+1   H      0.024304000    0.000000000    0.007384794
+2   H     -0.024304000   -0.000000000    0.007384794
+------------------------------------
+  step   6:  E=-75.7955142936  R(OH)= 2.3769 Bohr  angle= 154.36°  |grad|= 2.43e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpkhqtxizw
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2410946530035
+  HOMO = -0.0564793132422246  LUMO = 0.545236891757252
+cycle= 1 E= -83.2410946530035  delta_E= -1.42e-14  |g|= 5.11e-08  |ddm|= 2.24e-07
+converged SCF energy = -83.2410946530035
+
+energy from frozen occupied orbitals = 7.4410132978495955
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -83.24109465300353
+total energy with low level calculation = -75.80008135515394
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000   -0.000000000    0.000372936
+1   H     -0.000712928   -0.000000000   -0.000186468
+2   H      0.000712928    0.000000000   -0.000186468
+------------------------------------
+  step   7:  E=-75.8000813552  R(OH)= 2.2179 Bohr  angle= 167.36°  |grad|= 7.13e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpcjtm0h8c
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2240027832667
+  HOMO = -0.057171597888644  LUMO = 0.545660163214283
+cycle= 1 E= -83.2240027832665  delta_E= 1.71e-13  |g|= 5.54e-08  |ddm|= 2.4e-07
+converged SCF energy = -83.2240027832665
+
+energy from frozen occupied orbitals = 7.423917351399474
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -83.22400278326649
+total energy with low level calculation = -75.80008543186699
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000   -0.000000000    0.000069600
+1   H      0.000298725    0.000000000   -0.000034800
+2   H     -0.000298725   -0.000000000   -0.000034800
+------------------------------------
+  step   8:  E=-75.8000854319  R(OH)= 2.2230 Bohr  angle= 166.82°  |grad|= 2.99e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpmr3mtsr7
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2264612818539
+  HOMO = -0.057066234537331  LUMO = 0.545610978671391
+cycle= 1 E= -83.226461281854  delta_E= -8.53e-14  |g|= 5.49e-08  |ddm|= 2.38e-07
+converged SCF energy = -83.226461281854
+
+energy from frozen occupied orbitals = 7.426375678341235
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -83.22646128185403
+total energy with low level calculation = -75.8000856035128
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000   -0.000000000    0.000113370
+1   H      0.000156562   -0.000000000   -0.000056685
+2   H     -0.000156562    0.000000000   -0.000056685
+------------------------------------
+  step   9:  E=-75.8000856035  R(OH)= 2.2223 Bohr  angle= 166.88°  |grad|= 1.57e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpez3ui80m
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2271801010024
+  HOMO = -0.0570278238899188  LUMO = 0.545612147216456
+cycle= 1 E= -83.2271801010023  delta_E= 2.84e-14  |g|= 5.48e-08  |ddm|= 2.38e-07
+converged SCF energy = -83.2271801010023
+
+energy from frozen occupied orbitals = 7.4270944115219395
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -83.22718010100235
+total energy with low level calculation = -75.80008568948041
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000001    0.000000000    0.000124473
+1   H      0.000118421    0.000000000   -0.000062236
+2   H     -0.000118421   -0.000000000   -0.000062236
+------------------------------------
+  step  10:  E=-75.8000856895  R(OH)= 2.2220 Bohr  angle= 166.87°  |grad|= 1.24e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpwcjvfxev
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2279811438369
+  HOMO = -0.0569765477667587  LUMO = 0.54563080388741
+cycle= 1 E= -83.227981143837  delta_E= -5.68e-14  |g|= 5.5e-08  |ddm|= 2.39e-07
+converged SCF energy = -83.227981143837
+
+energy from frozen occupied orbitals = 7.427895289290529
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -83.22798114383698
+total energy with low level calculation = -75.80008585454645
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000003   -0.000000000    0.000135062
+1   H      0.000079774   -0.000000000   -0.000067531
+2   H     -0.000079771    0.000000000   -0.000067531
+------------------------------------
+  step  11:  E=-75.8000858545  R(OH)= 2.2218 Bohr  angle= 166.82°  |grad|= 1.35e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpm__xw__s
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2311774232817
+  HOMO = -0.0567715652495338  LUMO = 0.54570664684535
+cycle= 1 E= -83.2311774232819  delta_E= -1.99e-13  |g|= 5.55e-08  |ddm|= 2.4e-07
+converged SCF energy = -83.2311774232819
+
+energy from frozen occupied orbitals = 7.431091078681637
+deviation from DMET exact condition = -4.263256414560601e-14
+energy from embedded cluster with low level calculation = -83.23117742328193
+total energy with low level calculation = -75.80008634460026
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000011    0.000000000    0.000177876
+1   H     -0.000074279   -0.000000000   -0.000088937
+2   H      0.000074290   -0.000000000   -0.000088939
+------------------------------------
+  step  12:  E=-75.8000863446  R(OH)= 2.2209 Bohr  angle= 166.66°  |grad|= 1.78e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp1uburbfu
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2355993621494
+  HOMO = -0.0564081112163786  LUMO = 0.545978543807123
+cycle= 1 E= -83.2355993621495  delta_E= -9.95e-14  |g|= 5.75e-08  |ddm|= 2.47e-07
+converged SCF energy = -83.2355993621495
+
+energy from frozen occupied orbitals = 7.435511913587039
+deviation from DMET exact condition = 2.842170943040401e-14
+energy from embedded cluster with low level calculation = -83.23559936214949
+total energy with low level calculation = -75.80008744856248
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000078   -0.000000000    0.000222493
+1   H     -0.000250478    0.000000000   -0.000111241
+2   H      0.000250556   -0.000000000   -0.000111251
+------------------------------------
+  step  13:  E=-75.8000874486  R(OH)= 2.2196 Bohr  angle= 166.16°  |grad|= 2.51e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpgsvwre8s
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2404695970896
+  HOMO = -0.0558751183256503  LUMO = 0.54656167489977
+cycle= 1 E= -83.2404695970897  delta_E= -1.42e-13  |g|= 6.18e-08  |ddm|= 2.63e-07
+converged SCF energy = -83.2404695970897
+
+energy from frozen occupied orbitals = 7.440380201583229
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -83.24046959708974
+total energy with low level calculation = -75.80008939550649
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000478    0.000000000    0.000245068
+1   H     -0.000381837   -0.000000000   -0.000122503
+2   H      0.000382315   -0.000000000   -0.000122565
+------------------------------------
+  step  14:  E=-75.8000893955  R(OH)= 2.2182 Bohr  angle= 165.19°  |grad|= 3.82e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpal02ysou
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2455551008919
+  HOMO = -0.055009303347265  LUMO = 0.547848934230571
+cycle= 1 E= -83.2455551008918  delta_E= 5.68e-14  |g|= 7.45e-08  |ddm|= 3.06e-07
+converged SCF energy = -83.2455551008918
+
+energy from frozen occupied orbitals = 7.445462688997014
+deviation from DMET exact condition = -1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -83.24555510089183
+total energy with low level calculation = -75.80009241189471
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000003264    0.000000000    0.000185648
+1   H     -0.000370096   -0.000000000   -0.000092585
+2   H      0.000373361   -0.000000000   -0.000093063
+------------------------------------
+  step  15:  E=-75.8000924119  R(OH)= 2.2168 Bohr  angle= 163.32°  |grad|= 3.73e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmprpiznxa0
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2460912685256
+  HOMO = -0.0543349989945109  LUMO = 0.549266091139552
+cycle= 1 E= -83.2460912685257  delta_E= -1.28e-13  |g|= 1.75e-07  |ddm|= 6.58e-07
+converged SCF energy = -83.2460912685257
+
+energy from frozen occupied orbitals = 7.4459981360269385
+deviation from DMET exact condition = -1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -83.2460912685257
+total energy with low level calculation = -75.80009313249865
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000020527    0.000000000   -0.000009556
+1   H     -0.000084456   -0.000000000    0.000006449
+2   H      0.000104982    0.000000000    0.000003107
+------------------------------------
+  step  16:  E=-75.8000931325  R(OH)= 2.2168 Bohr  angle= 161.52°  |grad|= 1.05e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpdje82bk_
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2442939762725
+  HOMO = -0.0547109787508872  LUMO = 0.548638552764322
+cycle= 1 E= -83.2442939762728  delta_E= -3.27e-13  |g|= 2.35e-07  |ddm|= 8.65e-07
+converged SCF energy = -83.2442939762728
+
+energy from frozen occupied orbitals = 7.444200491201411
+deviation from DMET exact condition = -3.268496584496461e-13
+energy from embedded cluster with low level calculation = -83.24429397627281
+total energy with low level calculation = -75.80009348507107
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000051413    0.000000000    0.000048136
+1   H     -0.000107518   -0.000000000   -0.000020064
+2   H      0.000158931    0.000000000   -0.000028072
+------------------------------------
+  step  17:  E=-75.8000934851  R(OH)= 2.2173 Bohr  angle= 162.30°  |grad|= 1.59e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp62r5njcn
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2428644372939
+  HOMO = -0.0548129598647533  LUMO = 0.548574153276901
+cycle= 1 E= -83.2428644372937  delta_E= 1.99e-13  |g|= 1.93e-08  |ddm|= 6.65e-08
+converged SCF energy = -83.2428644372937
+
+energy from frozen occupied orbitals = 7.4427708647393045
+deviation from DMET exact condition = 1.4210854715202004e-14
+energy from embedded cluster with low level calculation = -83.24286443729375
+total energy with low level calculation = -75.80009357255446
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000206947   -0.000000000    0.000027471
+1   H      0.000032864    0.000000000    0.000002291
+2   H      0.000174082    0.000000000   -0.000029763
+------------------------------------
+  step  18:  E=-75.8000935726  R(OH)= 2.2176 Bohr  angle= 162.39°  |grad|= 2.07e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpofl56dr3
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2403776708719
+  HOMO = -0.0549830843018827  LUMO = 0.548463855221332
+cycle= 1 E= -83.2403776708719  delta_E= -2.84e-14  |g|= 1.34e-08  |ddm|= 3.7e-08
+converged SCF energy = -83.2403776708719
+
+energy from frozen occupied orbitals = 7.440283845389074
+deviation from DMET exact condition = 1.2789769243681803e-13
+energy from embedded cluster with low level calculation = -83.24037767087191
+total energy with low level calculation = -75.80009382548296
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000944438    0.000000000   -0.000010183
+1   H      0.000513589    0.000000000    0.000077658
+2   H      0.000430848   -0.000000000   -0.000067475
+------------------------------------
+  step  19:  E=-75.8000938255  R(OH)= 2.2179 Bohr  angle= 162.53°  |grad|= 9.44e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpfkzkwnmu
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.2303508041157
+  HOMO = -0.0556577139140712  LUMO = 0.547847643576851
+cycle= 1 E= -83.2303508041159  delta_E= -1.99e-13  |g|= 2.66e-08  |ddm|= 6.37e-08
+converged SCF energy = -83.2303508041159
+
+energy from frozen occupied orbitals = 7.430254463979196
+deviation from DMET exact condition = 5.684341886080802e-14
+energy from embedded cluster with low level calculation = -83.23035080411589
+total energy with low level calculation = -75.80009634013675
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.003910481   -0.000000000   -0.000156527
+1   H      0.002448125    0.000000000    0.000369209
+2   H      0.001462355    0.000000000   -0.000212682
+------------------------------------
+  step  20:  E=-75.8000963401  R(OH)= 2.2192 Bohr  angle= 163.08°  |grad|= 3.91e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpwdu1mrlt
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.1889965019569
+  HOMO = -0.0582575567775317  LUMO = 0.542831995402662
+cycle= 1 E= -83.1889965019566  delta_E= 3.27e-13  |g|= 6.97e-08  |ddm|= 1.21e-07
+converged SCF energy = -83.1889965019566
+
+energy from frozen occupied orbitals = 7.388867577372501
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -83.1889965019566
+total energy with low level calculation = -75.8001289245841
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.015961494   -0.000000000   -0.000668374
+1   H      0.010330584    0.000000000    0.001367754
+2   H      0.005630911    0.000000000   -0.000699380
+------------------------------------
+  step  21:  E=-75.8001289246  R(OH)= 2.2248 Bohr  angle= 165.25°  |grad|= 1.60e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmproi9kx60
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.0055290497853
+  HOMO = -0.0671593035279579  LUMO = 0.507153169877685
+cycle= 1 E= -83.0055290497854  delta_E= -1.14e-13  |g|= 6.04e-08  |ddm|= 1.53e-07
+converged SCF energy = -83.0055290497854
+
+energy from frozen occupied orbitals = 7.205051283896537
+deviation from DMET exact condition = 5.684341886080802e-14
+energy from embedded cluster with low level calculation = -83.00552904978537
+total energy with low level calculation = -75.80047776588889
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.062039490   -0.000000000   -0.001284998
+1   H      0.041301518    0.000000000    0.002348863
+2   H      0.020737972   -0.000000000   -0.001063865
+------------------------------------
+  step  22:  E=-75.8004777659  R(OH)= 2.2551 Bohr  angle= 173.71°  |grad|= 6.20e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmprpur24i1
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.0940231221028
+  HOMO = -0.0952022332723774  LUMO = 0.503721277937383
+cycle= 1 E= -82.0940231221028  delta_E= -5.68e-14  |g|= 4.37e-08  |ddm|= 6.68e-08
+converged SCF energy = -82.0940231221028
+
+energy from frozen occupied orbitals = 6.301063110624826
+deviation from DMET exact condition = 1.2789769243681803e-13
+energy from embedded cluster with low level calculation = -82.09402312210281
+total energy with low level calculation = -75.79296001147812
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.140473304   -0.000000000    0.020821049
+1   H      0.109589063    0.000000000   -0.025228175
+2   H      0.030884241   -0.000000000    0.004407126
+------------------------------------
+  step  23:  E=-75.7929600115  R(OH)= 2.4894 Bohr  angle= 157.17°  |grad|= 1.40e-01
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp9yvye9qk
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.913596411187
+  HOMO = -0.0706852836724456  LUMO = 0.494769135121015
+cycle= 1 E= -82.9135964111868  delta_E= 1.99e-13  |g|= 1.1e-07  |ddm|= 2.2e-07
+converged SCF energy = -82.9135964111868
+
+energy from frozen occupied orbitals = 7.1129773168586565
+deviation from DMET exact condition = -5.684341886080802e-14
+energy from embedded cluster with low level calculation = -82.91359641118677
+total energy with low level calculation = -75.80061909432806
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.079426641   -0.000000000   -0.000682741
+1   H      0.053751968    0.000000000    0.001229133
+2   H      0.025674673    0.000000000   -0.000546392
+------------------------------------
+  step  24:  E=-75.8006190943  R(OH)= 2.2730 Bohr  angle= 177.42°  |grad|= 7.94e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpwmshn2r_
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.8525094111892
+  HOMO = -0.0728556845709017  LUMO = 0.489245200199773
+cycle= 1 E= -82.8525094111894  delta_E= -1.99e-13  |g|= 3.58e-08  |ddm|= 6.54e-08
+converged SCF energy = -82.8525094111894
+
+energy from frozen occupied orbitals = 7.051858349498001
+deviation from DMET exact condition = -1.4210854715202004e-14
+energy from embedded cluster with low level calculation = -82.85250941118944
+total energy with low level calculation = -75.80065106169143
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.089080198   -0.000000000    0.000016646
+1   H      0.060995591    0.000000000    0.000074397
+2   H      0.028084607   -0.000000000   -0.000091042
+------------------------------------
+  step  25:  E=-75.8006510617  R(OH)= 2.2856 Bohr  angle= 179.74°  |grad|= 8.91e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 2
+number of embedded cluster orbitals = 16
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 8
+number of frozen orbitals = 8
+percentage of embedded cluster orbitals = 66.67%
+percentage of frozen orbitals = 33.33%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpuc4yedux
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -76.5776021158503
+  HOMO = -0.186498048612174  LUMO = 0.00952990683661688
+cycle= 1 E= -76.5776021158503  delta_E= 4.26e-14  |g|= 2.42e-09  |ddm|= 5.05e-09
+converged SCF energy = -76.5776021158503
+
+energy from frozen occupied orbitals = 0.9137665823125093
+deviation from DMET exact condition = -1.4210854715202004e-14
+energy from embedded cluster with low level calculation = -76.57760211585027
+total energy with low level calculation = -75.66383553353775
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000000000    0.000000000    0.000000000
+1   H      0.000000000   -0.000000000   -0.000000000
+2   H     -0.000000000   -0.000000000   -0.000000000
+------------------------------------
+  step  26:  E=-75.6638355335  R(OH)= 17.4078 Bohr  angle= 60.66°  |grad|= 1.08e-10
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpu_asgbcw
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.8235451410315
+  HOMO = -0.0738480904594509  LUMO = 0.48725115555345
+cycle= 1 E= -82.8235451410313  delta_E= 1.71e-13  |g|= 1.01e-07  |ddm|= 1.78e-07
+converged SCF energy = -82.8235451410313
+
+energy from frozen occupied orbitals = 7.022900353489643
+deviation from DMET exact condition = 4.263256414560601e-14
+energy from embedded cluster with low level calculation = -82.82354514103129
+total energy with low level calculation = -75.80064478754169
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.093208716    0.000000000    0.000424413
+1   H      0.064182022    0.000000000   -0.000563655
+2   H      0.029026694   -0.000000000    0.000139242
+------------------------------------
+  step  27:  E=-75.8006447875  R(OH)= 2.2919 Bohr  angle= 179.20°  |grad|= 9.32e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp83l5wzzq
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.849620098402
+  HOMO = -0.072955589350184  LUMO = 0.489028876569716
+cycle= 1 E= -82.849620098402  delta_E=    0  |g|= 2.32e-08  |ddm|= 4.51e-08
+converged SCF energy = -82.849620098402
+
+energy from frozen occupied orbitals = 7.048968958009747
+deviation from DMET exact condition = -1.4210854715202004e-14
+energy from embedded cluster with low level calculation = -82.84962009840199
+total energy with low level calculation = -75.80065114039222
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.089504816    0.000000000    0.000055145
+1   H      0.061320529   -0.000000000    0.000013245
+2   H      0.028184287   -0.000000000   -0.000068389
+------------------------------------
+  step  28:  E=-75.8006511404  R(OH)= 2.2863 Bohr  angle= 179.84°  |grad|= 8.95e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp2427ydq9
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.8495809944513
+  HOMO = -0.0729567506872195  LUMO = 0.489024056805351
+cycle= 1 E= -82.8495809944514  delta_E= -1.42e-13  |g|= 2.33e-08  |ddm|= 4.51e-08
+converged SCF energy = -82.8495809944514
+
+energy from frozen occupied orbitals = 7.048929695077943
+deviation from DMET exact condition = 4.263256414560601e-14
+energy from embedded cluster with low level calculation = -82.84958099445141
+total energy with low level calculation = -75.80065129937351
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.089512267   -0.000000000    0.000055088
+1   H      0.061325717    0.000000000    0.000013354
+2   H      0.028186549    0.000000000   -0.000068442
+------------------------------------
+  step  29:  E=-75.8006512994  R(OH)= 2.2863 Bohr  angle= 179.84°  |grad|= 8.95e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpw2rf4hxd
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.8494245839406
+  HOMO = -0.0729613960527927  LUMO = 0.489004786949979
+cycle= 1 E= -82.8494245839407  delta_E= -1.28e-13  |g|= 2.34e-08  |ddm|= 4.53e-08
+converged SCF energy = -82.8494245839407
+
+energy from frozen occupied orbitals = 7.048772648534634
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -82.84942458394073
+total energy with low level calculation = -75.80065193540607
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.089542060    0.000000000    0.000054859
+1   H      0.061346466   -0.000000000    0.000013792
+2   H      0.028195594   -0.000000000   -0.000068651
+------------------------------------
+  step  30:  E=-75.8006519354  R(OH)= 2.2863 Bohr  angle= 179.84°  |grad|= 8.95e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpgplfvl4e
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.8487990265475
+  HOMO = -0.0729799778105601  LUMO = 0.488927854639338
+cycle= 1 E= -82.8487990265476  delta_E= -8.53e-14  |g|= 2.38e-08  |ddm|= 4.6e-08
+converged SCF energy = -82.8487990265476
+
+energy from frozen occupied orbitals = 7.048144545291096
+deviation from DMET exact condition = 5.684341886080802e-14
+energy from embedded cluster with low level calculation = -82.84879902654762
+total energy with low level calculation = -75.80065448125659
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.089661099   -0.000000000    0.000053943
+1   H      0.061429383    0.000000000    0.000015544
+2   H      0.028231716    0.000000000   -0.000069487
+------------------------------------
+  step  31:  E=-75.8006544813  R(OH)= 2.2864 Bohr  angle= 179.84°  |grad|= 8.97e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpj0njdbbh
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.8462981502642
+  HOMO = -0.0730543105890238  LUMO = 0.488622471675852
+cycle= 1 E= -82.8462981502645  delta_E= -3.13e-13  |g|= 2.56e-08  |ddm|= 4.88e-08
+converged SCF energy = -82.8462981502645
+
+energy from frozen occupied orbitals = 7.045633458378474
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -82.84629815026452
+total energy with low level calculation = -75.80066469188601
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.090135135    0.000000000    0.000050249
+1   H      0.061759844   -0.000000000    0.000022600
+2   H      0.028375291   -0.000000000   -0.000072848
+------------------------------------
+  step  32:  E=-75.8006646919  R(OH)= 2.2868 Bohr  angle= 179.83°  |grad|= 9.01e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpsrsygur4
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.8363162272326
+  HOMO = -0.0733517964529366  LUMO = 0.487437992195338
+cycle= 1 E= -82.8363162272325  delta_E= 9.95e-14  |g|= 3.3e-08  |ddm|= 6.08e-08
+converged SCF energy = -82.8363162272325
+
+energy from frozen occupied orbitals = 7.035610275758822
+deviation from DMET exact condition = -5.684341886080802e-14
+energy from embedded cluster with low level calculation = -82.83631622723247
+total energy with low level calculation = -75.80070595147359
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.091997699   -0.000000000    0.000034967
+1   H      0.063062585    0.000000000    0.000051539
+2   H      0.028935114    0.000000000   -0.000086506
+------------------------------------
+  step  33:  E=-75.8007059515  R(OH)= 2.2885 Bohr  angle= 179.78°  |grad|= 9.20e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpatch3z91
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.7967294008051
+  HOMO = -0.0745477077699537  LUMO = 0.483260682025932
+cycle= 1 E= -82.796729400805  delta_E= 1.14e-13  |g|= 1.38e-07  |ddm|= 2.65e-07
+converged SCF energy = -82.796729400805
+
+energy from frozen occupied orbitals = 6.995852894387357
+deviation from DMET exact condition = -1.7053025658242404e-13
+energy from embedded cluster with low level calculation = -82.79672940080502
+total energy with low level calculation = -75.8008765064175
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.098934320   -0.000000000   -0.000034002
+1   H      0.067982039    0.000000000    0.000178040
+2   H      0.030952281   -0.000000000   -0.000144037
+------------------------------------
+  step  34:  E=-75.8008765064  R(OH)= 2.2953 Bohr  angle= 179.57°  |grad|= 9.89e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpmuj9kckc
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.6435688343865
+  HOMO = -0.0795383812669014  LUMO = 0.473546136110925
+cycle= 1 E= -82.6435688343863  delta_E= 2.84e-13  |g|= 1.99e-07  |ddm|= 3.88e-07
+converged SCF energy = -82.6435688343863
+
+energy from frozen occupied orbitals = 6.841986583918789
+deviation from DMET exact condition = -8.526512829121202e-14
+energy from embedded cluster with low level calculation = -82.64356883438626
+total energy with low level calculation = -75.80158225046739
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.119899999   -0.000000000   -0.000422508
+1   H      0.083819143    0.000000000    0.000816721
+2   H      0.036080856   -0.000000000   -0.000394213
+------------------------------------
+  step  35:  E=-75.8015822505  R(OH)= 2.3225 Bohr  angle= 178.78°  |grad|= 1.20e-01
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpoj5acb52
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.1005093572927
+  HOMO = -0.101711029893201  LUMO = 0.479806466195677
+cycle= 1 E= -82.1005093572926  delta_E= 5.68e-14  |g|= 1e-07  |ddm|= 1.55e-07
+converged SCF energy = -82.1005093572926
+
+energy from frozen occupied orbitals = 6.298003657698351
+deviation from DMET exact condition = -1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -82.1005093572926
+total energy with low level calculation = -75.80250569959414
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.149697684   -0.000000000   -0.003160828
+1   H      0.115313067    0.000000000    0.004221491
+2   H      0.034384617   -0.000000000   -0.001060663
+------------------------------------
+  step  36:  E=-75.8025056996  R(OH)= 2.4324 Bohr  angle= 175.93°  |grad|= 1.50e-01
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpisppca_v
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.2379066026794
+  HOMO = -0.0951232018976799  LUMO = 0.46950277595902
+cycle= 1 E= -82.2379066026794  delta_E=    0  |g|= 1.01e-07  |ddm|= 1.58e-07
+converged SCF energy = -82.2379066026794
+
+energy from frozen occupied orbitals = 6.432959771850331
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -82.23790660267943
+total energy with low level calculation = -75.8049468308291
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.148369748   -0.000000000   -0.005942060
+1   H      0.110959856    0.000000000    0.008158257
+2   H      0.037409892   -0.000000000   -0.002216196
+------------------------------------
+  step  37:  E=-75.8049468308  R(OH)= 2.3886 Bohr  angle= 172.09°  |grad|= 1.48e-01
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpkczfffm8
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.3153060336064
+  HOMO = -0.0912985107867098  LUMO = 0.457000951797
+cycle= 1 E= -82.3153060336063  delta_E= 1.14e-13  |g|= 7.56e-08  |ddm|= 1.18e-07
+converged SCF energy = -82.3153060336063
+
+energy from frozen occupied orbitals = 6.505544569499435
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -82.3153060336063
+total energy with low level calculation = -75.80976146410687
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.149758878   -0.000000000   -0.008106694
+1   H      0.109661653    0.000000000    0.011648489
+2   H      0.040097225   -0.000000000   -0.003541796
+------------------------------------
+  step  38:  E=-75.8097614641  R(OH)= 2.3430 Bohr  angle= 168.55°  |grad|= 1.50e-01
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp_sf59__b
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.5808673247745
+  HOMO = -0.0777522991459551  LUMO = 0.439097352955727
+cycle= 1 E= -82.5808673247748  delta_E= -2.84e-13  |g|= 7.86e-08  |ddm|= 1.7e-07
+converged SCF energy = -82.5808673247748
+
+energy from frozen occupied orbitals = 6.754316582056603
+deviation from DMET exact condition = 4.263256414560601e-14
+energy from embedded cluster with low level calculation = -82.58086732477483
+total energy with low level calculation = -75.82655074271827
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.145365234   -0.000000000   -0.014688742
+1   H      0.098872422    0.000000000    0.024658772
+2   H      0.046492812   -0.000000000   -0.009970031
+------------------------------------
+  step  39:  E=-75.8265507427  R(OH)= 2.1859 Bohr  angle= 153.70°  |grad|= 1.45e-01
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmptq8qo5bu
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.7043939151056
+  HOMO = -0.0916849647785369  LUMO = 0.48382995894399
+cycle= 1 E= -82.7043939151057  delta_E= -5.68e-14  |g|= 1.34e-07  |ddm|= 2.36e-07
+converged SCF energy = -82.7043939151057
+
+energy from frozen occupied orbitals = 6.844468085236841
+deviation from DMET exact condition = -7.105427357601002e-14
+energy from embedded cluster with low level calculation = -82.7043939151057
+total energy with low level calculation = -75.85992582986879
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.089882717   -0.000000000   -0.020327624
+1   H      0.058080631    0.000000000    0.033940530
+2   H      0.031802086   -0.000000000   -0.013612906
+------------------------------------
+  step  40:  E=-75.8599258299  R(OH)= 1.9711 Bohr  angle= 126.53°  |grad|= 8.99e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp4za_w_9z
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -84.1098330689509
+  HOMO = -0.0963535466011601  LUMO = 0.539234545558474
+cycle= 1 E= -84.109833068951  delta_E= -1.28e-13  |g|= 1.35e-07  |ddm|= 2.39e-07
+converged SCF energy = -84.109833068951
+
+energy from frozen occupied orbitals = 8.304562823488698
+deviation from DMET exact condition = -1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -84.109833068951
+total energy with low level calculation = -75.8052702454622
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.302835452    0.000000000    0.278908188
+1   H     -0.334553122   -0.000000000   -0.264157162
+2   H      0.031717670   -0.000000000   -0.014751026
+------------------------------------
+  step  41:  E=-75.8052702455  R(OH)= 1.4477 Bohr  angle= 117.18°  |grad|= 3.35e-01
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpd1ax5920
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -83.020655590357
+  HOMO = -0.0920375102788674  LUMO = 0.518316710947115
+cycle= 1 E= -83.020655590357  delta_E= -1.42e-14  |g|= 6.58e-08  |ddm|= 1.17e-07
+converged SCF energy = -83.020655590357
+
+energy from frozen occupied orbitals = 7.154632827143654
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -83.02065559035697
+total energy with low level calculation = -75.86602276321328
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.039036058    0.000000000    0.009906433
+1   H      0.007045462    0.000000000    0.004160731
+2   H      0.031990596   -0.000000000   -0.014067164
+------------------------------------
+  step  42:  E=-75.8660227632  R(OH)= 1.8301 Bohr  angle= 124.50°  |grad|= 3.90e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp03kdz_o2
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.7140447585475
+  HOMO = -0.117894525966632  LUMO = 0.453681470143528
+cycle= 1 E= -82.7140447585475  delta_E= 2.84e-14  |g|= 3.65e-08  |ddm|= 1.75e-07
+converged SCF energy = -82.7140447585475
+
+energy from frozen occupied orbitals = 6.838545510590562
+deviation from DMET exact condition = -8.526512829121202e-14
+energy from embedded cluster with low level calculation = -82.71404475854746
+total energy with low level calculation = -75.87549924795681
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.034698013   -0.000000000   -0.004438078
+1   H      0.015713843    0.000000000    0.013972699
+2   H      0.018984171   -0.000000000   -0.009534621
+------------------------------------
+  step  43:  E=-75.8754992480  R(OH)= 1.8514 Bohr  angle= 112.02°  |grad|= 3.47e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpika1xa5d
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.415106462435
+  HOMO = -0.145324158212401  LUMO = 0.311473827244884
+cycle= 1 E= -82.4151064624351  delta_E= -1.14e-13  |g|= 1.96e-07  |ddm|= 4.55e-07
+converged SCF energy = -82.4151064624351
+
+energy from frozen occupied orbitals = 6.53223044955044
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -82.41510646243512
+total energy with low level calculation = -75.88287601288465
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.024129580   -0.000000000   -0.014550159
+1   H      0.014838009    0.000000000    0.019601116
+2   H      0.009291571   -0.000000000   -0.005050957
+------------------------------------
+  step  44:  E=-75.8828760129  R(OH)= 1.8565 Bohr  angle= 98.51°  |grad|= 2.41e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmppn9zhaqk
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.3975553384985
+  HOMO = -0.158146197510755  LUMO = 0.246104070039098
+cycle= 1 E= -82.3975553384985  delta_E= -2.84e-14  |g|= 1.79e-07  |ddm|= 5.37e-07
+converged SCF energy = -82.3975553384985
+
+energy from frozen occupied orbitals = 6.51125349951565
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -82.3975553384985
+total energy with low level calculation = -75.88630183898286
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000524649    0.000000000    0.011423349
+1   H     -0.006045794   -0.000000000   -0.008495852
+2   H      0.005521145   -0.000000000   -0.002927497
+------------------------------------
+  step  45:  E=-75.8863018390  R(OH)= 1.7923 Bohr  angle= 94.41°  |grad|= 1.14e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp5jang2fg
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.970241534072
+  HOMO = -0.174139825549574  LUMO = 0.20653973827392
+cycle= 1 E= -81.9702415340722  delta_E= -1.14e-13  |g|= 1.46e-07  |ddm|= 3.73e-07
+converged SCF energy = -81.9702415340722
+
+energy from frozen occupied orbitals = 6.082717400279284
+deviation from DMET exact condition = -8.526512829121202e-14
+energy from embedded cluster with low level calculation = -81.97024153407216
+total energy with low level calculation = -75.8875241337928
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.014675259   -0.000000000   -0.030273574
+1   H      0.012677028    0.000000000    0.031315750
+2   H      0.001998231   -0.000000000   -0.001042176
+------------------------------------
+  step  46:  E=-75.8875241338  R(OH)= 1.8743 Bohr  angle= 81.86°  |grad|= 3.13e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp3ndx8p03
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.1164827108655
+  HOMO = -0.172713796010715  LUMO = 0.209805555321931
+cycle= 1 E= -82.1164827108656  delta_E= -5.68e-14  |g|= 1.37e-07  |ddm|= 3.98e-07
+converged SCF energy = -82.1164827108656
+
+energy from frozen occupied orbitals = 6.227812824661268
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -82.11648271086557
+total energy with low level calculation = -75.88866988620427
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.002713378   -0.000000000   -0.001061797
+1   H      0.000703838    0.000000000    0.002099144
+2   H      0.002009541   -0.000000000   -0.001037347
+------------------------------------
+  step  47:  E=-75.8886698862  R(OH)= 1.8130 Bohr  angle= 85.29°  |grad|= 2.71e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp3t1u_4a7
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -82.0582781153103
+  HOMO = -0.17616476978652  LUMO = 0.204843971991182
+cycle= 1 E= -82.0582781153103  delta_E= 7.11e-14  |g|= 1.11e-07  |ddm|= 2.49e-07
+converged SCF energy = -82.0582781153103
+
+energy from frozen occupied orbitals = 6.169220187114735
+deviation from DMET exact condition = -9.947598300641403e-14
+energy from embedded cluster with low level calculation = -82.05827811531027
+total energy with low level calculation = -75.88905792819544
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000614765    0.000000000    0.001797203
+1   H     -0.000687086   -0.000000000   -0.001146330
+2   H      0.001301851   -0.000000000   -0.000650873
+------------------------------------
+  step  48:  E=-75.8890579282  R(OH)= 1.8068 Bohr  angle= 83.13°  |grad|= 1.80e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpgh5kqsh4
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.9170269492038
+  HOMO = -0.181053186776316  LUMO = 0.199367456318319
+cycle= 1 E= -81.9170269492038  delta_E=    0  |g|= 1.17e-07  |ddm|= 3.22e-07
+converged SCF energy = -81.9170269492038
+
+energy from frozen occupied orbitals = 6.027637607076484
+deviation from DMET exact condition = 7.105427357601002e-14
+energy from embedded cluster with low level calculation = -81.91702694920377
+total energy with low level calculation = -75.88938934212736
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.001957876   -0.000000000   -0.004604512
+1   H      0.001398928    0.000000000    0.004858843
+2   H      0.000558948   -0.000000000   -0.000254331
+------------------------------------
+  step  49:  E=-75.8893893421  R(OH)= 1.8177 Bohr  angle= 78.70°  |grad|= 4.86e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpkol25byr
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.8722593364731
+  HOMO = -0.182876205598296  LUMO = 0.198460686672799
+cycle= 1 E= -81.8722593364731  delta_E= -2.84e-14  |g|= 1.06e-07  |ddm|= 3.21e-07
+converged SCF energy = -81.8722593364731
+
+energy from frozen occupied orbitals = 5.982759154168832
+deviation from DMET exact condition = -1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -81.87225933647315
+total energy with low level calculation = -75.8895001823042
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000771242   -0.000000000   -0.001899072
+1   H      0.000450218    0.000000000    0.002032041
+2   H      0.000321024   -0.000000000   -0.000132969
+------------------------------------
+  step  50:  E=-75.8895001823  R(OH)= 1.8125 Bohr  angle= 77.08°  |grad|= 2.03e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp6697smm9
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.8221044726348
+  HOMO = -0.184424738503515  LUMO = 0.197886068474016
+cycle= 1 E= -81.8221044726348  delta_E= 2.84e-14  |g|= 8.55e-08  |ddm|= 2.84e-07
+converged SCF energy = -81.8221044726348
+
+energy from frozen occupied orbitals = 5.9325538506168956
+deviation from DMET exact condition = 1.4210854715202004e-14
+energy from embedded cluster with low level calculation = -81.8221044726348
+total energy with low level calculation = -75.88955062201792
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000327422   -0.000000000   -0.001028166
+1   H      0.000166357    0.000000000    0.001082255
+2   H      0.000161064   -0.000000000   -0.000054090
+------------------------------------
+  step  51:  E=-75.8895506220  R(OH)= 1.8107 Bohr  angle= 75.37°  |grad|= 1.08e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp6itbaz7v
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7893286774566
+  HOMO = -0.185329076251458  LUMO = 0.197710400329638
+cycle= 1 E= -81.7893286774567  delta_E= -7.11e-14  |g|= 6.94e-08  |ddm|= 2.57e-07
+converged SCF energy = -81.7893286774567
+
+energy from frozen occupied orbitals = 5.899761757924203
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -81.78932867745665
+total energy with low level calculation = -75.88956691953246
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000057486   -0.000000000   -0.000244842
+1   H     -0.000025302    0.000000000    0.000261959
+2   H      0.000082788   -0.000000000   -0.000017118
+------------------------------------
+  step  52:  E=-75.8895669195  R(OH)= 1.8093 Bohr  angle= 74.25°  |grad|= 2.62e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp9sseq0cm
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7644001381961
+  HOMO = -0.185901020118687  LUMO = 0.197567770154234
+cycle= 1 E= -81.764400138196  delta_E= 2.84e-14  |g|= 5.98e-08  |ddm|= 2.43e-07
+converged SCF energy = -81.764400138196
+
+energy from frozen occupied orbitals = 5.874829156439596
+deviation from DMET exact condition = 2.842170943040401e-14
+energy from embedded cluster with low level calculation = -81.76440013819604
+total energy with low level calculation = -75.88957098175646
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000045810   -0.000000000   -0.000389169
+1   H      0.000004261    0.000000000    0.000387418
+2   H      0.000041549    0.000000000    0.000001751
+------------------------------------
+  step  53:  E=-75.8895709818  R(OH)= 1.8095 Bohr  angle= 73.44°  |grad|= 3.89e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp22sext3x
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7582684163116
+  HOMO = -0.186090397006815  LUMO = 0.197624519600946
+cycle= 1 E= -81.7582684163115  delta_E= 9.95e-14  |g|= 5.58e-08  |ddm|= 2.39e-07
+converged SCF energy = -81.7582684163115
+
+energy from frozen occupied orbitals = 5.868696860472517
+deviation from DMET exact condition = 1.4210854715202004e-14
+energy from embedded cluster with low level calculation = -81.75826841631154
+total energy with low level calculation = -75.88957155583904
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000140647    0.000000000    0.000493431
+1   H     -0.000167432   -0.000000000   -0.000501567
+2   H      0.000026785    0.000000000    0.000008136
+------------------------------------
+  step  54:  E=-75.8895715558  R(OH)= 1.8079 Bohr  angle= 73.20°  |grad|= 5.02e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpjuri1cer
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7522645372205
+  HOMO = -0.186187509406228  LUMO = 0.197550582055102
+cycle= 1 E= -81.7522645372206  delta_E= -2.84e-14  |g|= 5.46e-08  |ddm|= 2.38e-07
+converged SCF energy = -81.7522645372206
+
+energy from frozen occupied orbitals = 5.86269279227699
+deviation from DMET exact condition = -4.263256414560601e-14
+energy from embedded cluster with low level calculation = -81.75226453722055
+total energy with low level calculation = -75.88957174494352
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000054002    0.000000000    0.000026056
+1   H     -0.000075413   -0.000000000   -0.000036623
+2   H      0.000021411    0.000000000    0.000010568
+------------------------------------
+  step  55:  E=-75.8895717449  R(OH)= 1.8088 Bohr  angle= 73.03°  |grad|= 7.54e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpo0tnxekj
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7532821036123
+  HOMO = -0.186164649525706  LUMO = 0.19755470179324
+cycle= 1 E= -81.7532821036123  delta_E= 5.68e-14  |g|= 5.49e-08  |ddm|= 2.38e-07
+converged SCF energy = -81.7532821036123
+
+energy from frozen occupied orbitals = 5.863710332839731
+deviation from DMET exact condition = 2.842170943040401e-14
+energy from embedded cluster with low level calculation = -81.75328210361226
+total energy with low level calculation = -75.88957177077256
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000061052    0.000000000    0.000067544
+1   H     -0.000083559   -0.000000000   -0.000077612
+2   H      0.000022506    0.000000000    0.000010068
+------------------------------------
+  step  56:  E=-75.8895717708  R(OH)= 1.8087 Bohr  angle= 73.08°  |grad|= 8.36e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpili8tt5r
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7543315849938
+  HOMO = -0.186135471290878  LUMO = 0.197552670476615
+cycle= 1 E= -81.7543315849938  delta_E=    0  |g|= 5.52e-08  |ddm|= 2.39e-07
+converged SCF energy = -81.7543315849938
+
+energy from frozen occupied orbitals = 5.864759765634446
+deviation from DMET exact condition = -4.263256414560601e-14
+energy from embedded cluster with low level calculation = -81.75433158499379
+total energy with low level calculation = -75.8895718193593
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000067569    0.000000000    0.000106267
+1   H     -0.000091201   -0.000000000   -0.000115802
+2   H      0.000023632    0.000000000    0.000009535
+------------------------------------
+  step  57:  E=-75.8895718194  R(OH)= 1.8086 Bohr  angle= 73.13°  |grad|= 1.16e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpx74lm08s
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7556401124072
+  HOMO = -0.186091227294088  LUMO = 0.19754149641782
+cycle= 1 E= -81.7556401124072  delta_E= 4.26e-14  |g|= 5.55e-08  |ddm|= 2.39e-07
+converged SCF energy = -81.7556401124072
+
+energy from frozen occupied orbitals = 5.866068200253711
+deviation from DMET exact condition = -5.684341886080802e-14
+energy from embedded cluster with low level calculation = -81.75564011240718
+total energy with low level calculation = -75.88957191215341
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000075311    0.000000000    0.000152137
+1   H     -0.000100321   -0.000000000   -0.000160989
+2   H      0.000025009    0.000000000    0.000008852
+------------------------------------
+  step  58:  E=-75.8895719122  R(OH)= 1.8085 Bohr  angle= 73.22°  |grad|= 1.61e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpbaa5wxr2
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.757464019387
+  HOMO = -0.186017029328251  LUMO = 0.19751238797105
+cycle= 1 E= -81.757464019387  delta_E= -2.84e-14  |g|= 5.59e-08  |ddm|= 2.4e-07
+converged SCF energy = -81.757464019387
+
+energy from frozen occupied orbitals = 5.867891929597897
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -81.75746401938704
+total energy with low level calculation = -75.88957208978911
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000085345    0.000000000    0.000211128
+1   H     -0.000112246   -0.000000000   -0.000218993
+2   H      0.000026901    0.000000000    0.000007865
+------------------------------------
+  step  59:  E=-75.8895720898  R(OH)= 1.8084 Bohr  angle= 73.38°  |grad|= 2.19e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp76iv19wu
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7601531727361
+  HOMO = -0.185885316592245  LUMO = 0.197446108912964
+cycle= 1 E= -81.7601531727361  delta_E= 1.42e-14  |g|= 5.66e-08  |ddm|= 2.43e-07
+converged SCF energy = -81.7601531727361
+
+energy from frozen occupied orbitals = 5.870580743354023
+deviation from DMET exact condition = -7.105427357601002e-14
+energy from embedded cluster with low level calculation = -81.76015317273608
+total energy with low level calculation = -75.88957242938199
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000097997    0.000000000    0.000284757
+1   H     -0.000127683   -0.000000000   -0.000291083
+2   H      0.000029686    0.000000000    0.000006326
+------------------------------------
+  step  60:  E=-75.8895724294  R(OH)= 1.8083 Bohr  angle= 73.68°  |grad|= 2.91e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpe4eu_753
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7641473860261
+  HOMO = -0.185643762799106  LUMO = 0.19730207363484
+cycle= 1 E= -81.7641473860261  delta_E= -5.68e-14  |g|= 5.75e-08  |ddm|= 2.47e-07
+converged SCF energy = -81.7641473860261
+
+energy from frozen occupied orbitals = 5.874574305830064
+deviation from DMET exact condition = 7.105427357601002e-14
+energy from embedded cluster with low level calculation = -81.76414738602614
+total energy with low level calculation = -75.88957308019614
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000109568    0.000000000    0.000353828
+1   H     -0.000143510   -0.000000000   -0.000357639
+2   H      0.000033942    0.000000000    0.000003811
+------------------------------------
+  step  61:  E=-75.8895730802  R(OH)= 1.8082 Bohr  angle= 74.22°  |grad|= 3.58e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpt4wmsauc
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.776874936949
+  HOMO = -0.184657206385901  LUMO = 0.196671642747407
+cycle= 1 E= -81.7768749369489  delta_E= 2.84e-14  |g|= 6.11e-08  |ddm|= 2.61e-07
+converged SCF energy = -81.7768749369489
+
+energy from frozen occupied orbitals = 5.887300158327529
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -81.77687493694893
+total energy with low level calculation = -75.8895747786214
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000034217   -0.000000000   -0.000168409
+1   H     -0.000019248    0.000000000    0.000176028
+2   H      0.000053465   -0.000000000   -0.000007619
+------------------------------------
+  step  62:  E=-75.8895747786  R(OH)= 1.8092 Bohr  angle= 76.43°  |grad|= 1.76e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpmz_q9mvx
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.777060589772
+  HOMO = -0.183768248393844  LUMO = 0.19590015195845
+cycle= 1 E= -81.7770605897721  delta_E= -2.84e-14  |g|= 5.94e-08  |ddm|= 2.69e-07
+converged SCF energy = -81.7770605897721
+
+energy from frozen occupied orbitals = 5.887483614621852
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -81.77706058977208
+total energy with low level calculation = -75.88957697515022
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000256231   -0.000000000   -0.000875042
+1   H      0.000201549    0.000000000    0.000886523
+2   H      0.000054682   -0.000000000   -0.000011481
+------------------------------------
+  step  63:  E=-75.8895769752  R(OH)= 1.8104 Bohr  angle= 78.73°  |grad|= 8.87e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpwu7hnyt9
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.768458403251
+  HOMO = -0.183426022069631  LUMO = 0.195428087044491
+cycle= 1 E= -81.768458403251  delta_E= -1.42e-14  |g|= 5.45e-08  |ddm|= 2.69e-07
+converged SCF energy = -81.768458403251
+
+energy from frozen occupied orbitals = 5.878877792440359
+deviation from DMET exact condition = 2.842170943040401e-14
+energy from embedded cluster with low level calculation = -81.76845840325097
+total energy with low level calculation = -75.88958061081064
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000216227   -0.000000000   -0.000720780
+1   H      0.000179446    0.000000000    0.000726215
+2   H      0.000036781   -0.000000000   -0.000005434
+------------------------------------
+  step  64:  E=-75.8895806108  R(OH)= 1.8102 Bohr  angle= 80.06°  |grad|= 7.26e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpjb68lbdx
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7512366560237
+  HOMO = -0.183227544075227  LUMO = 0.194943224387691
+cycle= 1 E= -81.7512366560236  delta_E= 1.14e-13  |g|= 4.68e-08  |ddm|= 2.68e-07
+converged SCF energy = -81.7512366560236
+
+energy from frozen occupied orbitals = 5.861652635795869
+deviation from DMET exact condition = 1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -81.75123665602358
+total energy with low level calculation = -75.88958402022783
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000118106    0.000000000    0.000277536
+1   H     -0.000121052   -0.000000000   -0.000284956
+2   H      0.000002946    0.000000000    0.000007421
+------------------------------------
+  step  65:  E=-75.8895840202  R(OH)= 1.8084 Bohr  angle= 81.51°  |grad|= 2.85e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpc10a0_03
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7197118396004
+  HOMO = -0.182119298281141  LUMO = 0.193507295200222
+cycle= 1 E= -81.7197118396004  delta_E=    0  |g|= 3.9e-08  |ddm|= 2.42e-07
+converged SCF energy = -81.7197118396004
+
+energy from frozen occupied orbitals = 5.830137057003961
+deviation from DMET exact condition = 1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -81.7197118396004
+total energy with low level calculation = -75.88957478259654
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.001255551   -0.000000000   -0.003334631
+1   H      0.001274293    0.000000000    0.003322469
+2   H     -0.000018742    0.000000000    0.000012161
+------------------------------------
+  step  66:  E=-75.8895747826  R(OH)= 1.8151 Bohr  angle= 85.60°  |grad|= 3.33e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp1kmt09p_
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7451246396249
+  HOMO = -0.182958316455386  LUMO = 0.194618111682242
+cycle= 1 E= -81.7451246396249  delta_E= 4.26e-14  |g|= 4.5e-08  |ddm|= 2.66e-07
+converged SCF energy = -81.7451246396249
+
+energy from frozen occupied orbitals = 5.855539896181441
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -81.74512463962486
+total energy with low level calculation = -75.88958474344342
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000072451   -0.000000000   -0.000302674
+1   H      0.000075075    0.000000000    0.000293990
+2   H     -0.000002624    0.000000000    0.000008684
+------------------------------------
+  step  67:  E=-75.8895847434  R(OH)= 1.8094 Bohr  angle= 82.47°  |grad|= 3.03e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpl5j92ezy
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7402789906076
+  HOMO = -0.182818923859654  LUMO = 0.194432486098534
+cycle= 1 E= -81.7402789906074  delta_E= 1.99e-13  |g|= 4.35e-08  |ddm|= 2.64e-07
+converged SCF energy = -81.7402789906074
+
+energy from frozen occupied orbitals = 5.850694091302205
+deviation from DMET exact condition = 1.9895196601282805e-13
+energy from embedded cluster with low level calculation = -81.74027899060744
+total energy with low level calculation = -75.88958489930543
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000123789   -0.000000000   -0.000452213
+1   H      0.000132172    0.000000000    0.000441753
+2   H     -0.000008383    0.000000000    0.000010460
+------------------------------------
+  step  68:  E=-75.8895848993  R(OH)= 1.8097 Bohr  angle= 83.08°  |grad|= 4.52e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpzy4lnukh
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7392032980874
+  HOMO = -0.182788586461878  LUMO = 0.19440233693176
+cycle= 1 E= -81.7392032980874  delta_E= -2.84e-14  |g|= 4.3e-08  |ddm|= 2.63e-07
+converged SCF energy = -81.7392032980874
+
+energy from frozen occupied orbitals = 5.849618297951034
+deviation from DMET exact condition = 1.2789769243681803e-13
+energy from embedded cluster with low level calculation = -81.73920329808739
+total energy with low level calculation = -75.88958500013648
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000082347   -0.000000000   -0.000334477
+1   H      0.000092806    0.000000000    0.000323318
+2   H     -0.000010458    0.000000000    0.000011159
+------------------------------------
+  step  69:  E=-75.8895850001  R(OH)= 1.8095 Bohr  angle= 83.24°  |grad|= 3.34e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp7rn7qowc
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7383594422782
+  HOMO = -0.182704048042361  LUMO = 0.194348489133866
+cycle= 1 E= -81.7383594422782  delta_E= -1.42e-14  |g|= 4.22e-08  |ddm|= 2.61e-07
+converged SCF energy = -81.7383594422782
+
+energy from frozen occupied orbitals = 5.848774270623412
+deviation from DMET exact condition = 2.842170943040401e-14
+energy from embedded cluster with low level calculation = -81.73835944227821
+total energy with low level calculation = -75.88958517165483
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000040650   -0.000000000   -0.000213692
+1   H      0.000052998    0.000000000    0.000202103
+2   H     -0.000012348    0.000000000    0.000011589
+------------------------------------
+  step  70:  E=-75.8895851717  R(OH)= 1.8092 Bohr  angle= 83.57°  |grad|= 2.14e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp_wby9k_6
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7379557989512
+  HOMO = -0.182529632504114  LUMO = 0.19425677952141
+cycle= 1 E= -81.7379557989512  delta_E= 8.53e-14  |g|= 4.12e-08  |ddm|= 2.56e-07
+converged SCF energy = -81.7379557989512
+
+energy from frozen occupied orbitals = 5.848370322939503
+deviation from DMET exact condition = 7.105427357601002e-14
+energy from embedded cluster with low level calculation = -81.73795579895116
+total energy with low level calculation = -75.88958547601173
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000011254   -0.000000000   -0.000124725
+1   H      0.000024925    0.000000000    0.000113248
+2   H     -0.000013671    0.000000000    0.000011477
+------------------------------------
+  step  71:  E=-75.8895854760  R(OH)= 1.8091 Bohr  angle= 84.16°  |grad|= 1.25e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpteo8w8jj
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7383359131353
+  HOMO = -0.182199482683348  LUMO = 0.194104631126097
+cycle= 1 E= -81.7383359131352  delta_E= 8.53e-14  |g|= 3.96e-08  |ddm|= 2.45e-07
+converged SCF energy = -81.7383359131352
+
+energy from frozen occupied orbitals = 5.84874990578838
+deviation from DMET exact condition = -5.684341886080802e-14
+energy from embedded cluster with low level calculation = -81.73833591313524
+total energy with low level calculation = -75.88958600734681
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000027378   -0.000000000   -0.000151061
+1   H      0.000040995    0.000000000    0.000140790
+2   H     -0.000013617    0.000000000    0.000010272
+------------------------------------
+  step  72:  E=-75.8895860073  R(OH)= 1.8091 Bohr  angle= 85.19°  |grad|= 1.51e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpm6zyghip
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7425371186596
+  HOMO = -0.181636138439768  LUMO = 0.19393868328356
+cycle= 1 E= -81.7425371186596  delta_E= 1.42e-14  |g|= 3.73e-08  |ddm|= 2.2e-07
+converged SCF energy = -81.7425371186596
+
+energy from frozen occupied orbitals = 5.852950344685751
+deviation from DMET exact condition = 4.263256414560601e-14
+energy from embedded cluster with low level calculation = -81.74253711865963
+total energy with low level calculation = -75.88958677397392
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000102534   -0.000000000   -0.000296240
+1   H      0.000110763    0.000000000    0.000290124
+2   H     -0.000008229    0.000000000    0.000006117
+------------------------------------
+  step  73:  E=-75.8895867740  R(OH)= 1.8094 Bohr  angle= 86.78°  |grad|= 2.96e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpv6284vve
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7556277205921
+  HOMO = -0.181207592495548  LUMO = 0.194064235914959
+cycle= 1 E= -81.7556277205921  delta_E=    0  |g|= 3.7e-08  |ddm|= 1.99e-07
+converged SCF energy = -81.7556277205921
+
+energy from frozen occupied orbitals = 5.866040628392468
+deviation from DMET exact condition = 2.842170943040401e-14
+energy from embedded cluster with low level calculation = -81.75562772059214
+total energy with low level calculation = -75.8895870921997
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000083964    0.000000000    0.000200114
+1   H     -0.000089908   -0.000000000   -0.000198960
+2   H      0.000005944    0.000000000   -0.000001154
+------------------------------------
+  step  74:  E=-75.8895870922  R(OH)= 1.8085 Bohr  angle= 87.63°  |grad|= 2.00e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpnjcuml1e
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7529942719885
+  HOMO = -0.180873803948487  LUMO = 0.193870959300492
+cycle= 1 E= -81.7529942719885  delta_E= 2.84e-14  |g|= 3.51e-08  |ddm|= 1.77e-07
+converged SCF energy = -81.7529942719885
+
+energy from frozen occupied orbitals = 5.863407329543744
+deviation from DMET exact condition = -1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -81.75299427198847
+total energy with low level calculation = -75.88958694244461
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000228616   -0.000000000   -0.000503549
+1   H      0.000221911    0.000000000    0.000506178
+2   H      0.000006705   -0.000000000   -0.000002629
+------------------------------------
+  step  75:  E=-75.8895869424  R(OH)= 1.8099 Bohr  angle= 88.70°  |grad|= 5.06e-04
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp8p5aif4c
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7547407165135
+  HOMO = -0.181079223479036  LUMO = 0.193991918413845
+cycle= 1 E= -81.7547407165135  delta_E=    0  |g|= 3.63e-08  |ddm|= 1.91e-07
+converged SCF energy = -81.7547407165135
+
+energy from frozen occupied orbitals = 5.865153542305728
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -81.75474071651354
+total energy with low level calculation = -75.8895871742078
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000021984   -0.000000000   -0.000044433
+1   H      0.000015764    0.000000000    0.000046150
+2   H      0.000006220   -0.000000000   -0.000001717
+------------------------------------
+  step  76:  E=-75.8895871742  R(OH)= 1.8090 Bohr  angle= 88.04°  |grad|= 4.61e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpkveiltft
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7519048092269
+  HOMO = -0.181144111500289  LUMO = 0.193956814286195
+cycle= 1 E= -81.7519048092268  delta_E= 8.53e-14  |g|= 3.6e-08  |ddm|= 1.94e-07
+converged SCF energy = -81.7519048092268
+
+energy from frozen occupied orbitals = 5.862317595725557
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -81.75190480922677
+total energy with low level calculation = -75.88958721350119
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000032024   -0.000000000   -0.000078267
+1   H      0.000029490    0.000000000    0.000078256
+2   H      0.000002534   -0.000000000    0.000000012
+------------------------------------
+  step  77:  E=-75.8895872135  R(OH)= 1.8091 Bohr  angle= 87.97°  |grad|= 7.83e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpuvf11196
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.75099503217
+  HOMO = -0.181117687242848  LUMO = 0.193931288125436
+cycle= 1 E= -81.75099503217  delta_E= 2.84e-14  |g|= 3.56e-08  |ddm|= 1.92e-07
+converged SCF energy = -81.75099503217
+
+energy from frozen occupied orbitals = 5.861407800362313
+deviation from DMET exact condition = -2.842170943040401e-14
+energy from embedded cluster with low level calculation = -81.75099503216998
+total energy with low level calculation = -75.88958723180764
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000036585   -0.000000000   -0.000090192
+1   H      0.000035214    0.000000000    0.000089805
+2   H      0.000001371    0.000000000    0.000000387
+------------------------------------
+  step  78:  E=-75.8895872318  R(OH)= 1.8091 Bohr  angle= 88.10°  |grad|= 9.02e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp0lkgs6me
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7500685318794
+  HOMO = -0.181045706686686  LUMO = 0.193894029673575
+cycle= 1 E= -81.7500685318794  delta_E= 4.26e-14  |g|= 3.49e-08  |ddm|= 1.86e-07
+converged SCF energy = -81.7500685318794
+
+energy from frozen occupied orbitals = 5.860481271811081
+deviation from DMET exact condition = -1.1368683772161603e-13
+energy from embedded cluster with low level calculation = -81.75006853187938
+total energy with low level calculation = -75.88958726006818
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000031322   -0.000000000   -0.000077758
+1   H      0.000031275    0.000000000    0.000077096
+2   H      0.000000048   -0.000000000    0.000000662
+------------------------------------
+  step  79:  E=-75.8895872601  R(OH)= 1.8091 Bohr  angle= 88.40°  |grad|= 7.78e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpxa6gbgd8
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7496609313606
+  HOMO = -0.180939075862468  LUMO = 0.193858940417679
+cycle= 1 E= -81.7496609313606  delta_E= 5.68e-14  |g|= 3.4e-08  |ddm|= 1.79e-07
+converged SCF energy = -81.7496609313606
+
+energy from frozen occupied orbitals = 5.860073650115419
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -81.74966093136055
+total energy with low level calculation = -75.88958728124513
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000018550   -0.000000000   -0.000046000
+1   H      0.000019228    0.000000000    0.000045428
+2   H     -0.000000678    0.000000000    0.000000572
+------------------------------------
+  step  80:  E=-75.8895872812  R(OH)= 1.8090 Bohr  angle= 88.79°  |grad|= 4.60e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpsbbdox53
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7499957098044
+  HOMO = -0.180888916937903  LUMO = 0.193853879351925
+cycle= 1 E= -81.7499957098044  delta_E=    0  |g|= 3.37e-08  |ddm|= 1.75e-07
+converged SCF energy = -81.7499957098044
+
+energy from frozen occupied orbitals = 5.860408422983706
+deviation from DMET exact condition = 5.684341886080802e-14
+energy from embedded cluster with low level calculation = -81.74999570980441
+total energy with low level calculation = -75.88958728682076
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000003698   -0.000000000   -0.000010262
+1   H      0.000004138    0.000000000    0.000009967
+2   H     -0.000000439    0.000000000    0.000000295
+------------------------------------
+  step  81:  E=-75.8895872868  R(OH)= 1.8089 Bohr  angle= 88.95°  |grad|= 1.03e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpsh0rnr0l
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7503160487317
+  HOMO = -0.180853586333181  LUMO = 0.193850430046823
+cycle= 1 E= -81.7503160487316  delta_E= 2.84e-14  |g|= 3.35e-08  |ddm|= 1.73e-07
+converged SCF energy = -81.7503160487316
+
+energy from frozen occupied orbitals = 5.860728761029074
+deviation from DMET exact condition = 4.263256414560601e-14
+energy from embedded cluster with low level calculation = -81.75031604873165
+total energy with low level calculation = -75.88958728770261
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O     -0.000003742   -0.000000000   -0.000008316
+1   H      0.000003758    0.000000000    0.000008318
+2   H     -0.000000016   -0.000000000   -0.000000002
+------------------------------------
+  step  82:  E=-75.8895872877  R(OH)= 1.8089 Bohr  angle= 89.05°  |grad|= 8.32e-06
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmptg9xy4nw
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.7503926278105
+  HOMO = -0.180857584349451  LUMO = 0.193853735713278
+cycle= 1 E= -81.7503926278105  delta_E=    0  |g|= 3.36e-08  |ddm|= 1.73e-07
+converged SCF energy = -81.7503926278105
+
+energy from frozen occupied orbitals = 5.860805340056815
+deviation from DMET exact condition = 0.0
+energy from embedded cluster with low level calculation = -81.7503926278105
+total energy with low level calculation = -75.88958728775368
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000002159   -0.000000000    0.000004822
+1   H     -0.000002163    0.000000000   -0.000004826
+2   H      0.000000005   -0.000000000    0.000000003
+------------------------------------
+  step  83:  E=-75.8895872878  R(OH)= 1.8089 Bohr  angle= 89.04°  |grad|= 4.83e-06
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+****Restore imp: False
+****IAOPAO: False
+number of impurity orbitals = 14
+number of bath orbitals = 6
+number of embedded cluster orbitals = 20
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 4
+number of frozen orbitals = 4
+percentage of embedded cluster orbitals = 83.33%
+percentage of frozen orbitals = 16.67%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-11
+SCF conv_tol_grad = None
+SCF max_cycles = 500
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp5wivbtg7
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-06
+init E= -81.750365770541
+  HOMO = -0.180856682132986  LUMO = 0.19385269322152
+cycle= 1 E= -81.7503657705411  delta_E= -7.11e-14  |g|= 3.36e-08  |ddm|= 1.73e-07
+converged SCF energy = -81.7503657705411
+
+energy from frozen occupied orbitals = 5.860778482762232
+deviation from DMET exact condition = -7.105427357601002e-14
+energy from embedded cluster with low level calculation = -81.75036577054107
+total energy with low level calculation = -75.88958728777877
+--------- SSDMET gradients ---------
+atom  x              y              z             
+0   O      0.000000012    0.000000000    0.000000026
+1   H     -0.000000010   -0.000000000   -0.000000028
+2   H     -0.000000002    0.000000000    0.000000003
+------------------------------------
+  step  84:  E=-75.8895872878  R(OH)= 1.8089 Bohr  angle= 89.04°  |grad|= 2.83e-08
+----------------------------------------------------------------------
+收敛: R(OH) = 1.8089 Bohr = 0.95723370 Å
+      HOH   = 89.04°
+      E     = -75.8895872878 Hartree
+      |grad|max = 2.83e-08
+参考: H2O ccpvdz RHF 平衡 ~ R=1.85 Bohr(0.98 Å), 角~100°
+      (全 bath 时 DMET=RHF，应与 mf.nuc_grad_method() 一致)

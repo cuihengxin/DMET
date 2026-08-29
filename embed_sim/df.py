@@ -16,7 +16,7 @@ from pyscf.data import nist
 from pyscf.lib import logger
 
 from embed_sim import ssdmet, aodmet, siso
-from embed_sim.BNO_bath import get_RMP2_bath, get_UMP2_bath, get_ROMP2_bath
+from embed_sim.BNO_bath import get_RMP2_bath, get_UMP2_bath, get_ROMP2_bath, get_RMP2_bath_sos, get_UMP2_bath_sos, get_ROMP2_bath_sos
 
 def make_es_cderi(title, es_orb, with_df):
     erifile = title+'_es_cderi.h5'
@@ -137,7 +137,7 @@ class DFSSDMET(ssdmet.SSDMET):
             fh5['es_dm'] = self.es_dm
         return 
 
-    def build(self, restore_imp = False, iaopao = False, chk_fname_load='', save_chk=True, xc=None):
+    def build(self, restore_imp = False, iaopao = False, chk_fname_load='', save_chk=True, xc=None, mp2method=None):
         self.dump_flags()
         dm = ssdmet.mf_or_cas_make_rdm1s(self.mf_or_cas)
         if dm.ndim == 3: # ROHF density matrix have dimension (2, nao, nao)
@@ -211,8 +211,15 @@ class DFSSDMET(ssdmet.SSDMET):
                                                                                       lo2core, lo2vir, eta=self.bath_option['MP2'])
                             else:
                                 self.log.info('RMP2 bath expansion in used by default')
-                                lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                     lo2core, lo2vir, eta=self.bath_option['MP2'])
+                                if mp2method == 'sos':
+                                    # Direct-only (opposite-spin, SOS) MP2 bath (see comment in ssdmet.py)
+                                    print('Using RMP2 SOS')
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath_sos(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                             lo2core, lo2vir, eta=self.bath_option['MP2'])
+                                else:
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                         lo2core, lo2vir, eta=self.bath_option['MP2'])
+
                         elif 'RMP2' in self.bath_option.keys():
                             self.es_mf = self.ROHF()
                             if open_shell:
@@ -220,13 +227,25 @@ class DFSSDMET(ssdmet.SSDMET):
                                 lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
                                                                                       lo2core, lo2vir, eta=self.bath_option['RMP2'])
                             else:
-                                lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                     lo2core, lo2vir, eta=self.bath_option['RMP2'])
+                                if mp2method == 'sos':
+                                    self.log.info('Using RMP2 SOS')
+                                    # Direct-only (opposite-spin, SOS) MP2 bath (see comment in ssdmet.py)
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath_sos(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                             lo2core, lo2vir, eta=self.bath_option['RMP2'])
+                                else:
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                         lo2core, lo2vir, eta=self.bath_option['RMP2'])
                         elif 'ROMP2' in self.bath_option.keys():
                             self.es_mf = self.ROHF()
                             if open_shell:
-                                lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                      lo2core, lo2vir, eta=self.bath_option['ROMP2'])
+                                if mp2method == 'sos':
+                                    self.log.info('Using ROMP2 SOS')
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath_sos(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                        lo2core, lo2vir, eta=self.bath_option['ROMP2'])
+                                else:
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                        lo2core, lo2vir, eta=self.bath_option['ROMP2'])
+                                self.log.info('ROMP2 bath expansion is used for open-shell systems__ SOS ')
                             else:
                                 self.log.info('ROMP2 bath expansion is degraded to RMP2 for closed-shell systems')
                                 lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
@@ -235,12 +254,18 @@ class DFSSDMET(ssdmet.SSDMET):
                             self.es_mf = self.ROHF()
                             if open_shell:
                                 self.log.warn('UMP2 bath expansion is less preferred than ROMP2, the results must be checked carefully!')
-                                lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_UMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                     lo2core, lo2vir, eta=self.bath_option['UMP2'])
+                                if mp2method == 'sos':
+                                    self.log.info('Using UMP2 SOS')
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_UMP2_bath_sos(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                         lo2core, lo2vir, eta=self.bath_option['UMP2'])
+                                else:
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_UMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                        lo2core, lo2vir, eta=self.bath_option['UMP2'])
+
                             else:
                                 self.log.info('UMP2 bath expansion is degraded to RMP2 for closed-shell systems')
                                 lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                     lo2core, lo2vir, eta=self.bath_option['UMP2'])
+                                                                                     lo2core, lo2vir, eta=self.bath_option['UMP2'], method = mp2method)
                         else:
                             raise NotImplementedError('Currently only MP2, RMP2, ROMP2 and UMP2 are supported')
                     else:

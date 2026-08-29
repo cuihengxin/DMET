@@ -1,0 +1,2479 @@
+#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/grad_h2o_ro.py ****
+import os 
+import numpy as np 
+from pyscf import gto, scf
+mol = gto.M(atom='''
+    O   0.0000000000  0.0000000000  0.0000000000
+    H   1.0000000000  0.0000000000  1.0000000000
+    H   -1.0000000000  0.0000000000  1.0000000
+''', basis='ccpvdz', spin =2, verbose=4)          # �坐标 Bohr
+mf = scf.ROHF(mol)
+from pyscf.geomopt.geometric_solver import optimize
+mol_eq = optimize(mf, maxsteps=100, tol=1e-6)
+print(mol_eq.tostring())
+coords = mol_eq.atom_coords(unit='Bohr')  # shape (3,3): O, H1, H2
+O, H1, H2 = coords
+
+# 键长 (Bohr -> Angstrom)
+bond_length_bohr = np.linalg.norm(H1 - O)
+bond_length_ang = bond_length_bohr * 0.52917721067
+
+# 键角
+v1 = H1 - O
+v2 = H2 - O
+cos_angle = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
+angle_deg = np.degrees(np.arccos(np.clip(cos_angle, -1, 1)))
+
+print(f"O-H 键长: {bond_length_ang:.8f} Å")
+print(f"H-O-H 键角: {angle_deg:.2f}°")#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
+Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
+numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
+Date: Mon Aug 24 21:38:07 2026
+PySCF version 2.11.0
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+
+[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[INPUT] verbose = 4
+[INPUT] num. atoms = 3
+[INPUT] num. electrons = 10
+[INPUT] charge = 0
+[INPUT] spin (= nelec alpha-beta = 2S) = 2
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 H      1.000000000000   0.000000000000   1.000000000000 AA    1.889726124565   0.000000000000   1.889726124565 Bohr   0.0
+[INPUT]  3 H     -1.000000000000   0.000000000000   1.000000000000 AA   -1.889726124565   0.000000000000   1.889726124565 Bohr   0.0
+
+nuclear repulsion = 6.25154531411466
+number of shells = 11
+number of NR pGTOs = 40
+number of NR cGTOs = 24
+basis = ccpvdz
+ecp = {}
+CPU time:         0.25
+Create scanner for <class 'pyscf.grad.rohf.Gradients'>
+Create scanner for <class 'pyscf.scf.rohf.ROHF'>
+
+Geometry optimization cycle 1
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O   0.000000   0.000000   0.000000    0.000000  0.000000  0.000000
+   H   1.000000   0.000000   1.000000    0.000000  0.000000  0.000000
+   H  -1.000000   0.000000   1.000000    0.000000  0.000000  0.000000
+
+WARN: Mole.unit (angstrom) is changed to Bohr
+
+New geometry
+   1 O      0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr
+   2 H      1.000000000000   0.000000000000   1.000000000000 AA    1.889726124565   0.000000000000   1.889726124565 Bohr
+   3 H     -1.000000000000   0.000000000000   1.000000000000 AA   -1.889726124565   0.000000000000   1.889726124565 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.2077251836753
+  HOMO = -0.0426750173727189  LUMO = 0.0186863095846297
+cycle= 1 E= -75.7475647220644  delta_E= -0.54  |g|= 0.134  |ddm|= 1.24
+  HOMO = -0.0989623456863581  LUMO = 0.0739055342895725
+cycle= 2 E= -75.7563429958805  delta_E= -0.00878  |g|= 0.0341  |ddm|= 0.139
+  HOMO = -0.0864104263725956  LUMO = 0.0864865431813601
+cycle= 3 E= -75.7571413036167  delta_E= -0.000798  |g|= 0.0122  |ddm|= 0.031
+  HOMO = -0.0882360382275641  LUMO = 0.087760108203763
+cycle= 4 E= -75.7572646131967  delta_E= -0.000123  |g|= 0.00406  |ddm|= 0.019
+  HOMO = -0.087919038395112  LUMO = 0.0883855900820831
+cycle= 5 E= -75.7572730623712  delta_E= -8.45e-06  |g|= 0.00208  |ddm|= 0.00385
+  HOMO = -0.0883140682697304  LUMO = 0.0882765086094788
+cycle= 6 E= -75.7572746747253  delta_E= -1.61e-06  |g|= 0.000319  |ddm|= 0.00198
+  HOMO = -0.0883083629762354  LUMO = 0.0883309310895572
+cycle= 7 E= -75.7572748527393  delta_E= -1.78e-07  |g|= 0.000154  |ddm|= 0.000613
+  HOMO = -0.0882949675718128  LUMO = 0.0883552302473703
+cycle= 8 E= -75.7572748983283  delta_E= -4.56e-08  |g|= 3.45e-05  |ddm|= 0.000429
+  HOMO = -0.0882924009943724  LUMO = 0.0883611135080278
+cycle= 9 E= -75.75727490052  delta_E= -2.19e-09  |g|= 1.93e-06  |ddm|= 0.000112
+  HOMO = -0.0882925064780421  LUMO = 0.0883613045583341
+cycle= 10 E= -75.7572749005256  delta_E= -5.57e-12  |g|= 2.03e-07  |ddm|= 5.28e-06
+  HOMO = -0.088292487817322  LUMO = 0.0883613270216586
+Extra cycle  E= -75.7572749005256  delta_E= -4.26e-14  |g|= 7.8e-08  |ddm|= 2.71e-07
+converged SCF energy = -75.7572749005256
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000000000    -0.0000000000    -0.0751983530
+1 H     0.0371091611     0.0000000000     0.0375991765
+2 H    -0.0371091611     0.0000000000     0.0375991765
+----------------------------------------------
+cycle 1: E = -75.7572749005  dE = -75.7573  norm(grad) = 0.106002
+
+Geometry optimization cycle 2
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000000   0.000000   0.072863   -0.000000  0.000000  0.072863
+   H   0.895183   0.000000   0.963568   -0.104817  0.000000 -0.036432
+   H  -0.895183  -0.000000   0.963568    0.104817 -0.000000 -0.036432
+New geometry
+   1 O     -0.000000000000   0.000000000000   0.072863177511 AA   -0.000000000000   0.000000000000   0.137691450062 Bohr
+   2 H      0.895183316473   0.000000000000   0.963568411244 AA    1.691651299414   0.000000000000   1.820880399534 Bohr
+   3 H     -0.895183316473  -0.000000000000   0.963568411244 AA   -1.691651299414  -0.000000000000   1.820880399534 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8992826973787
+  HOMO = -0.0402680025259278  LUMO = 0.159484505396219
+cycle= 1 E= -75.7819168387285  delta_E= 0.117  |g|= 0.0579  |ddm|= 0.317
+  HOMO = -0.0601059193034236  LUMO = 0.127091685348683
+cycle= 2 E= -75.7828943040525  delta_E= -0.000977  |g|= 0.0353  |ddm|= 0.0749
+  HOMO = -0.0534622302971095  LUMO = 0.131754737101813
+cycle= 3 E= -75.7831989139198  delta_E= -0.000305  |g|= 0.00464  |ddm|= 0.0227
+  HOMO = -0.0530451889220328  LUMO = 0.132386252935222
+cycle= 4 E= -75.7832160755217  delta_E= -1.72e-05  |g|= 0.000896  |ddm|= 0.0067
+  HOMO = -0.0531316542697703  LUMO = 0.132406770212443
+cycle= 5 E= -75.7832167684757  delta_E= -6.93e-07  |g|= 0.000302  |ddm|= 0.00127
+  HOMO = -0.0531019318250821  LUMO = 0.132441614504006
+cycle= 6 E= -75.7832168831313  delta_E= -1.15e-07  |g|= 0.0001  |ddm|= 0.000549
+  HOMO = -0.0530983029527777  LUMO = 0.132457217451414
+cycle= 7 E= -75.7832169005609  delta_E= -1.74e-08  |g|= 1.23e-05  |ddm|= 0.000287
+  HOMO = -0.0531009351915247  LUMO = 0.132457261926824
+cycle= 8 E= -75.7832169006214  delta_E= -6.04e-11  |g|= 1.67e-06  |ddm|= 1.23e-05
+  HOMO = -0.0531009144203177  LUMO = 0.132457373081588
+Extra cycle  E= -75.7832169006231  delta_E= -1.79e-12  |g|= 6.41e-07  |ddm|= 2.11e-06
+converged SCF energy = -75.7832169006231
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000000000     0.0000000000    -0.0541779458
+1 H     0.0234603878    -0.0000000000     0.0270889729
+2 H    -0.0234603878     0.0000000000     0.0270889729
+----------------------------------------------
+cycle 2: E = -75.7832169006  dE = -0.025942  norm(grad) = 0.0741866
+
+Geometry optimization cycle 3
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000000   0.000000   0.213250   -0.000000  0.000000  0.140387
+   H   0.772503   0.000000   0.893375   -0.122680  0.000000 -0.070193
+   H  -0.772503  -0.000000   0.893375    0.122680 -0.000000 -0.070193
+New geometry
+   1 O     -0.000000000000   0.000000000000   0.213249949133 AA   -0.000000000000   0.000000000000   0.402983999939 Bohr
+   2 H      0.772502978436   0.000000000000   0.893375025433 AA    1.459819059655   0.000000000000   1.688234124595 Bohr
+   3 H     -0.772502978436  -0.000000000000   0.893375025433 AA   -1.459819059655  -0.000000000000   1.688234124595 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -76.0686027740081
+  HOMO = 0.032873490309093  LUMO = 0.238162416276643
+cycle= 1 E= -75.7854693970051  delta_E= 0.283  |g|= 0.128  |ddm|= 0.74
+  HOMO = -0.0095522639060827  LUMO = 0.185144935585945
+cycle= 2 E= -75.7898465714252  delta_E= -0.00438  |g|= 0.0657  |ddm|= 0.162
+  HOMO = 0.00108423360035445  LUMO = 0.192558715706441
+cycle= 3 E= -75.7908461439004  delta_E= -0.001  |g|= 0.00849  |ddm|= 0.0553
+  HOMO = 0.00159874194143977  LUMO = 0.193038451395896
+cycle= 4 E= -75.7909016152161  delta_E= -5.55e-05  |g|= 0.00152  |ddm|= 0.0151
+  HOMO = 0.00122307959153078  LUMO = 0.192835533880112
+cycle= 5 E= -75.7909038224085  delta_E= -2.21e-06  |g|= 0.000292  |ddm|= 0.00387
+  HOMO = 0.00121300203493367  LUMO = 0.192814275516685
+cycle= 6 E= -75.7909039258979  delta_E= -1.03e-07  |g|= 5.03e-05  |ddm|= 0.000943
+  HOMO = 0.00120973926906762  LUMO = 0.192809286675764
+cycle= 7 E= -75.7909039285293  delta_E= -2.63e-09  |g|= 6.35e-06  |ddm|= 0.000149
+  HOMO = 0.00120788054105701  LUMO = 0.192808147120118
+cycle= 8 E= -75.7909039285464  delta_E= -1.71e-11  |g|= 7.56e-07  |ddm|= 9.67e-06
+  HOMO = 0.0012078611258725  LUMO = 0.19280807080287
+Extra cycle  E= -75.7909039285467  delta_E= -2.7e-13  |g|= 2.59e-07  |ddm|= 7.38e-07
+converged SCF energy = -75.7909039285467
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000000000     0.0000000000     0.0412138800
+1 H    -0.0316520210    -0.0000000000    -0.0206069400
+2 H     0.0316520210     0.0000000000    -0.0206069400
+----------------------------------------------
+cycle 3: E = -75.7909039285  dE = -0.00768703  norm(grad) = 0.0674654
+
+Geometry optimization cycle 4
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000000   0.000000   0.169509   -0.000000 -0.000000 -0.043741
+   H   0.867014   0.000000   0.915245    0.094511 -0.000000  0.021870
+   H  -0.867014  -0.000000   0.915245   -0.094511 -0.000000  0.021870
+New geometry
+   1 O     -0.000000000001   0.000000000000   0.169509187471 AA   -0.000000000001   0.000000000000   0.320325939918 Bohr
+   2 H      0.867014199167   0.000000000000   0.915245406265 AA    1.638419382534   0.000000000000   1.729563154607 Bohr
+   3 H     -0.867014199166  -0.000000000000   0.915245406264 AA   -1.638419382533  -0.000000000000   1.729563154605 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.6535846989292
+  HOMO = -0.041561474769091  LUMO = 0.130561173400914
+cycle= 1 E= -75.7927684848813  delta_E= -0.139  |g|= 0.0982  |ddm|= 0.41
+  HOMO = -0.013861408421713  LUMO = 0.17299349235692
+cycle= 2 E= -75.794862073375  delta_E= -0.00209  |g|= 0.0566  |ddm|= 0.116
+  HOMO = -0.0232748936653351  LUMO = 0.166392905645095
+cycle= 3 E= -75.7956048246732  delta_E= -0.000743  |g|= 0.00541  |ddm|= 0.0418
+  HOMO = -0.0238178788162589  LUMO = 0.165948287263991
+cycle= 4 E= -75.7956267923671  delta_E= -2.2e-05  |g|= 0.00126  |ddm|= 0.00825
+  HOMO = -0.0236954168592823  LUMO = 0.166028209776033
+cycle= 5 E= -75.7956280169459  delta_E= -1.22e-06  |g|= 0.000286  |ddm|= 0.00243
+  HOMO = -0.0236997925649051  LUMO = 0.166048975744502
+cycle= 6 E= -75.7956281109523  delta_E= -9.4e-08  |g|= 4.74e-05  |ddm|= 0.000789
+  HOMO = -0.0236966115624789  LUMO = 0.166052361928908
+cycle= 7 E= -75.7956281139207  delta_E= -2.97e-09  |g|= 5.28e-06  |ddm|= 0.000139
+  HOMO = -0.0236962818089108  LUMO = 0.166052160737073
+cycle= 8 E= -75.7956281139499  delta_E= -2.92e-11  |g|= 1.31e-06  |ddm|= 9.39e-06
+  HOMO = -0.0236962436763437  LUMO = 0.166052057269147
+Extra cycle  E= -75.7956281139512  delta_E= -1.32e-12  |g|= 5.7e-07  |ddm|= 1.4e-06
+converged SCF energy = -75.7956281139512
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000000000    -0.0000000000    -0.0205731167
+1 H     0.0052354657    -0.0000000000     0.0102865583
+2 H    -0.0052354657     0.0000000000     0.0102865583
+----------------------------------------------
+cycle 4: E = -75.795628114  dE = -0.00472419  norm(grad) = 0.0262621
+
+Geometry optimization cycle 5
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000000   0.000000   0.208063   -0.000000  0.000000  0.038554
+   H   0.882331   0.000000   0.895969    0.015317  0.000000 -0.019277
+   H  -0.882331  -0.000000   0.895969   -0.015317 -0.000000 -0.019277
+New geometry
+   1 O     -0.000000000007   0.000000000000   0.208062862817 AA   -0.000000000013   0.000000000000   0.393181827417 Bohr
+   2 H      0.882330922302   0.000000000000   0.895968568595 AA    1.667363794386   0.000000000000   1.693135210863 Bohr
+   3 H     -0.882330922295  -0.000000000000   0.895968568588 AA   -1.667363794373  -0.000000000000   1.693135210849 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8262795963134
+  HOMO = -0.0191589342258231  LUMO = 0.176256005918078
+cycle= 1 E= -75.7968204062255  delta_E= 0.0295  |g|= 0.0219  |ddm|= 0.103
+  HOMO = -0.0199777216607659  LUMO = 0.17091918559321
+cycle= 2 E= -75.7969974946311  delta_E= -0.000177  |g|= 0.0143  |ddm|= 0.0321
+  HOMO = -0.0179484469580064  LUMO = 0.172458023813414
+cycle= 3 E= -75.7970467429193  delta_E= -4.92e-05  |g|= 0.00197  |ddm|= 0.00959
+  HOMO = -0.0177506720796559  LUMO = 0.172781934287304
+cycle= 4 E= -75.7970525584515  delta_E= -5.82e-06  |g|= 0.000471  |ddm|= 0.00447
+  HOMO = -0.0177995990882311  LUMO = 0.172804971050498
+cycle= 5 E= -75.7970528299411  delta_E= -2.71e-07  |g|= 6.99e-05  |ddm|= 0.00106
+  HOMO = -0.0177943835341655  LUMO = 0.172812478717277
+cycle= 6 E= -75.7970528335693  delta_E= -3.63e-09  |g|= 1.15e-05  |ddm|= 0.000117
+  HOMO = -0.0177967509180905  LUMO = 0.172811836869844
+cycle= 7 E= -75.7970528336154  delta_E= -4.61e-11  |g|= 2.4e-06  |ddm|= 1.08e-05
+  HOMO = -0.0177969622628675  LUMO = 0.172811843293257
+Extra cycle  E= -75.7970528336177  delta_E= -2.27e-12  |g|= 8.79e-07  |ddm|= 2.64e-06
+converged SCF energy = -75.7970528336177
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000000000    -0.0000000000    -0.0079233454
+1 H    -0.0003073402    -0.0000000000     0.0039616727
+2 H     0.0003073402     0.0000000000     0.0039616727
+----------------------------------------------
+cycle 5: E = -75.7970528336  dE = -0.00142472  norm(grad) = 0.00971381
+
+Geometry optimization cycle 6
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000000   0.000000   0.261782   -0.000000  0.000000  0.053720
+   H   0.921466   0.000000   0.869109    0.039135  0.000000 -0.026860
+   H  -0.921466  -0.000000   0.869109   -0.039135 -0.000000 -0.026860
+New geometry
+   1 O     -0.000000000119   0.000000000000   0.261782440885 AA   -0.000000000225   0.000000000000   0.494697117492 Bohr
+   2 H      0.921466071173   0.000000000000   0.869108779623 AA    1.741318507596   0.000000000000   1.642377565942 Bohr
+   3 H     -0.921466071054  -0.000000000000   0.869108779492 AA   -1.741318507370  -0.000000000000   1.642377565695 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8163367122753
+  HOMO = -0.0199703074251715  LUMO = 0.176975415260441
+cycle= 1 E= -75.7974709075893  delta_E= 0.0189  |g|= 0.0179  |ddm|= 0.0912
+  HOMO = -0.0166489062348778  LUMO = 0.176308310891405
+cycle= 2 E= -75.7976834939182  delta_E= -0.000213  |g|= 0.0111  |ddm|= 0.0306
+  HOMO = -0.0151173555027252  LUMO = 0.177540205252923
+cycle= 3 E= -75.7977208935024  delta_E= -3.74e-05  |g|= 0.00242  |ddm|= 0.008
+  HOMO = -0.0150205347119486  LUMO = 0.177847944154569
+cycle= 4 E= -75.7977306361457  delta_E= -9.74e-06  |g|= 0.000569  |ddm|= 0.00606
+  HOMO = -0.0150328373078854  LUMO = 0.177909990433871
+cycle= 5 E= -75.797730969595  delta_E= -3.33e-07  |g|= 6.17e-05  |ddm|= 0.00119
+  HOMO = -0.0150441665873882  LUMO = 0.177905449686192
+cycle= 6 E= -75.7977309715426  delta_E= -1.95e-09  |g|= 1.29e-05  |ddm|= 7.6e-05
+  HOMO = -0.0150437432962131  LUMO = 0.17790650301589
+cycle= 7 E= -75.7977309716084  delta_E= -6.58e-11  |g|= 2.6e-06  |ddm|= 1.4e-05
+  HOMO = -0.015044358042308  LUMO = 0.177906274697551
+Extra cycle  E= -75.797730971611  delta_E= -2.56e-12  |g|= 9.12e-07  |ddm|= 2.78e-06
+converged SCF energy = -75.797730971611
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000000005    -0.0000000000     0.0046954345
+1 H    -0.0060098871     0.0000000000    -0.0023477174
+2 H     0.0060098866    -0.0000000000    -0.0023477171
+----------------------------------------------
+cycle 6: E = -75.7977309716  dE = -0.000678138  norm(grad) = 0.010262
+
+Geometry optimization cycle 7
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000000   0.000000   0.284126   -0.000000  0.000000  0.022344
+   H   0.951938   0.000000   0.857937    0.030472 -0.000000 -0.011172
+   H  -0.951938  -0.000000   0.857937   -0.030472  0.000000 -0.011172
+New geometry
+   1 O     -0.000000001142   0.000000000000   0.284125948838 AA   -0.000000002157   0.000000000000   0.536920228185 Bohr
+   2 H      0.951938305145   0.000000000000   0.857937026204 AA    1.798902684206   0.000000000000   1.621266011649 Bohr
+   3 H     -0.951938304003  -0.000000000000   0.857937024958 AA   -1.798902682048  -0.000000000000   1.621266009295 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.7886561368669
+  HOMO = -0.0219556685921246  LUMO = 0.173089198157072
+cycle= 1 E= -75.7980657102785  delta_E= -0.00941  |g|= 0.00866  |ddm|= 0.049
+  HOMO = -0.0176421194564576  LUMO = 0.177416973895525
+cycle= 2 E= -75.798107838771  delta_E= -4.21e-05  |g|= 0.00225  |ddm|= 0.0105
+  HOMO = -0.0180718826530145  LUMO = 0.177282950458838
+cycle= 3 E= -75.7981138669378  delta_E= -6.03e-06  |g|= 0.00132  |ddm|= 0.00446
+  HOMO = -0.0178951166385124  LUMO = 0.177464673499371
+cycle= 4 E= -75.7981148121695  delta_E= -9.45e-07  |g|= 0.000311  |ddm|= 0.00151
+  HOMO = -0.0178857071772195  LUMO = 0.177504620874388
+cycle= 5 E= -75.79811491267  delta_E= -1.01e-07  |g|= 5.39e-05  |ddm|= 0.000593
+  HOMO = -0.017896104662745  LUMO = 0.177505003497117
+cycle= 6 E= -75.7981149141527  delta_E= -1.48e-09  |g|= 8.23e-06  |ddm|= 7.31e-05
+  HOMO = -0.0178973918761794  LUMO = 0.177504633838834
+cycle= 7 E= -75.7981149141836  delta_E= -3.1e-11  |g|= 7.32e-07  |ddm|= 1.29e-05
+  HOMO = -0.0178973989992943  LUMO = 0.177504675576639
+Extra cycle  E= -75.7981149141838  delta_E= -1.42e-13  |g|= 2.17e-07  |ddm|= 6.36e-07
+converged SCF energy = -75.7981149141838
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000000046     0.0000000000     0.0038604620
+1 H    -0.0054042179     0.0000000000    -0.0019302324
+2 H     0.0054042133    -0.0000000000    -0.0019302296
+----------------------------------------------
+cycle 7: E = -75.7981149142  dE = -0.000383943  norm(grad) = 0.00898698
+
+Geometry optimization cycle 8
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000000  -0.000000   0.450089   -0.000000 -0.000000  0.165963
+   H   1.119783  -0.000000   0.774956    0.167844 -0.000000 -0.082981
+   H  -1.119783   0.000000   0.774956   -0.167844  0.000000 -0.082981
+New geometry
+   1 O     -0.000000070386  -0.000000000000   0.450088685884 AA   -0.000000133011  -0.000000000000   0.850544348087 Bohr
+   2 H      1.119782669880  -0.000000000000   0.774955695336 AA    2.116082565108  -0.000000000000   1.464454022857 Bohr
+   3 H     -1.119782599494   0.000000000000   0.774955618779 AA   -2.116082432097   0.000000000000   1.464453878186 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.7301924161574
+  HOMO = -0.0566024367064993  LUMO = 0.149151478449203
+cycle= 1 E= -75.7966938162187  delta_E= -0.0665  |g|= 0.0699  |ddm|= 0.407
+  HOMO = -0.0417675083369987  LUMO = 0.180196054014536
+cycle= 2 E= -75.799256751745  delta_E= -0.00256  |g|= 0.0258  |ddm|= 0.089
+  HOMO = -0.0469118803450544  LUMO = 0.177170665342488
+cycle= 3 E= -75.7997510147749  delta_E= -0.000494  |g|= 0.0127  |ddm|= 0.0323
+  HOMO = -0.045763739725369  LUMO = 0.178491695605363
+cycle= 4 E= -75.799908015671  delta_E= -0.000157  |g|= 0.0024  |ddm|= 0.0232
+  HOMO = -0.045615325333033  LUMO = 0.178880374148966
+cycle= 5 E= -75.7999166924157  delta_E= -8.68e-06  |g|= 0.000292  |ddm|= 0.00676
+  HOMO = -0.0456496194349579  LUMO = 0.178882649191008
+cycle= 6 E= -75.7999167252896  delta_E= -3.29e-08  |g|= 5.18e-05  |ddm|= 0.000283
+  HOMO = -0.0456435345598744  LUMO = 0.17888682687549
+cycle= 7 E= -75.799916726714  delta_E= -1.42e-09  |g|= 1.19e-05  |ddm|= 5.95e-05
+  HOMO = -0.0456464733895013  LUMO = 0.178887004271436
+cycle= 8 E= -75.7999167267915  delta_E= -7.75e-11  |g|= 1.48e-06  |ddm|= 1.77e-05
+  HOMO = -0.0456463028033087  LUMO = 0.178887156945241
+Extra cycle  E= -75.7999167267925  delta_E= -1.04e-12  |g|= 5.87e-07  |ddm|= 1.22e-06
+converged SCF energy = -75.7999167267925
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000003198    -0.0000000000    -0.0017961409
+1 H     0.0003669322     0.0000000000     0.0008980236
+2 H    -0.0003672521     0.0000000000     0.0008981173
+----------------------------------------------
+cycle 8: E = -75.7999167268  dE = -0.00180181  norm(grad) = 0.00226024
+
+Geometry optimization cycle 9
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000001  -0.000000   0.569831   -0.000001  0.000000  0.119742
+   H   1.179115  -0.000000   0.715085    0.059333 -0.000000 -0.059871
+   H  -1.179114   0.000000   0.715084   -0.059332  0.000000 -0.059872
+New geometry
+   1 O     -0.000000930721  -0.000000000000   0.569830953633 AA   -0.000001758807  -0.000000000000   1.076824439667 Bohr
+   2 H      1.179115252546  -0.000000000000   0.715085009504 AA    2.228204896608  -0.000000000000   1.351314823745 Bohr
+   3 H     -1.179114321824   0.000000000000   0.715084036862 AA   -2.228203137800   0.000000000000   1.351312985717 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.7765504268756
+  HOMO = -0.054803807998844  LUMO = 0.17193751382066
+cycle= 1 E= -75.7980347210237  delta_E= -0.0215  |g|= 0.035  |ddm|= 0.209
+  HOMO = -0.0594535932805806  LUMO = 0.181026199623892
+cycle= 2 E= -75.7996310500105  delta_E= -0.0016  |g|= 0.0132  |ddm|= 0.0663
+  HOMO = -0.0612375301577503  LUMO = 0.179757173960435
+cycle= 3 E= -75.7999206497356  delta_E= -0.00029  |g|= 0.00734  |ddm|= 0.0274
+  HOMO = -0.060462163159394  LUMO = 0.180512879465298
+cycle= 4 E= -75.7999806606635  delta_E= -6e-05  |g|= 0.00124  |ddm|= 0.0165
+  HOMO = -0.0605326197798254  LUMO = 0.18059926336172
+cycle= 5 E= -75.7999816341465  delta_E= -9.73e-07  |g|= 0.000153  |ddm|= 0.00191
+  HOMO = -0.0605117402833283  LUMO = 0.180608077736567
+cycle= 6 E= -75.7999816493625  delta_E= -1.52e-08  |g|= 2.96e-05  |ddm|= 0.000249
+  HOMO = -0.0605157058746343  LUMO = 0.18060952308773
+cycle= 7 E= -75.7999816498173  delta_E= -4.55e-10  |g|= 4.57e-06  |ddm|= 4.04e-05
+  HOMO = -0.0605158046533253  LUMO = 0.180609954148811
+Extra cycle  E= -75.7999816498292  delta_E= -1.2e-11  |g|= 1.88e-06  |ddm|= 3.87e-06
+converged SCF energy = -75.7999816498292
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000041146    -0.0000000000    -0.0012347829
+1 H     0.0043198484    -0.0000000000     0.0006171369
+2 H    -0.0043239630     0.0000000000     0.0006176460
+----------------------------------------------
+cycle 9: E = -75.7999816498  dE = -6.4923e-05  norm(grad) = 0.00629641
+
+Geometry optimization cycle 10
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000005  -0.000000   0.540058   -0.000004 -0.000000 -0.029773
+   H   1.159539  -0.000000   0.729974   -0.019576  0.000000  0.014889
+   H  -1.159534   0.000000   0.729968    0.019580 -0.000000  0.014884
+New geometry
+   1 O     -0.000005202795  -0.000000000000   0.540057948975 AA   -0.000009831858  -0.000000000000   1.020561614957 Bohr
+   2 H      1.159539110893  -0.000000000000   0.729973693147 AA    2.191211350310  -0.000000000000   1.379450358186 Bohr
+   3 H     -1.159533908098   0.000000000000   0.729968357877 AA   -2.191201518452   0.000000000000   1.379440275986 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8117703796108
+  HOMO = -0.0557665416229248  LUMO = 0.184376389737042
+cycle= 1 E= -75.7999725054591  delta_E= 0.0118  |g|= 0.0093  |ddm|= 0.0632
+  HOMO = -0.0553639479497085  LUMO = 0.181659058277719
+cycle= 2 E= -75.8000714634093  delta_E= -9.9e-05  |g|= 0.00334  |ddm|= 0.0162
+  HOMO = -0.0547036981013837  LUMO = 0.182018795083912
+cycle= 3 E= -75.8000880727679  delta_E= -1.66e-05  |g|= 0.00183  |ddm|= 0.00663
+  HOMO = -0.0548278407961077  LUMO = 0.181837873969769
+cycle= 4 E= -75.8000911015032  delta_E= -3.03e-06  |g|= 0.000281  |ddm|= 0.00338
+  HOMO = -0.0548763610543754  LUMO = 0.181797670573889
+cycle= 5 E= -75.800091194315  delta_E= -9.28e-08  |g|= 3.24e-05  |ddm|= 0.00067
+  HOMO = -0.0548709764026483  LUMO = 0.181796932657489
+cycle= 6 E= -75.8000911949126  delta_E= -5.98e-10  |g|= 5.51e-06  |ddm|= 4.38e-05
+  HOMO = -0.0548709799687908  LUMO = 0.181796550132143
+Extra cycle  E= -75.8000911949305  delta_E= -1.79e-11  |g|= 2.21e-06  |ddm|= 6.44e-06
+converged SCF energy = -75.8000911949305
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000218687    -0.0000000000    -0.0002981797
+1 H     0.0005595021     0.0000000000     0.0001472801
+2 H    -0.0005813708     0.0000000000     0.0001508996
+----------------------------------------------
+cycle 10: E = -75.8000911949  dE = -0.000109545  norm(grad) = 0.000885938
+
+Geometry optimization cycle 11
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000047  -0.000000   0.541696   -0.000041  0.000000  0.001638
+   H   1.158613  -0.000000   0.729176   -0.000926 -0.000000 -0.000798
+   H  -1.158567   0.000000   0.729128    0.000967  0.000000 -0.000840
+New geometry
+   1 O     -0.000046662232  -0.000000000000   0.541695938619 AA   -0.000088178838  -0.000000000000   1.023656966779 Bohr
+   2 H      1.158613334551  -0.000000000000   0.729176142098 AA    2.189461886571  -0.000000000000   1.377943205132 Bohr
+   3 H     -1.158566672319   0.000000000000   0.729127919283 AA   -2.189373707732   0.000000000000   1.377852077219 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8012597012662
+  HOMO = -0.0546083954160446  LUMO = 0.182267936381959
+cycle= 1 E= -75.8000928491126  delta_E= 0.00117  |g|= 0.00064  |ddm|= 0.00419
+  HOMO = -0.0546058454261247  LUMO = 0.182027126060555
+cycle= 2 E= -75.8000931833267  delta_E= -3.34e-07  |g|= 0.000304  |ddm|= 0.0011
+  HOMO = -0.0545505674119063  LUMO = 0.182071323770186
+cycle= 3 E= -75.8000932288232  delta_E= -4.55e-08  |g|= 8.91e-05  |ddm|= 0.000292
+  HOMO = -0.0545467417843947  LUMO = 0.182074644780609
+cycle= 4 E= -75.8000932430993  delta_E= -1.43e-08  |g|= 3.02e-05  |ddm|= 0.000253
+  HOMO = -0.0545472236001028  LUMO = 0.182075121850309
+cycle= 5 E= -75.8000932451303  delta_E= -2.03e-09  |g|= 1.51e-05  |ddm|= 0.000124
+  HOMO = -0.0545466869880518  LUMO = 0.182075601759312
+cycle= 6 E= -75.8000932461689  delta_E= -1.04e-09  |g|= 1.09e-05  |ddm|= 0.000121
+  HOMO = -0.0545467270404433  LUMO = 0.182075634159741
+cycle= 7 E= -75.8000932468704  delta_E= -7.01e-10  |g|= 3.33e-06  |ddm|= 0.000149
+  HOMO = -0.0545469103377908  LUMO = 0.18207546278261
+Extra cycle  E= -75.8000932468998  delta_E= -2.94e-11  |g|= 3.03e-06  |ddm|= 1.46e-05
+converged SCF energy = -75.8000932468998
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0002300851    -0.0000000000    -0.0000772673
+1 H    -0.0000346252     0.0000000000     0.0000199612
+2 H    -0.0001954599     0.0000000000     0.0000573062
+----------------------------------------------
+cycle 11: E = -75.8000932469  dE = -2.05197e-06  norm(grad) = 0.000319367
+
+Geometry optimization cycle 12
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.000548  -0.000000   0.544989   -0.000501  0.000000  0.003294
+   H   1.159423  -0.000000   0.727783    0.000810  0.000000 -0.001393
+   H  -1.158875   0.000000   0.727228   -0.000308 -0.000000 -0.001900
+New geometry
+   1 O     -0.000548065266  -0.000000000000   0.544989447044 AA   -0.001035693251  -0.000000000000   1.029880795691 Bohr
+   2 H      1.159422990172  -0.000000000000   0.727782686841 AA    2.190991913950  -0.000000000000   1.375309956330 Bohr
+   3 H     -1.158874924906   0.000000000000   0.727227866114 AA   -2.189956220699   0.000000000000   1.374261497108 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8002537904018
+  HOMO = -0.0546400073533307  LUMO = 0.182203532184125
+cycle= 1 E= -75.8000931533089  delta_E= 0.000161  |g|= 0.00104  |ddm|= 0.00512
+  HOMO = -0.0546754859955331  LUMO = 0.182206274201085
+cycle= 2 E= -75.800094676406  delta_E= -1.52e-06  |g|= 0.00045  |ddm|= 0.00212
+  HOMO = -0.0546582962517012  LUMO = 0.18223222586632
+cycle= 3 E= -75.8000952663102  delta_E= -5.9e-07  |g|= 0.000342  |ddm|= 0.00225
+  HOMO = -0.0546617773176053  LUMO = 0.182232076879136
+cycle= 4 E= -75.8000954946538  delta_E= -2.28e-07  |g|= 0.000227  |ddm|= 0.00123
+  HOMO = -0.0546540521377455  LUMO = 0.182237342156236
+cycle= 5 E= -75.8000957478665  delta_E= -2.53e-07  |g|= 0.000141  |ddm|= 0.00219
+  HOMO = -0.0546603175021845  LUMO = 0.182229165830211
+cycle= 6 E= -75.8000958431809  delta_E= -9.53e-08  |g|= 6.11e-05  |ddm|= 0.00164
+  HOMO = -0.0546570959498682  LUMO = 0.182229523648239
+cycle= 7 E= -75.8000958593611  delta_E= -1.62e-08  |g|= 5.77e-06  |ddm|= 0.00101
+  HOMO = -0.0546570755295398  LUMO = 0.18222869375556
+cycle= 8 E= -75.800095859391  delta_E= -2.99e-11  |g|= 1.65e-06  |ddm|= 1.91e-05
+  HOMO = -0.0546569784506688  LUMO = 0.182228780949601
+Extra cycle  E= -75.8000958593926  delta_E= -1.58e-12  |g|= 7.15e-07  |ddm|= 1.68e-06
+converged SCF energy = -75.8000958593926
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0028675624    -0.0000000000     0.0000151425
+1 H    -0.0015090903     0.0000000000    -0.0002334062
+2 H    -0.0013584721    -0.0000000000     0.0002182637
+----------------------------------------------
+cycle 12: E = -75.8000958594  dE = -2.61249e-06  norm(grad) = 0.00352818
+
+Geometry optimization cycle 13
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.005473  -0.000000   0.544979   -0.004925  0.000000 -0.000010
+   H   1.162287  -0.000000   0.730252    0.002864 -0.000000  0.002470
+   H  -1.156814   0.000000   0.724768    0.002061  0.000000 -0.002459
+New geometry
+   1 O     -0.005473038175  -0.000000000000   0.544979123611 AA   -0.010342543221  -0.000000000000   1.029861287231 Bohr
+   2 H      1.162286989338  -0.000000000000   0.730252484034 AA    2.196404087993  -0.000000000000   1.379977196608 Bohr
+   3 H     -1.156813951162   0.000000000000   0.724768392354 AA   -2.186061544771   0.000000000000   1.369613765290 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.7998588569292
+  HOMO = -0.0547846918197539  LUMO = 0.182173799805097
+cycle= 1 E= -75.8001862011458  delta_E= -0.000327  |g|= 0.00724  |ddm|= 0.0289
+  HOMO = -0.0547425179243477  LUMO = 0.182163366212829
+cycle= 2 E= -75.8002336551006  delta_E= -4.75e-05  |g|= 0.00315  |ddm|= 0.0133
+  HOMO = -0.0547668094088775  LUMO = 0.182146876610946
+cycle= 3 E= -75.8002689872543  delta_E= -3.53e-05  |g|= 0.00318  |ddm|= 0.0187
+  HOMO = -0.054563458199578  LUMO = 0.182037370103797
+cycle= 4 E= -75.800314440945  delta_E= -4.55e-05  |g|= 0.00114  |ddm|= 0.0333
+  HOMO = -0.0543078082030219  LUMO = 0.181802602574456
+cycle= 5 E= -75.8003241928474  delta_E= -9.75e-06  |g|= 0.000279  |ddm|= 0.0208
+  HOMO = -0.0542226407957898  LUMO = 0.181768212878925
+cycle= 6 E= -75.8003244368287  delta_E= -2.44e-07  |g|= 8.41e-05  |ddm|= 0.00347
+  HOMO = -0.0542252075523585  LUMO = 0.181757756229621
+cycle= 7 E= -75.800324440305  delta_E= -3.48e-09  |g|= 3.5e-05  |ddm|= 0.000197
+  HOMO = -0.0542258626212517  LUMO = 0.181762223152053
+cycle= 8 E= -75.8003244418075  delta_E= -1.5e-09  |g|= 7.95e-06  |ddm|= 0.000214
+  HOMO = -0.0542274248937362  LUMO = 0.18176326035383
+cycle= 9 E= -75.8003244418532  delta_E= -4.57e-11  |g|= 8.27e-07  |ddm|= 2.46e-05
+  HOMO = -0.0542271655711759  LUMO = 0.181762644848961
+Extra cycle  E= -75.8003244418538  delta_E= -6.39e-13  |g|= 3.38e-07  |ddm|= 1.22e-06
+converged SCF energy = -75.8003244418538
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0279113898    -0.0000000000     0.0000877039
+1 H    -0.0140840567     0.0000000000    -0.0022407115
+2 H    -0.0138273332     0.0000000000     0.0021530076
+----------------------------------------------
+cycle 13: E = -75.8003244419  dE = -0.000228582  norm(grad) = 0.0343259
+
+Geometry optimization cycle 14
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.053407   0.000000   0.544218   -0.047934  0.000000 -0.000761
+   H   1.186708  -0.000000   0.754601    0.024421 -0.000000  0.024348
+   H  -1.133301   0.000000   0.701181    0.023513 -0.000000 -0.023587
+New geometry
+   1 O     -0.053406905631   0.000000000000   0.544218337961 AA   -0.100924424804   0.000000000000   1.028423610713 Bohr
+   2 H      1.186707632701  -0.000000000000   0.754600577243 AA    2.242552415736  -0.000000000000   1.425988424428 Bohr
+   3 H     -1.133300727069   0.000000000000   0.701181084795 AA   -2.141627990931   0.000000000000   1.325040213988 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8109967629101
+  HOMO = -0.0565512692342223  LUMO = 0.188674930277337
+cycle= 1 E= -75.8081378446983  delta_E= 0.00286  |g|= 0.0654  |ddm|= 0.273
+  HOMO = -0.0529763319066092  LUMO = 0.181067277157989
+cycle= 2 E= -75.811489373305  delta_E= -0.00335  |g|= 0.0243  |ddm|= 0.111
+  HOMO = -0.0530862933582352  LUMO = 0.181429501335517
+cycle= 3 E= -75.8130331245802  delta_E= -0.00154  |g|= 0.0185  |ddm|= 0.125
+  HOMO = -0.0443858135646473  LUMO = 0.176080443415349
+cycle= 4 E= -75.8136358366839  delta_E= -0.000603  |g|= 0.00408  |ddm|= 0.117
+  HOMO = -0.0440015015535757  LUMO = 0.175771742661043
+cycle= 5 E= -75.8136516550255  delta_E= -1.58e-05  |g|= 0.00127  |ddm|= 0.0322
+  HOMO = -0.0443374197856953  LUMO = 0.176375054795835
+cycle= 6 E= -75.8136565534418  delta_E= -4.9e-06  |g|= 0.000514  |ddm|= 0.0101
+  HOMO = -0.0440796779027914  LUMO = 0.17627529744446
+cycle= 7 E= -75.8136570453557  delta_E= -4.92e-07  |g|= 0.000117  |ddm|= 0.00273
+  HOMO = -0.044109796408828  LUMO = 0.176267150997087
+cycle= 8 E= -75.8136570530439  delta_E= -7.69e-09  |g|= 4.89e-05  |ddm|= 0.000127
+  HOMO = -0.0441182375701611  LUMO = 0.176277486670559
+cycle= 9 E= -75.8136570550553  delta_E= -2.01e-09  |g|= 1.55e-05  |ddm|= 0.000123
+  HOMO = -0.0441126799472233  LUMO = 0.176273823683807
+cycle= 10 E= -75.8136570552704  delta_E= -2.15e-10  |g|= 1.82e-06  |ddm|= 3.34e-05
+  HOMO = -0.0441130246607515  LUMO = 0.176273688412389
+Extra cycle  E= -75.8136570552736  delta_E= -3.2e-12  |g|= 7.94e-07  |ddm|= 3.02e-06
+converged SCF energy = -75.8136570552736
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.1231115571    -0.0000000000     0.0046201962
+1 H    -0.0681750616     0.0000000000    -0.0120496388
+2 H    -0.0549364955     0.0000000000     0.0074294427
+----------------------------------------------
+cycle 14: E = -75.8136570553  dE = -0.0133326  norm(grad) = 0.151803
+
+Geometry optimization cycle 15
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.264270   0.000000   0.521818   -0.210863  0.000000 -0.022401
+   H   1.321883  -0.000000   0.871235    0.135175 -0.000000  0.116634
+   H  -1.057613   0.000000   0.606948    0.075688 -0.000000 -0.094233
+New geometry
+   1 O     -0.264269535659   0.000000000000   0.521817504066 AA   -0.499397045462   0.000000000000   0.986092169689 Bohr
+   2 H      1.321882717972  -0.000000000000   0.871234566777 AA    2.497996305763  -0.000000000000   1.646394721462 Bohr
+   3 H     -1.057613182312   0.000000000000   0.606947929157 AA   -1.998599260299   0.000000000000   1.146965357978 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.9943955583831
+  HOMO = 0.0230289824956978  LUMO = 0.260974223026731
+cycle= 1 E= -75.8114622628967  delta_E= 0.183  |g|= 0.148  |ddm|= 0.907
+  HOMO = -0.0897628198249856  LUMO = 0.20244662051041
+cycle= 2 E= -75.8224066718716  delta_E= -0.0109  |g|= 0.0316  |ddm|= 0.373
+  HOMO = -0.0982891588474291  LUMO = 0.210306573205236
+cycle= 3 E= -75.8234852671176  delta_E= -0.00108  |g|= 0.012  |ddm|= 0.143
+  HOMO = -0.093825729621545  LUMO = 0.207991862115131
+cycle= 4 E= -75.8236134784432  delta_E= -0.000128  |g|= 0.00301  |ddm|= 0.0361
+  HOMO = -0.0928592507835152  LUMO = 0.208182916084046
+cycle= 5 E= -75.8236202265027  delta_E= -6.75e-06  |g|= 0.000716  |ddm|= 0.00708
+  HOMO = -0.0928682260938481  LUMO = 0.208246847397749
+cycle= 6 E= -75.823620364572  delta_E= -1.38e-07  |g|= 0.000174  |ddm|= 0.000737
+  HOMO = -0.0928488275253603  LUMO = 0.208229413036097
+cycle= 7 E= -75.82362038401  delta_E= -1.94e-08  |g|= 3.1e-05  |ddm|= 0.000547
+  HOMO = -0.0928612862664317  LUMO = 0.208224293000564
+cycle= 8 E= -75.8236203849191  delta_E= -9.09e-10  |g|= 5.05e-06  |ddm|= 0.000104
+  HOMO = -0.0928627364206336  LUMO = 0.208224605302858
+Extra cycle  E= -75.8236203849378  delta_E= -1.87e-11  |g|= 2.02e-06  |ddm|= 1.12e-05
+converged SCF energy = -75.8236203849378
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.2716415778     0.0000000000     0.0425459378
+1 H    -0.0410203448     0.0000000000    -0.0090227770
+2 H     0.3126619226    -0.0000000000    -0.0335231608
+----------------------------------------------
+cycle 15: E = -75.8236203849  dE = -0.00996333  norm(grad) = 0.419815
+
+Geometry optimization cycle 16
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.346384   0.000000   0.471072   -0.082114  0.000000 -0.050745
+   H   1.728514  -0.000000   0.937670    0.406631 -0.000000  0.066435
+   H  -1.382130   0.000000   0.591258   -0.324517  0.000000 -0.015690
+New geometry
+   1 O     -0.346383704949   0.000000000000   0.471072242300 AA   -0.654570336366   0.000000000000   0.890197522831 Bohr
+   2 H      1.728513648514  -0.000000000000   0.937669658411 AA    3.266417398264  -0.000000000000   1.771938849711 Bohr
+   3 H     -1.382129943564   0.000000000000   0.591258099289 AA   -2.611847061897   0.000000000000   1.117315876588 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.7575982938421
+  HOMO = -0.0331926405044508  LUMO = 0.134461996143422
+cycle= 1 E= -75.866161700308  delta_E= -0.109  |g|= 0.136  |ddm|= 0.366
+  HOMO = -0.13318552855703  LUMO = 0.180329779718922
+cycle= 2 E= -75.8775440263613  delta_E= -0.0114  |g|= 0.029  |ddm|= 0.136
+  HOMO = -0.144374450490843  LUMO = 0.177811807568682
+cycle= 3 E= -75.8779734332283  delta_E= -0.000429  |g|= 0.00767  |ddm|= 0.0327
+  HOMO = -0.144025263420975  LUMO = 0.178855104919673
+cycle= 4 E= -75.8780109529418  delta_E= -3.75e-05  |g|= 0.00167  |ddm|= 0.0126
+  HOMO = -0.143624064627403  LUMO = 0.178801998972603
+cycle= 5 E= -75.8780137706174  delta_E= -2.82e-06  |g|= 0.000683  |ddm|= 0.0059
+  HOMO = -0.143790102946495  LUMO = 0.178948798267523
+cycle= 6 E= -75.8780142889644  delta_E= -5.18e-07  |g|= 0.000145  |ddm|= 0.00191
+  HOMO = -0.143833601161122  LUMO = 0.178960912530303
+cycle= 7 E= -75.8780143067922  delta_E= -1.78e-08  |g|= 2.71e-05  |ddm|= 0.000301
+  HOMO = -0.143831832454458  LUMO = 0.178962332989044
+cycle= 8 E= -75.8780143072236  delta_E= -4.31e-10  |g|= 1.02e-05  |ddm|= 2.95e-05
+  HOMO = -0.143829417150733  LUMO = 0.17896141768988
+Extra cycle  E= -75.8780143072822  delta_E= -5.86e-11  |g|= 5.36e-06  |ddm|= 1.06e-05
+converged SCF energy = -75.8780143072822
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0784642428    -0.0000000000    -0.0062136633
+1 H    -0.0091292866     0.0000000000    -0.0019796621
+2 H    -0.0693349562     0.0000000000     0.0081933255
+----------------------------------------------
+cycle 16: E = -75.8780143073  dE = -0.0543939  norm(grad) = 0.105627
+
+Geometry optimization cycle 17
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.398845   0.000000   0.461878   -0.052462  0.000000 -0.009195
+   H   1.791942  -0.000000   0.968516    0.063428 -0.000000  0.030847
+   H  -1.393097   0.000000   0.569606   -0.010967  0.000000 -0.021652
+New geometry
+   1 O     -0.398845244055   0.000000000000   0.461877603627 AA   -0.753708277349   0.000000000000   0.872822173925 Bohr
+   2 H      1.791942139462  -0.000000000000   0.968516418897 AA    3.386279874650  -0.000000000000   1.830230778860 Bohr
+   3 H     -1.393096895406   0.000000000000   0.569605977475 AA   -2.632571597300   0.000000000000   1.076399296344 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.9146827917709
+  HOMO = -0.138661024113174  LUMO = 0.195833534935314
+cycle= 1 E= -75.8840664444684  delta_E= 0.0306  |g|= 0.0212  |ddm|= 0.0486
+  HOMO = -0.148429204332782  LUMO = 0.184676788793094
+cycle= 2 E= -75.8842983887475  delta_E= -0.000232  |g|= 0.00829  |ddm|= 0.0225
+  HOMO = -0.149621881087354  LUMO = 0.186295796370656
+cycle= 3 E= -75.8843179178853  delta_E= -1.95e-05  |g|= 0.00208  |ddm|= 0.00707
+  HOMO = -0.149753196127185  LUMO = 0.186420510962414
+cycle= 4 E= -75.8843198145364  delta_E= -1.9e-06  |g|= 0.000529  |ddm|= 0.00195
+  HOMO = -0.149603175335342  LUMO = 0.186379550470446
+cycle= 5 E= -75.8843199612206  delta_E= -1.47e-07  |g|= 0.00013  |ddm|= 0.000557
+  HOMO = -0.14960191589332  LUMO = 0.186367550470762
+cycle= 6 E= -75.8843199735607  delta_E= -1.23e-08  |g|= 3.02e-05  |ddm|= 0.000191
+  HOMO = -0.149598635840563  LUMO = 0.186362412414817
+cycle= 7 E= -75.8843199742722  delta_E= -7.11e-10  |g|= 9.82e-06  |ddm|= 5.37e-05
+  HOMO = -0.14959997497892  LUMO = 0.186363088385324
+Extra cycle  E= -75.8843199743469  delta_E= -7.47e-11  |g|= 4.83e-06  |ddm|= 2.03e-05
+converged SCF energy = -75.8843199743469
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0462797689    -0.0000000000    -0.0029773560
+1 H    -0.0063974810     0.0000000000    -0.0014368767
+2 H    -0.0398822879     0.0000000000     0.0044142328
+----------------------------------------------
+cycle 17: E = -75.8843199743  dE = -0.00630567  norm(grad) = 0.0616746
+
+Geometry optimization cycle 18
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.490703   0.000000   0.443053   -0.091857  0.000000 -0.018825
+   H   1.913707  -0.000000   1.023807    0.121765 -0.000000  0.055290
+   H  -1.423005   0.000000   0.533140   -0.029908  0.000000 -0.036466
+New geometry
+   1 O     -0.490702733279   0.000000000000   0.443052874552 AA   -0.927293774473   0.000000000000   0.837248591605 Bohr
+   2 H      1.913707382394  -0.000000000000   1.023806796989 AA    3.616382835284  -0.000000000000   1.934714450777 Bohr
+   3 H     -1.423004649114   0.000000000000   0.533140328458 AA   -2.689089060809   0.000000000000   1.007489206747 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.9356211080996
+  HOMO = -0.143667742947806  LUMO = 0.209132665096642
+cycle= 1 E= -75.8869871622852  delta_E= 0.0486  |g|= 0.0313  |ddm|= 0.0696
+  HOMO = -0.156356598182772  LUMO = 0.193861011987983
+cycle= 2 E= -75.8874996576077  delta_E= -0.000512  |g|= 0.0114  |ddm|= 0.0321
+  HOMO = -0.157874662444221  LUMO = 0.195906772471479
+cycle= 3 E= -75.8875376458375  delta_E= -3.8e-05  |g|= 0.00299  |ddm|= 0.00947
+  HOMO = -0.158006813999526  LUMO = 0.196037991396591
+cycle= 4 E= -75.8875414562837  delta_E= -3.81e-06  |g|= 0.000758  |ddm|= 0.00281
+  HOMO = -0.157845461488757  LUMO = 0.195982403559818
+cycle= 5 E= -75.8875417421565  delta_E= -2.86e-07  |g|= 0.000183  |ddm|= 0.000781
+  HOMO = -0.157838685491316  LUMO = 0.195962356847547
+cycle= 6 E= -75.8875417645385  delta_E= -2.24e-08  |g|= 3.82e-05  |ddm|= 0.000253
+  HOMO = -0.157836563261546  LUMO = 0.195957893622074
+cycle= 7 E= -75.887541765501  delta_E= -9.62e-10  |g|= 1.04e-05  |ddm|= 4.8e-05
+  HOMO = -0.157837467270838  LUMO = 0.195957910067241
+Extra cycle  E= -75.8875417655729  delta_E= -7.19e-11  |g|= 4.89e-06  |ddm|= 1.11e-05
+converged SCF energy = -75.8875417655729
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0213049924     0.0000000000     0.0030795040
+1 H    -0.0031085353     0.0000000000    -0.0007421174
+2 H     0.0244135276    -0.0000000000    -0.0023373867
+----------------------------------------------
+cycle 18: E = -75.8875417656  dE = -0.00322179  norm(grad) = 0.0327885
+
+Geometry optimization cycle 19
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.496415   0.000000   0.439902   -0.005713  0.000000 -0.003151
+   H   1.939651  -0.000000   1.028230    0.025944 -0.000000  0.004423
+   H  -1.443236   0.000000   0.531868   -0.020231  0.000000 -0.001273
+New geometry
+   1 O     -0.496415266781   0.000000000000   0.439902257543 AA   -0.938088898269   0.000000000000   0.831294788334 Bohr
+   2 H      1.939651061531  -0.000000000000   1.028230122599 AA    3.665409283516  -0.000000000000   1.943073324739 Bohr
+   3 H     -1.443235794749   0.000000000000   0.531867619858 AA   -2.727320385244   0.000000000000   1.005084136056 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8771749596854
+  HOMO = -0.159205350231348  LUMO = 0.190727499547558
+cycle= 1 E= -75.8881432721369  delta_E= -0.011  |g|= 0.00642  |ddm|= 0.0127
+  HOMO = -0.15870543089108  LUMO = 0.193995679647569
+cycle= 2 E= -75.8881566253028  delta_E= -1.34e-05  |g|= 0.00183  |ddm|= 0.00487
+  HOMO = -0.158786895233214  LUMO = 0.193725620425457
+cycle= 3 E= -75.8881575520538  delta_E= -9.27e-07  |g|= 0.000562  |ddm|= 0.00121
+  HOMO = -0.158799937094053  LUMO = 0.193739943013274
+cycle= 4 E= -75.8881576914713  delta_E= -1.39e-07  |g|= 0.00017  |ddm|= 0.000534
+  HOMO = -0.158813787727621  LUMO = 0.193756034715941
+cycle= 5 E= -75.8881577043298  delta_E= -1.29e-08  |g|= 3.18e-05  |ddm|= 0.000168
+  HOMO = -0.158818430028783  LUMO = 0.19376211156591
+cycle= 6 E= -75.8881577049777  delta_E= -6.48e-10  |g|= 5.54e-06  |ddm|= 4.36e-05
+  HOMO = -0.158817707493032  LUMO = 0.193761875320896
+Extra cycle  E= -75.8881577049924  delta_E= -1.46e-11  |g|= 1.84e-06  |ddm|= 5.35e-06
+converged SCF energy = -75.8881577049924
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0041226079     0.0000000000     0.0013171891
+1 H    -0.0027579985     0.0000000000    -0.0006612888
+2 H     0.0068806064    -0.0000000000    -0.0006559002
+----------------------------------------------
+cycle 19: E = -75.888157705  dE = -0.000615939  norm(grad) = 0.0086341
+
+Geometry optimization cycle 20
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.532592   0.000000   0.428438   -0.036177  0.000000 -0.011464
+   H   2.020618  -0.000000   1.052044    0.080967 -0.000000  0.023814
+   H  -1.488026   0.000000   0.519518   -0.044790  0.000000 -0.012350
+New geometry
+   1 O     -0.532592460873   0.000000000000   0.428438467462 AA   -1.006453887059   0.000000000000   0.809631364731 Bohr
+   2 H      2.020618371197  -0.000000000000   1.052044004820 AA    3.818415323827  -0.000000000000   1.988075040100 Bohr
+   3 H     -1.488025910322   0.000000000000   0.519517527718 AA   -2.811961436765   0.000000000000   0.981745844298 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8824763884653
+  HOMO = -0.16012470070626  LUMO = 0.190571599102191
+cycle= 1 E= -75.8886668672647  delta_E= -0.00619  |g|= 0.00675  |ddm|= 0.0189
+  HOMO = -0.161631366562899  LUMO = 0.192224885173954
+cycle= 2 E= -75.8887169970414  delta_E= -5.01e-05  |g|= 0.00212  |ddm|= 0.00946
+  HOMO = -0.162041530938179  LUMO = 0.192272886033805
+cycle= 3 E= -75.8887191879263  delta_E= -2.19e-06  |g|= 0.000405  |ddm|= 0.00249
+  HOMO = -0.162023960374173  LUMO = 0.192278743941236
+cycle= 4 E= -75.8887193336213  delta_E= -1.46e-07  |g|= 0.000114  |ddm|= 0.000738
+  HOMO = -0.162039712172547  LUMO = 0.192299774876968
+cycle= 5 E= -75.8887193438373  delta_E= -1.02e-08  |g|= 3.63e-05  |ddm|= 0.000235
+  HOMO = -0.162040906314241  LUMO = 0.192301018470361
+cycle= 6 E= -75.8887193448186  delta_E= -9.81e-10  |g|= 1.1e-05  |ddm|= 8e-05
+  HOMO = -0.162041492930658  LUMO = 0.192301989357654
+Extra cycle  E= -75.8887193448947  delta_E= -7.62e-11  |g|= 4.85e-06  |ddm|= 2.45e-05
+converged SCF energy = -75.8887193448947
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0043517309    -0.0000000000     0.0001981441
+1 H    -0.0017509300     0.0000000000    -0.0004325326
+2 H    -0.0026008009     0.0000000000     0.0002343885
+----------------------------------------------
+cycle 20: E = -75.8887193449  dE = -0.00056164  norm(grad) = 0.00538969
+
+Geometry optimization cycle 21
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.587287   0.000000   0.411721   -0.054694  0.000000 -0.016718
+   H   2.132176  -0.000000   1.087705    0.111558 -0.000000  0.035661
+   H  -1.544889   0.000000   0.500574   -0.056863  0.000000 -0.018943
+New geometry
+   1 O     -0.587286928498   0.000000000000   0.411720630856 AA   -1.109811451399   0.000000000000   0.778039232151 Bohr
+   2 H      2.132175875391  -0.000000000000   1.087705171092 AA    4.029228453895  -0.000000000000   2.055464877636 Bohr
+   3 H     -1.544888946891   0.000000000000   0.500574198052 AA   -2.919417002492   0.000000000000   0.945948139342 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8876092108212
+  HOMO = -0.163416767605147  LUMO = 0.191318688150121
+cycle= 1 E= -75.8890675331026  delta_E= -0.00146  |g|= 0.00684  |ddm|= 0.0199
+  HOMO = -0.16527087913836  LUMO = 0.191582034957683
+cycle= 2 E= -75.8891318753646  delta_E= -6.43e-05  |g|= 0.00255  |ddm|= 0.011
+  HOMO = -0.165666764125075  LUMO = 0.191774120038618
+cycle= 3 E= -75.8891352448892  delta_E= -3.37e-06  |g|= 0.000462  |ddm|= 0.00304
+  HOMO = -0.165672427763861  LUMO = 0.191777434091117
+cycle= 4 E= -75.8891354098755  delta_E= -1.65e-07  |g|= 0.000143  |ddm|= 0.000755
+  HOMO = -0.165675576082658  LUMO = 0.191794600392084
+cycle= 5 E= -75.8891354205906  delta_E= -1.07e-08  |g|= 3.63e-05  |ddm|= 0.000203
+  HOMO = -0.165676885004384  LUMO = 0.191795861952042
+cycle= 6 E= -75.8891354213486  delta_E= -7.58e-10  |g|= 1.17e-05  |ddm|= 4.84e-05
+  HOMO = -0.165677236635787  LUMO = 0.191796350541322
+Extra cycle  E= -75.8891354214474  delta_E= -9.88e-11  |g|= 5.69e-06  |ddm|= 1.45e-05
+converged SCF energy = -75.8891354214474
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0056347712    -0.0000000000    -0.0001812760
+1 H    -0.0008712809     0.0000000000    -0.0002277843
+2 H    -0.0047634903     0.0000000000     0.0004090603
+----------------------------------------------
+cycle 21: E = -75.8891354214  dE = -0.000416077  norm(grad) = 0.00744666
+
+Geometry optimization cycle 22
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.642163   0.000000   0.394947   -0.054876  0.000000 -0.016774
+   H   2.239325  -0.000000   1.123440    0.107150 -0.000000  0.035735
+   H  -1.597162   0.000000   0.481613   -0.052273  0.000000 -0.018961
+New geometry
+   1 O     -0.642163050636   0.000000000000   0.394946854499 AA   -1.213512293017   0.000000000000   0.746341388762 Bohr
+   2 H      2.239325404797  -0.000000000000   1.123440193862 AA    4.231711718847  -0.000000000000   2.122994283728 Bohr
+   3 H     -1.597162354159   0.000000000000   0.481612951638 AA   -3.018199425826   0.000000000000   0.910116576638 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8911566840643
+  HOMO = -0.166877357584434  LUMO = 0.1925086478231
+cycle= 1 E= -75.8893181280839  delta_E= 0.00184  |g|= 0.00534  |ddm|= 0.0145
+  HOMO = -0.168183870158836  LUMO = 0.191866535481932
+cycle= 2 E= -75.8893556243924  delta_E= -3.75e-05  |g|= 0.00211  |ddm|= 0.00854
+  HOMO = -0.168422618802097  LUMO = 0.192067331611719
+cycle= 3 E= -75.889357954693  delta_E= -2.33e-06  |g|= 0.000378  |ddm|= 0.00243
+  HOMO = -0.168435627040813  LUMO = 0.192077143018735
+cycle= 4 E= -75.8893580569465  delta_E= -1.02e-07  |g|= 0.000113  |ddm|= 0.000557
+  HOMO = -0.16843307826667  LUMO = 0.192084384475832
+cycle= 5 E= -75.8893580624128  delta_E= -5.47e-09  |g|= 2.77e-05  |ddm|= 0.000131
+  HOMO = -0.168432784908119  LUMO = 0.192083722048114
+cycle= 6 E= -75.8893580628709  delta_E= -4.58e-10  |g|= 9.63e-06  |ddm|= 3.5e-05
+  HOMO = -0.168432726337802  LUMO = 0.192083779440266
+Extra cycle  E= -75.8893580629341  delta_E= -6.33e-11  |g|= 4.54e-06  |ddm|= 1.17e-05
+converged SCF energy = -75.8893580629341
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0022250610    -0.0000000000    -0.0000095071
+1 H    -0.0004104493     0.0000000000    -0.0001163492
+2 H    -0.0018146117     0.0000000000     0.0001258563
+----------------------------------------------
+cycle 22: E = -75.8893580629  dE = -0.000222641  norm(grad) = 0.00290545
+
+Geometry optimization cycle 23
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.690950   0.000000   0.379399   -0.048787  0.000000 -0.015547
+   H   2.335066  -0.000000   1.155500    0.095740 -0.000000  0.032060
+   H  -1.644116   0.000000   0.465100   -0.046954  0.000000 -0.016513
+New geometry
+   1 O     -0.690949785326   0.000000000000   0.379399454398 AA   -1.305705860093   0.000000000000   0.716961060623 Bohr
+   2 H      2.335065871186  -0.000000000000   1.155500476298 AA    4.412634979361  -0.000000000000   2.183579437008 Bohr
+   3 H     -1.644116085857   0.000000000000   0.465100069303 AA   -3.106929119262   0.000000000000   0.878911751499 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8905849300457
+  HOMO = -0.169565986402847  LUMO = 0.192541979900309
+cycle= 1 E= -75.8894278460094  delta_E= 0.00116  |g|= 0.00372  |ddm|= 0.00961
+  HOMO = -0.170265925037611  LUMO = 0.192166266930734
+cycle= 2 E= -75.8894460609843  delta_E= -1.82e-05  |g|= 0.0015  |ddm|= 0.006
+  HOMO = -0.170397675147952  LUMO = 0.19228533017525
+cycle= 3 E= -75.8894473074855  delta_E= -1.25e-06  |g|= 0.000244  |ddm|= 0.00176
+  HOMO = -0.170406085395418  LUMO = 0.192293449952905
+cycle= 4 E= -75.8894473580112  delta_E= -5.05e-08  |g|= 6.75e-05  |ddm|= 0.000381
+  HOMO = -0.170405224280087  LUMO = 0.192297144141743
+cycle= 5 E= -75.8894473603456  delta_E= -2.33e-09  |g|= 1.53e-05  |ddm|= 8.66e-05
+  HOMO = -0.170404897909175  LUMO = 0.192296539001124
+cycle= 6 E= -75.8894473604701  delta_E= -1.24e-10  |g|= 5.01e-06  |ddm|= 1.88e-05
+  HOMO = -0.170404853466697  LUMO = 0.192296608978064
+Extra cycle  E= -75.8894473604853  delta_E= -1.53e-11  |g|= 2.22e-06  |ddm|= 6.42e-06
+converged SCF energy = -75.8894473604853
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0000584168     0.0000000000     0.0001206980
+1 H    -0.0001883728     0.0000000000    -0.0000602489
+2 H     0.0002467896    -0.0000000000    -0.0000604491
+----------------------------------------------
+cycle 23: E = -75.8894473605  dE = -8.92976e-05  norm(grad) = 0.000348789
+
+Geometry optimization cycle 24
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.731221   0.000000   0.365947   -0.040271  0.000000 -0.013452
+   H   2.415327  -0.000000   1.182270    0.080261 -0.000000  0.026769
+   H  -1.684106   0.000000   0.451783   -0.039989  0.000000 -0.013317
+New geometry
+   1 O     -0.731221057857   0.000000000000   0.365947325448 AA   -1.381807535865   0.000000000000   0.691540221114 Bohr
+   2 H      2.415326637024  -0.000000000000   1.182269606634 AA    4.564305845342  -0.000000000000   2.234165761936 Bohr
+   3 H     -1.684105579163   0.000000000000   0.451783067917 AA   -3.182498309470   0.000000000000   0.853746266078 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8894575634082
+  HOMO = -0.171400633137354  LUMO = 0.192242578418857
+cycle= 1 E= -75.8894716732037  delta_E= -1.41e-05  |g|= 0.00245  |ddm|= 0.00609
+  HOMO = -0.171704243127978  LUMO = 0.192247000858502
+cycle= 2 E= -75.8894797660958  delta_E= -8.09e-06  |g|= 0.00101  |ddm|= 0.00403
+  HOMO = -0.171774518557722  LUMO = 0.192295457423283
+cycle= 3 E= -75.8894803605786  delta_E= -5.94e-07  |g|= 0.000147  |ddm|= 0.00121
+  HOMO = -0.17177957960157  LUMO = 0.192300899675953
+cycle= 4 E= -75.889480383381  delta_E= -2.28e-08  |g|= 3.61e-05  |ddm|= 0.000253
+  HOMO = -0.171780081599117  LUMO = 0.192303253210383
+cycle= 5 E= -75.8894803843693  delta_E= -9.88e-10  |g|= 7.42e-06  |ddm|= 5.67e-05
+  HOMO = -0.171780004867596  LUMO = 0.192303140325857
+Extra cycle  E= -75.8894803843983  delta_E= -2.89e-11  |g|= 2.89e-06  |ddm|= 1.2e-05
+converged SCF energy = -75.8894803843983
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0004484409    -0.0000000000     0.0001151155
+1 H    -0.0000823376     0.0000000000    -0.0000320820
+2 H     0.0005307785     0.0000000000    -0.0000830335
+----------------------------------------------
+cycle 24: E = -75.8894803844  dE = -3.30239e-05  norm(grad) = 0.000714689
+
+Geometry optimization cycle 25
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.763337   0.000000   0.354776   -0.032116  0.000000 -0.011171
+   H   2.479788  -0.000000   1.203854    0.064462  0.000000  0.021584
+   H  -1.716451   0.000000   0.441370   -0.032346 -0.000000 -0.010413
+New geometry
+   1 O     -0.763336864386   0.000000000000   0.354775990621 AA   -1.442497614474   0.000000000000   0.670429457846 Bohr
+   2 H      2.479788335971  -0.000000000000   1.203854046669 AA    4.686120801877  -0.000000000000   2.274954442154 Bohr
+   3 H     -1.716451471581   0.000000000000   0.441369962709 AA   -3.243623187395   0.000000000000   0.834068349129 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.889113847342
+  HOMO = -0.172568960732536  LUMO = 0.192105262101185
+cycle= 1 E= -75.8894881337065  delta_E= -0.000374  |g|= 0.00165  |ddm|= 0.00399
+  HOMO = -0.172697736192811  LUMO = 0.192225906806835
+cycle= 2 E= -75.8894917569014  delta_E= -3.62e-06  |g|= 0.000689  |ddm|= 0.00272
+  HOMO = -0.172736545648992  LUMO = 0.192243878934434
+cycle= 3 E= -75.8894920405023  delta_E= -2.84e-07  |g|= 0.000103  |ddm|= 0.00083
+  HOMO = -0.172739601125214  LUMO = 0.192247348887601
+cycle= 4 E= -75.8894920523569  delta_E= -1.19e-08  |g|= 2.71e-05  |ddm|= 0.000176
+  HOMO = -0.172740271229785  LUMO = 0.192248924867803
+cycle= 5 E= -75.8894920529434  delta_E= -5.86e-10  |g|= 9.45e-06  |ddm|= 4.1e-05
+  HOMO = -0.172740224211049  LUMO = 0.192248980143905
+Extra cycle  E= -75.8894920530051  delta_E= -6.17e-11  |g|= 4.59e-06  |ddm|= 1.29e-05
+converged SCF energy = -75.8894920530051
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0001684971    -0.0000000000     0.0000670314
+1 H    -0.0000302056     0.0000000000    -0.0000174136
+2 H     0.0001987028     0.0000000000    -0.0000496178
+----------------------------------------------
+cycle 25: E = -75.889492053  dE = -1.16686e-05  norm(grad) = 0.000275762
+
+Geometry optimization cycle 26
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.783745   0.000000   0.347363   -0.020408  0.000000 -0.007413
+   H   2.520706  -0.000000   1.217761    0.040917  0.000000  0.013907
+   H  -1.736961   0.000000   0.434876   -0.020509 -0.000000 -0.006494
+New geometry
+   1 O     -0.783744843596   0.000000000000   0.347363334657 AA   -1.481063105936   0.000000000000   0.656421568218 Bohr
+   2 H      2.520705722508  -0.000000000000   1.217760878336 AA    4.763443456163  -0.000000000000   2.301234545266 Bohr
+   3 H     -1.736960878907   0.000000000000   0.434875787006 AA   -3.282380350217   0.000000000000   0.821796135646 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8892690491608
+  HOMO = -0.173219207271707  LUMO = 0.192137732535926
+cycle= 1 E= -75.8894936024645  delta_E= -0.000225  |g|= 0.000939  |ddm|= 0.00225
+  HOMO = -0.173274833912369  LUMO = 0.192211393115126
+cycle= 2 E= -75.889494735141  delta_E= -1.13e-06  |g|= 0.000394  |ddm|= 0.00153
+  HOMO = -0.173293790976711  LUMO = 0.192219694223794
+cycle= 3 E= -75.88949482828  delta_E= -9.31e-08  |g|= 6.83e-05  |ddm|= 0.000477
+  HOMO = -0.173295170664434  LUMO = 0.19222153836443
+cycle= 4 E= -75.8894948332557  delta_E= -4.98e-09  |g|= 2.15e-05  |ddm|= 0.000108
+  HOMO = -0.173295568774026  LUMO = 0.19222242754777
+cycle= 5 E= -75.8894948336019  delta_E= -3.46e-10  |g|= 9.4e-06  |ddm|= 3.01e-05
+  HOMO = -0.173295450995628  LUMO = 0.19222236230962
+Extra cycle  E= -75.8894948336658  delta_E= -6.39e-11  |g|= 4.69e-06  |ddm|= 1.28e-05
+converged SCF energy = -75.8894948336658
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000139861    -0.0000000000     0.0000393886
+1 H    -0.0000077728     0.0000000000    -0.0000107256
+2 H    -0.0000062133     0.0000000000    -0.0000286631
+----------------------------------------------
+cycle 26: E = -75.8894948337  dE = -2.78066e-06  norm(grad) = 5.27514e-05
+
+Geometry optimization cycle 27
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.793495   0.000000   0.343554   -0.009750  0.000000 -0.003809
+   H   2.540154  -0.000000   1.224566    0.019448  0.000000  0.006805
+   H  -1.746659   0.000000   0.431880   -0.009698 -0.000000 -0.002996
+New geometry
+   1 O     -0.793495190096   0.000000000000   0.343554357934 AA   -1.499488590440   0.000000000000   0.649223645395 Bohr
+   2 H      2.540154113408  -0.000000000000   1.224565897595 AA    4.800195588528  -0.000000000000   2.314094167936 Bohr
+   3 H     -1.746658923306   0.000000000000   0.431879744471 AA   -3.300706998077   0.000000000000   0.816134435797 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8894393059362
+  HOMO = -0.173514070529385  LUMO = 0.192196091964652
+cycle= 1 E= -75.8894950043202  delta_E= -5.57e-05  |g|= 0.000439  |ddm|= 0.0011
+  HOMO = -0.173539318964851  LUMO = 0.192215482038291
+cycle= 2 E= -75.8894952347635  delta_E= -2.3e-07  |g|= 0.000184  |ddm|= 0.000688
+  HOMO = -0.173547276650591  LUMO = 0.192220304957876
+cycle= 3 E= -75.8894952548766  delta_E= -2.01e-08  |g|= 4.35e-05  |ddm|= 0.000225
+  HOMO = -0.173547602890596  LUMO = 0.192221039970207
+cycle= 4 E= -75.8894952567122  delta_E= -1.84e-09  |g|= 1.57e-05  |ddm|= 6.19e-05
+  HOMO = -0.173547703501021  LUMO = 0.192221414476341
+cycle= 5 E= -75.8894952569049  delta_E= -1.93e-10  |g|= 6.32e-06  |ddm|= 2.36e-05
+  HOMO = -0.173547561186313  LUMO = 0.192221256145338
+Extra cycle  E= -75.8894952569347  delta_E= -2.98e-11  |g|= 3.09e-06  |ddm|= 9.8e-06
+converged SCF energy = -75.8894952569347
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000315551     0.0000000000     0.0000335789
+1 H     0.0000006378     0.0000000000    -0.0000081152
+2 H    -0.0000321930    -0.0000000000    -0.0000254637
+----------------------------------------------
+cycle 27: E = -75.8894952569  dE = -4.23269e-07  norm(grad) = 6.2244e-05
+
+Geometry optimization cycle 28
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.796690   0.000000   0.342033   -0.003195  0.000000 -0.001521
+   H   2.546466  -0.000000   1.226946    0.006312 -0.000000  0.002380
+   H  -1.749776   0.000000   0.431021   -0.003118  0.000000 -0.000859
+New geometry
+   1 O     -0.796689776810   0.000000000000   0.342033382917 AA   -1.505525484412   0.000000000000   0.646349419171 Bohr
+   2 H      2.546466202853  -0.000000000000   1.226946099345 AA    4.812123708854  -0.000000000000   2.318592097365 Bohr
+   3 H     -1.749776426037   0.000000000000   0.431020517738 AA   -3.306598224431   0.000000000000   0.814510732593 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8894943006308
+  HOMO = -0.173617688957138  LUMO = 0.192221286077186
+cycle= 1 E= -75.8894952820087  delta_E= -9.81e-07  |g|= 0.000189  |ddm|= 0.000538
+  HOMO = -0.173627030595363  LUMO = 0.192222297293275
+cycle= 2 E= -75.8894953122057  delta_E= -3.02e-08  |g|= 7.57e-05  |ddm|= 0.000244
+  HOMO = -0.173629746592375  LUMO = 0.192224627200948
+cycle= 3 E= -75.8894953155476  delta_E= -3.34e-09  |g|= 2.85e-05  |ddm|= 9.57e-05
+  HOMO = -0.173629469269781  LUMO = 0.192224618577345
+cycle= 4 E= -75.889495316281  delta_E= -7.33e-10  |g|= 9.62e-06  |ddm|= 3.86e-05
+  HOMO = -0.173629390467362  LUMO = 0.192224623733213
+Extra cycle  E= -75.8894953163463  delta_E= -6.54e-11  |g|= 4.81e-06  |ddm|= 1.1e-05
+converged SCF energy = -75.8894953163463
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0000124995    -0.0000000000     0.0000336078
+1 H     0.0000031454    -0.0000000000    -0.0000073338
+2 H    -0.0000156449     0.0000000000    -0.0000262740
+----------------------------------------------
+cycle 28: E = -75.8894953163  dE = -5.94116e-08  norm(grad) = 4.77963e-05
+
+Geometry optimization cycle 29
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.798596   0.000000   0.340712   -0.001907 -0.000000 -0.001322
+   H   2.550172  -0.000000   1.228619    0.003705  0.000000  0.001673
+   H  -1.751575   0.000000   0.430669   -0.001799 -0.000000 -0.000351
+New geometry
+   1 O     -0.798596474227   0.000000000000   0.340711578187 AA   -1.509128620332   0.000000000000   0.643851570241 Bohr
+   2 H      2.550171602221  -0.000000000000   1.228618946832 AA    4.819125898842  -0.000000000000   2.321753320964 Bohr
+   3 H     -1.751575127989   0.000000000000   0.430669474981 AA   -3.309997278499   0.000000000000   0.813847357924 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8895001466214
+  HOMO = -0.173672044162273  LUMO = 0.192227201715229
+cycle= 1 E= -75.8894953371553  delta_E= 4.81e-06  |g|= 0.000216  |ddm|= 0.000674
+  HOMO = -0.173678459304545  LUMO = 0.192226227309501
+cycle= 2 E= -75.889495362403  delta_E= -2.52e-08  |g|= 8.3e-05  |ddm|= 0.000211
+  HOMO = -0.173680167236487  LUMO = 0.192228138633788
+cycle= 3 E= -75.8894953669095  delta_E= -4.51e-09  |g|= 3.21e-05  |ddm|= 0.000111
+  HOMO = -0.173679542379146  LUMO = 0.192227751789916
+cycle= 4 E= -75.8894953678067  delta_E= -8.97e-10  |g|= 9.78e-06  |ddm|= 4.54e-05
+  HOMO = -0.173679531148595  LUMO = 0.192227776058787
+Extra cycle  E= -75.8894953678789  delta_E= -7.22e-11  |g|= 4.92e-06  |ddm|= 1.21e-05
+converged SCF energy = -75.8894953678789
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0000070706     0.0000000000     0.0000347687
+1 H     0.0000046381    -0.0000000000    -0.0000068791
+2 H     0.0000024325    -0.0000000000    -0.0000278896
+----------------------------------------------
+cycle 29: E = -75.8894953679  dE = -5.15326e-08  norm(grad) = 4.59504e-05
+
+Geometry optimization cycle 30
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.802483   0.000000   0.336746   -0.003886  0.000000 -0.003966
+   H   2.557540  -0.000000   1.232775    0.007369  0.000000  0.004156
+   H  -1.755058   0.000000   0.430479   -0.003482 -0.000000 -0.000190
+New geometry
+   1 O     -0.802482765720   0.000000000000   0.336745833401 AA   -1.516472646895   0.000000000000   0.636357398716 Bohr
+   2 H      2.557540337559  -0.000000000000   1.232774858327 AA    4.833050790515  -0.000000000000   2.329606855487 Bohr
+   3 H     -1.755057571834   0.000000000000   0.430479308271 AA   -3.316578143610   0.000000000000   0.813487994925 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8895053446046
+  HOMO = -0.173771199558865  LUMO = 0.192232751114865
+cycle= 1 E= -75.8894951718624  delta_E= 1.02e-05  |g|= 0.000795  |ddm|= 0.00254
+  HOMO = -0.173785121267451  LUMO = 0.192231863741266
+cycle= 2 E= -75.8894954621113  delta_E= -2.9e-07  |g|= 0.0003  |ddm|= 0.000696
+  HOMO = -0.17378802954406  LUMO = 0.192236095776913
+cycle= 3 E= -75.8894955262729  delta_E= -6.42e-08  |g|= 0.000101  |ddm|= 0.000409
+  HOMO = -0.173786077466713  LUMO = 0.192234888341253
+cycle= 4 E= -75.8894955349619  delta_E= -8.69e-09  |g|= 2.99e-05  |ddm|= 0.000155
+  HOMO = -0.173786211001279  LUMO = 0.192235110966866
+cycle= 5 E= -75.8894955358694  delta_E= -9.07e-10  |g|= 6.02e-06  |ddm|= 5.86e-05
+  HOMO = -0.173786018096744  LUMO = 0.192234938509165
+Extra cycle  E= -75.8894955358959  delta_E= -2.65e-11  |g|= 2.53e-06  |ddm|= 1.05e-05
+converged SCF energy = -75.8894955358959
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0000528200     0.0000000000     0.0000386108
+1 H     0.0000076933    -0.0000000000    -0.0000059780
+2 H     0.0000451267    -0.0000000000    -0.0000326328
+----------------------------------------------
+cycle 30: E = -75.8894955359  dE = -1.68017e-07  norm(grad) = 8.64696e-05
+
+Geometry optimization cycle 31
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.808731   0.000000   0.327112   -0.006248  0.000000 -0.009634
+   H   2.568855  -0.000000   1.241327    0.011314 -0.000000  0.008552
+   H  -1.760124   0.000000   0.431561   -0.005066  0.000000  0.001082
+New geometry
+   1 O     -0.808731033916   0.000000000000   0.327112135402 AA   -1.528280162538   0.000000000000   0.618152347931 Bohr
+   2 H      2.568854646874  -0.000000000000   1.241326627971 AA    4.854431736408  -0.000000000000   2.345767357994 Bohr
+   3 H     -1.760123612955   0.000000000000   0.431561236626 AA   -3.326151573865   0.000000000000   0.815532543201 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8894842032654
+  HOMO = -0.17395052006799  LUMO = 0.192226553361986
+cycle= 1 E= -75.8894932222467  delta_E= -9.02e-06  |g|= 0.00222  |ddm|= 0.00715
+  HOMO = -0.173969982730735  LUMO = 0.192242267207336
+cycle= 2 E= -75.8894953679266  delta_E= -2.15e-06  |g|= 0.000835  |ddm|= 0.00187
+  HOMO = -0.173972729041191  LUMO = 0.192248286650798
+cycle= 3 E= -75.8894958800667  delta_E= -5.12e-07  |g|= 0.000257  |ddm|= 0.00115
+  HOMO = -0.173968518190535  LUMO = 0.192247240915874
+cycle= 4 E= -75.8894959373986  delta_E= -5.73e-08  |g|= 6.81e-05  |ddm|= 0.000428
+  HOMO = -0.173969214243206  LUMO = 0.192247315432909
+cycle= 5 E= -75.88949594199  delta_E= -4.59e-09  |g|= 1.51e-05  |ddm|= 0.00013
+  HOMO = -0.173968665315972  LUMO = 0.192247157079699
+cycle= 6 E= -75.8894959421984  delta_E= -2.08e-10  |g|= 2.72e-06  |ddm|= 2.79e-05
+  HOMO = -0.173968716483849  LUMO = 0.192247195624246
+Extra cycle  E= -75.8894959422041  delta_E= -5.66e-12  |g|= 1.14e-06  |ddm|= 5.47e-06
+converged SCF energy = -75.8894959422041
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0001292672     0.0000000000     0.0000457446
+1 H     0.0000126550    -0.0000000000    -0.0000045769
+2 H     0.0001166122    -0.0000000000    -0.0000411677
+----------------------------------------------
+cycle 31: E = -75.8894959422  dE = -4.06308e-07  norm(grad) = 0.00018514
+
+Geometry optimization cycle 32
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.816933   0.000000   0.306603   -0.008202 -0.000000 -0.020509
+   H   2.582063  -0.000000   1.257152    0.013208  0.000000  0.015825
+   H  -1.765130   0.000000   0.436246   -0.005007 -0.000000  0.004684
+New geometry
+   1 O     -0.816932640089   0.000000000000   0.306602738727 AA   -1.543778951987   0.000000000000   0.579395205236 Bohr
+   2 H      2.582063138931  -0.000000000000   1.257151598958 AA    4.879392168914  -0.000000000000   2.375672219090 Bohr
+   3 H     -1.765130498843   0.000000000000   0.436245662310 AA   -3.335613216930   0.000000000000   0.824384824796 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8893265403097
+  HOMO = -0.174245842565811  LUMO = 0.192142619406396
+cycle= 1 E= -75.8894821621121  delta_E= -0.000156  |g|= 0.00522  |ddm|= 0.0168
+  HOMO = -0.174246654724357  LUMO = 0.192257775070299
+cycle= 2 E= -75.8894937329395  delta_E= -1.16e-05  |g|= 0.00196  |ddm|= 0.00433
+  HOMO = -0.174246143352119  LUMO = 0.19226029010838
+cycle= 3 E= -75.8894965677579  delta_E= -2.83e-06  |g|= 0.000589  |ddm|= 0.00268
+  HOMO = -0.174238336729299  LUMO = 0.192266944392006
+cycle= 4 E= -75.8894968674153  delta_E= -3e-07  |g|= 0.000152  |ddm|= 0.000995
+  HOMO = -0.174239758019835  LUMO = 0.192262976503862
+cycle= 5 E= -75.8894968856857  delta_E= -1.83e-08  |g|= 3.74e-05  |ddm|= 0.000255
+  HOMO = -0.174238548850928  LUMO = 0.192263795750653
+cycle= 6 E= -75.8894968865426  delta_E= -8.57e-10  |g|= 5.55e-06  |ddm|= 5.59e-05
+  HOMO = -0.174238584383979  LUMO = 0.192263642251397
+Extra cycle  E= -75.8894968865595  delta_E= -1.69e-11  |g|= 2.17e-06  |ddm|= 7.2e-06
+converged SCF energy = -75.8894968865595
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0002311054     0.0000000000     0.0000607757
+1 H     0.0000193823    -0.0000000000    -0.0000027270
+2 H     0.0002117231    -0.0000000000    -0.0000580486
+----------------------------------------------
+cycle 32: E = -75.8894968866  dE = -9.44355e-07  norm(grad) = 0.000325089
+
+Geometry optimization cycle 33
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.834075   0.000000   0.241908   -0.017143 -0.000000 -0.064695
+   H   2.600962  -0.000000   1.303115    0.018899  0.000000  0.045963
+   H  -1.766887   0.000000   0.454977   -0.001756 -0.000000  0.018732
+New geometry
+   1 O     -0.834075229146   0.000000000000   0.241907674906 AA   -1.576173750371   0.000000000000   0.457139253002 Bohr
+   2 H      2.600961780769  -0.000000000000   1.303114910039 AA    4.915105426114  -0.000000000000   2.462530288810 Bohr
+   3 H     -1.766886551639   0.000000000000   0.454977415043 AA   -3.338931675775   0.000000000000   0.859782707295 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8872834681893
+  HOMO = -0.175301920354676  LUMO = 0.190919667328724
+cycle= 1 E= -75.8893357898837  delta_E= -0.00205  |g|= 0.0176  |ddm|= 0.0561
+  HOMO = -0.174930895395395  LUMO = 0.19229159207395
+cycle= 2 E= -75.8894646584686  delta_E= -0.000129  |g|= 0.00663  |ddm|= 0.0145
+  HOMO = -0.174931992531714  LUMO = 0.192234925994221
+cycle= 3 E= -75.8894955797821  delta_E= -3.09e-05  |g|= 0.0024  |ddm|= 0.00862
+  HOMO = -0.174904313073561  LUMO = 0.192321814924279
+cycle= 4 E= -75.8894995076675  delta_E= -3.93e-06  |g|= 0.000754  |ddm|= 0.00321
+  HOMO = -0.17490536913282  LUMO = 0.192298642782384
+cycle= 5 E= -75.8894999186701  delta_E= -4.11e-07  |g|= 0.000127  |ddm|= 0.00123
+  HOMO = -0.174901604308571  LUMO = 0.192298670973578
+cycle= 6 E= -75.8894999300841  delta_E= -1.14e-08  |g|= 1.72e-05  |ddm|= 0.000231
+  HOMO = -0.174901271134924  LUMO = 0.192298385334473
+cycle= 7 E= -75.8894999302797  delta_E= -1.96e-10  |g|= 4.28e-06  |ddm|= 2.98e-05
+  HOMO = -0.174901327561444  LUMO = 0.192298416820696
+Extra cycle  E= -75.8894999302938  delta_E= -1.41e-11  |g|= 1.54e-06  |ddm|= 6.15e-06
+converged SCF energy = -75.8894999302938
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0004335121    -0.0000000000     0.0001214351
+1 H     0.0000332559    -0.0000000000     0.0000016558
+2 H     0.0004002561     0.0000000000    -0.0001230909
+----------------------------------------------
+cycle 33: E = -75.8894999303  dE = -3.04373e-06  norm(grad) = 0.000615747
+
+Geometry optimization cycle 34
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.870779   0.000000   0.075789   -0.036704 -0.000000 -0.166118
+   H   2.596067   0.000000   1.418600   -0.004895  0.000000  0.115486
+   H  -1.725288  -0.000000   0.505610    0.041599 -0.000000  0.050633
+New geometry
+   1 O     -0.870779417921   0.000000000000   0.075789379999 AA   -1.645534614779   0.000000000000   0.143221171348 Bohr
+   2 H      2.596066972514   0.000000000000   1.418600456331 AA    4.905855579079   0.000000000000   2.680766342648 Bohr
+   3 H     -1.725287554650  -0.000000000000   0.505610163637 AA   -3.260320964409  -0.000000000000   0.955464735070 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8725486220913
+  HOMO = -0.179907843878551  LUMO = 0.182164278346166
+cycle= 1 E= -75.8882406384273  delta_E= -0.0157  |g|= 0.051  |ddm|= 0.152
+  HOMO = -0.176736071443903  LUMO = 0.192378066035478
+cycle= 2 E= -75.8892355868825  delta_E= -0.000995  |g|= 0.0198  |ddm|= 0.041
+  HOMO = -0.176774714432011  LUMO = 0.191955754954419
+cycle= 3 E= -75.8894469333012  delta_E= -0.000211  |g|= 0.00943  |ddm|= 0.02
+  HOMO = -0.176689418886125  LUMO = 0.192410412800817
+cycle= 4 E= -75.8895018587415  delta_E= -5.49e-05  |g|= 0.00226  |ddm|= 0.0119
+  HOMO = -0.1766791264691  LUMO = 0.192381023662352
+cycle= 5 E= -75.8895063899556  delta_E= -4.53e-06  |g|= 0.000349  |ddm|= 0.00426
+  HOMO = -0.176663505055052  LUMO = 0.192363957437269
+cycle= 6 E= -75.8895064857786  delta_E= -9.58e-08  |g|= 5.06e-05  |ddm|= 0.000677
+  HOMO = -0.176661907507555  LUMO = 0.192363438792619
+cycle= 7 E= -75.8895064874081  delta_E= -1.63e-09  |g|= 1.3e-05  |ddm|= 8.73e-05
+  HOMO = -0.176662033800452  LUMO = 0.192363242241995
+cycle= 8 E= -75.8895064875692  delta_E= -1.61e-10  |g|= 3.05e-06  |ddm|= 1.85e-05
+  HOMO = -0.176661902492604  LUMO = 0.192362961388208
+Extra cycle  E= -75.8895064875745  delta_E= -5.31e-12  |g|= 1.25e-06  |ddm|= 3.74e-06
+converged SCF energy = -75.8895064875745
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0007242863     0.0000000000     0.0003548673
+1 H     0.0000556285    -0.0000000000     0.0000136092
+2 H     0.0006686578    -0.0000000000    -0.0003684765
+----------------------------------------------
+cycle 34: E = -75.8895064876  dE = -6.55728e-06  norm(grad) = 0.00111206
+
+Geometry optimization cycle 35
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.888339   0.000000  -0.038833   -0.017560 -0.000000 -0.114622
+   H   2.535490   0.000000   1.495397   -0.060577  0.000000  0.076796
+   H  -1.647150  -0.000000   0.543436    0.078137 -0.000000  0.037826
+New geometry
+   1 O     -0.888339419638   0.000000000000  -0.038833014394 AA   -1.678718208770   0.000000000000  -0.073383761796 Bohr
+   2 H      2.535489705095   0.000000000000   1.495396884657 AA    4.791381134283   0.000000000000   2.825890559529 Bohr
+   3 H     -1.647150285547  -0.000000000000   0.543436129687 AA   -3.112662925683  -0.000000000000   1.026945451302 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8791424321763
+  HOMO = -0.179872383553185  LUMO = 0.186133385983953
+cycle= 1 E= -75.8887587456865  delta_E= -0.00962  |g|= 0.0387  |ddm|= 0.119
+  HOMO = -0.178311662756379  LUMO = 0.192396195124013
+cycle= 2 E= -75.8893519047729  delta_E= -0.000593  |g|= 0.0149  |ddm|= 0.0314
+  HOMO = -0.178260614131056  LUMO = 0.192109362750145
+cycle= 3 E= -75.8894833018538  delta_E= -0.000131  |g|= 0.00679  |ddm|= 0.0164
+  HOMO = -0.178200324630915  LUMO = 0.19241833529939
+cycle= 4 E= -75.8895112176998  delta_E= -2.79e-05  |g|= 0.00175  |ddm|= 0.00836
+  HOMO = -0.178185281168599  LUMO = 0.192389110823247
+cycle= 5 E= -75.8895138423602  delta_E= -2.62e-06  |g|= 0.000269  |ddm|= 0.00323
+  HOMO = -0.178171395703666  LUMO = 0.192379617039347
+cycle= 6 E= -75.8895138986037  delta_E= -5.62e-08  |g|= 3.73e-05  |ddm|= 0.000521
+  HOMO = -0.178170104272152  LUMO = 0.192379160814741
+cycle= 7 E= -75.8895138994636  delta_E= -8.6e-10  |g|= 9.29e-06  |ddm|= 6.64e-05
+  HOMO = -0.178170316247801  LUMO = 0.192379065641184
+Extra cycle  E= -75.8895138995366  delta_E= -7.3e-11  |g|= 4.32e-06  |ddm|= 1.83e-05
+converged SCF energy = -75.8895138995366
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0007017085    -0.0000000000     0.0004940839
+1 H     0.0000665271     0.0000000000     0.0000231608
+2 H     0.0006351814     0.0000000000    -0.0005172447
+----------------------------------------------
+cycle 35: E = -75.8895138995  dE = -7.41196e-06  norm(grad) = 0.00118848
+
+Geometry optimization cycle 36
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.927119   0.000000  -0.273758   -0.038780 -0.000000 -0.234925
+   H   2.204543   0.000000   1.657314   -0.330947  0.000000  0.161917
+   H  -1.277424  -0.000000   0.616444    0.369727 -0.000000  0.073008
+New geometry
+   1 O     -0.927118958043   0.000000000000  -0.273758433735 AA   -1.752000915594   0.000000000000  -0.517328464049 Bohr
+   2 H      2.204542717786   0.000000000000   1.657314216180 AA    4.165981966520   0.000000000000   3.131869970928 Bohr
+   3 H     -1.277423759925  -0.000000000000   0.616444217458 AA   -2.413981051271  -0.000000000000   1.164910742067 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8013043472314
+  HOMO = -0.201411864548224  LUMO = 0.143261521209441
+cycle= 1 E= -75.8820628811741  delta_E= -0.0808  |g|= 0.14  |ddm|= 0.34
+  HOMO = -0.186106359409795  LUMO = 0.192967562834382
+cycle= 2 E= -75.8879612483755  delta_E= -0.0059  |g|= 0.0589  |ddm|= 0.107
+  HOMO = -0.185647627946165  LUMO = 0.191345869401157
+cycle= 3 E= -75.8891246015014  delta_E= -0.00116  |g|= 0.0235  |ddm|= 0.0406
+  HOMO = -0.185380922629968  LUMO = 0.192954604129332
+cycle= 4 E= -75.8895145718428  delta_E= -0.00039  |g|= 0.00513  |ddm|= 0.0333
+  HOMO = -0.185264387957794  LUMO = 0.19294619753861
+cycle= 5 E= -75.8895386654646  delta_E= -2.41e-05  |g|= 0.000899  |ddm|= 0.00972
+  HOMO = -0.185214357326191  LUMO = 0.192857362902966
+cycle= 6 E= -75.8895393250693  delta_E= -6.6e-07  |g|= 0.000198  |ddm|= 0.00173
+  HOMO = -0.185205995477732  LUMO = 0.192855050326086
+cycle= 7 E= -75.8895393540725  delta_E= -2.9e-08  |g|= 6.95e-05  |ddm|= 0.000331
+  HOMO = -0.185207000247623  LUMO = 0.19285474589468
+cycle= 8 E= -75.8895393590794  delta_E= -5.01e-09  |g|= 1.24e-05  |ddm|= 0.0001
+  HOMO = -0.185206904937828  LUMO = 0.192852774223715
+cycle= 9 E= -75.8895393591749  delta_E= -9.55e-11  |g|= 2.09e-06  |ddm|= 1.55e-05
+  HOMO = -0.185206893427602  LUMO = 0.192852803127471
+Extra cycle  E= -75.8895393591774  delta_E= -2.47e-12  |g|= 7.56e-07  |ddm|= 2.4e-06
+converged SCF energy = -75.8895393591774
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0003073042    -0.0000000000     0.0005219013
+1 H     0.0000731569     0.0000000000     0.0000479203
+2 H     0.0002341473     0.0000000000    -0.0005698215
+----------------------------------------------
+cycle 36: E = -75.8895393592  dE = -2.54596e-05  norm(grad) = 0.000868324
+
+Geometry optimization cycle 37
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.925560   0.000000  -0.274261    0.001558  0.000000 -0.000502
+   H   2.206104   0.000000   1.656696    0.001561 -0.000000 -0.000618
+   H  -1.280543  -0.000000   0.617565   -0.003119  0.000000  0.001120
+New geometry
+   1 O     -0.925560468195   0.000000000000  -0.274260743577 AA   -1.749055796613   0.000000000000  -0.518277692080 Bohr
+   2 H      2.206103556817   0.000000000000   1.656696229594 AA    4.168931524813   0.000000000000   3.130702145532 Bohr
+   3 H     -1.280543088804  -0.000000000000   0.617564513886 AA   -2.419875728544  -0.000000000000   1.167027795495 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8871326224426
+  HOMO = -0.185452042453296  LUMO = 0.191676824299355
+cycle= 1 E= -75.8895315464995  delta_E= -0.0024  |g|= 0.00158  |ddm|= 0.00348
+  HOMO = -0.185130140718274  LUMO = 0.192416545297696
+cycle= 2 E= -75.8895322800478  delta_E= -7.34e-07  |g|= 0.000516  |ddm|= 0.00115
+  HOMO = -0.185132310544633  LUMO = 0.19233981575242
+cycle= 3 E= -75.8895323736777  delta_E= -9.36e-08  |g|= 0.000207  |ddm|= 0.000382
+  HOMO = -0.185134437841026  LUMO = 0.192342276441551
+cycle= 4 E= -75.889532398068  delta_E= -2.44e-08  |g|= 6.82e-05  |ddm|= 0.000226
+  HOMO = -0.185135193215103  LUMO = 0.192348006778076
+cycle= 5 E= -75.8895324015249  delta_E= -3.46e-09  |g|= 1.58e-05  |ddm|= 0.000102
+  HOMO = -0.185135897881869  LUMO = 0.192348772505828
+cycle= 6 E= -75.8895324017447  delta_E= -2.2e-10  |g|= 2.72e-06  |ddm|= 3.02e-05
+  HOMO = -0.185135933771632  LUMO = 0.192348576077181
+Extra cycle  E= -75.8895324017499  delta_E= -5.23e-12  |g|= 1.23e-06  |ddm|= 3.33e-06
+converged SCF energy = -75.8895324017499
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0009934356     0.0000000000    -0.0027519298
+1 H     0.0000733615     0.0000000000     0.0000479823
+2 H    -0.0010667971    -0.0000000000     0.0027039475
+----------------------------------------------
+cycle 37: E = -75.8895324017  dE = 6.95743e-06  norm(grad) = 0.00412518
+
+Geometry optimization cycle 38
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.926169   0.000000  -0.274965   -0.000609 -0.000000 -0.000704
+   H   2.204204   0.000000   1.657462   -0.001900  0.000000  0.000766
+   H  -1.278035  -0.000000   0.617503    0.002509 -0.000000 -0.000061
+New geometry
+   1 O     -0.926169051515   0.000000000000  -0.274965216215 AA   -1.750205852411   0.000000000000  -0.519608952429 Bohr
+   2 H      2.204203577172   0.000000000000   1.657462185911 AA    4.165341083641   0.000000000000   3.132149593195 Bohr
+   3 H     -1.278034525839  -0.000000000000   0.617503030207 AA   -2.415135231575  -0.000000000000   1.166911608180 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8899388895625
+  HOMO = -0.185119756031407  LUMO = 0.192553285910459
+cycle= 1 E= -75.889534870649  delta_E= 0.000404  |g|= 0.00068  |ddm|= 0.0021
+  HOMO = -0.185200423585987  LUMO = 0.192430916401652
+cycle= 2 E= -75.8895350576462  delta_E= -1.87e-07  |g|= 0.00025  |ddm|= 0.000551
+  HOMO = -0.185197506160013  LUMO = 0.192448721650076
+cycle= 3 E= -75.8895350999056  delta_E= -4.23e-08  |g|= 9.65e-05  |ddm|= 0.000307
+  HOMO = -0.185196497589479  LUMO = 0.192442746627092
+cycle= 4 E= -75.8895351062852  delta_E= -6.38e-09  |g|= 3.04e-05  |ddm|= 0.000129
+  HOMO = -0.185195881895583  LUMO = 0.192442202067901
+cycle= 5 E= -75.889535106956  delta_E= -6.71e-10  |g|= 5.86e-06  |ddm|= 4.86e-05
+  HOMO = -0.185195592486622  LUMO = 0.192442355089848
+Extra cycle  E= -75.8895351069758  delta_E= -1.98e-11  |g|= 2.47e-06  |ddm|= 6.79e-06
+converged SCF energy = -75.8895351069758
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0007662175     0.0000000000    -0.0022029203
+1 H     0.0000731749     0.0000000000     0.0000480182
+2 H    -0.0008393925    -0.0000000000     0.0021549021
+----------------------------------------------
+cycle 38: E = -75.889535107  dE = -2.70523e-06  norm(grad) = 0.00328569
+
+Geometry optimization cycle 39
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.926658   0.000000  -0.274347   -0.000489 -0.000000  0.000618
+   H   2.204376   0.000000   1.657387    0.000172  0.000000 -0.000075
+   H  -1.277717  -0.000000   0.616960    0.000317  0.000000 -0.000543
+New geometry
+   1 O     -0.926658422437   0.000000000000  -0.274347350110 AA   -1.751130629428   0.000000000000  -0.518441354707 Bohr
+   2 H      2.204375909124   0.000000000000   1.657387157803 AA    4.165666743833   0.000000000000   3.132007810619 Bohr
+   3 H     -1.277717486869  -0.000000000000   0.616960192209 AA   -2.414536114750  -0.000000000000   1.165885793035 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8905590438272
+  HOMO = -0.185079612503423  LUMO = 0.192937570449715
+cycle= 1 E= -75.8895390423562  delta_E= 0.00102  |g|= 0.00059  |ddm|= 0.00107
+  HOMO = -0.185201925284954  LUMO = 0.192624541740829
+cycle= 2 E= -75.8895391317105  delta_E= -8.94e-08  |g|= 0.000183  |ddm|= 0.00041
+  HOMO = -0.18520188627427  LUMO = 0.192655174572528
+cycle= 3 E= -75.88953914021  delta_E= -8.5e-09  |g|= 5.56e-05  |ddm|= 0.000114
+  HOMO = -0.185201537415314  LUMO = 0.192655578006243
+cycle= 4 E= -75.8895391415947  delta_E= -1.38e-09  |g|= 1.65e-05  |ddm|= 5.07e-05
+  HOMO = -0.185201546957495  LUMO = 0.192653877948044
+cycle= 5 E= -75.8895391417395  delta_E= -1.45e-10  |g|= 3.26e-06  |ddm|= 1.88e-05
+  HOMO = -0.185201485677098  LUMO = 0.192653567374499
+Extra cycle  E= -75.8895391417457  delta_E= -6.22e-12  |g|= 1.46e-06  |ddm|= 3.16e-06
+converged SCF energy = -75.8895391417457
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O     0.0002170606     0.0000000000    -0.0008106105
+1 H     0.0000731641     0.0000000000     0.0000479673
+2 H    -0.0002902247    -0.0000000000     0.0007626431
+----------------------------------------------
+cycle 39: E = -75.8895391417  dE = -4.03477e-06  norm(grad) = 0.00117376
+
+Geometry optimization cycle 40
+Cartesian coordinates (Angstrom)
+ Atom        New coordinates             dX        dY        dZ
+   O  -0.926772   0.000000  -0.274000   -0.000113 -0.000000  0.000347
+   H   2.204323   0.000000   1.657264   -0.000053 -0.000000 -0.000123
+   H  -1.277551  -0.000000   0.616736    0.000166  0.000000 -0.000224
+New geometry
+   1 O     -0.926771521929   0.000000000000  -0.274000307285 AA   -1.751344356492   0.000000000000  -0.517785538815 Bohr
+   2 H      2.204322844745   0.000000000000   1.657264233827 AA    4.165566466690   0.000000000000   3.131775517970 Bohr
+   3 H     -1.277551322999  -0.000000000000   0.616736073361 AA   -2.414222110543  -0.000000000000   1.165462269791 Bohr
+
+
+******** <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+method = ROHF_Scanner
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpf8j_aqad
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 2
+Set gradient conv threshold to 3.16228e-05
+init E= -75.8900104895288
+  HOMO = -0.185146688310491  LUMO = 0.192881966935929
+cycle= 1 E= -75.8895397164378  delta_E= 0.000471  |g|= 0.00027  |ddm|= 0.000485
+  HOMO = -0.185201959506838  LUMO = 0.192737465201718
+cycle= 2 E= -75.8895397351054  delta_E= -1.87e-08  |g|= 8.36e-05  |ddm|= 0.000187
+  HOMO = -0.185201940546416  LUMO = 0.192751487646762
+cycle= 3 E= -75.8895397368486  delta_E= -1.74e-09  |g|= 2.49e-05  |ddm|= 5.15e-05
+  HOMO = -0.185201819969323  LUMO = 0.192751684576538
+cycle= 4 E= -75.8895397371186  delta_E= -2.7e-10  |g|= 7.16e-06  |ddm|= 2.23e-05
+  HOMO = -0.185201855207256  LUMO = 0.192750977658304
+Extra cycle  E= -75.8895397371405  delta_E= -2.2e-11  |g|= 2.74e-06  |ddm|= 5.88e-06
+converged SCF energy = -75.8895397371405
+
+
+******** <class 'pyscf.grad.rhf.Gradients_Scanner'> for <class 'pyscf.scf.hf.ROHF_Scanner'> ********
+unit = Eh/Bohr
+max_memory 4000 MB (current use 0 MB)
+--------------- ROHF_Scanner gradients ---------------
+         x                y                z
+0 O    -0.0000374207     0.0000000000    -0.0001641701
+1 H     0.0000731650     0.0000000000     0.0000479481
+2 H    -0.0000357442    -0.0000000000     0.0001162219
+----------------------------------------------
+cycle 40: E = -75.8895397371  dE = -5.95395e-07  norm(grad) = 0.000225365
+O          -0.92677152        0.00000000       -0.27400031
+H           2.20432284        0.00000000        1.65726423
+H          -1.27755132       -0.00000000        0.61673607
+O-H 键长: 3.67879527 Å
+H-O-H 键角: 79.83°

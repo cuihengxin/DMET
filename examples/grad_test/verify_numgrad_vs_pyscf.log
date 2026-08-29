@@ -1,0 +1,197 @@
+using embed_sim from: /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/embed_sim
+============================================================================
+(1) 我的 numerical_grad 作用在纯 RHF 上 vs PySCF 解析梯度
+    —— 校验 FD "量尺" 本身；应呈 O(h^2) 收敛
+============================================================================
+    h=1e-03: max|myFD - PySCF| = 2.959e-07
+    h=5e-04: max|myFD - PySCF| = 7.409e-08
+    h=2e-04: max|myFD - PySCF| = 1.185e-08
+    Richardson : max|myFD - PySCF| = 1.402e-10
+
+============================================================================
+(2) 我的 numerical_grad vs PySCF 官方 as_scanner() FD 惯用法
+    —— 两者应逐位一致（同一个中心差分公式）
+============================================================================
+    h=1e-03: max|myFD - scannerFD| = 5.684e-11   (scannerFD vs analytic: 2.959e-07)
+    h=5e-04: max|myFD - scannerFD| = 9.948e-11   (scannerFD vs analytic: 7.401e-08)
+
+============================================================================
+(3) 截断 bath DMET 解析梯度 vs 数值梯度（含 Richardson 外推）
+    —— 若 3e-7 只是 FD 截断误差，外推后应大幅下降
+============================================================================
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+    h=1e-03: max|analytic - FD| = 2.959e-07
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+    h=5e-04: max|analytic - FD| = 7.403e-08
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+    h=2e-04: max|analytic - FD| = 1.185e-08
+    Richardson : max|analytic - FD| = 8.402e-11
+    Richardson2: max|analytic - FD| = 8.881e-09
+
+结论：如果 (1) 与 (3) 的 h 依赖表现相同（都 O(h^2)、外推后同样下降），
+      说明 DMET 解析梯度的精度已经到了 FD 量尺的分辨极限，
+      即 3e-7 是差分截断误差，不是梯度公式的误差。
+end time: 2026-08-23 21:24:33
+elapsed: 00:00:06

@@ -60,7 +60,7 @@ mf.kernel()
 '''
 Switch to DF-DMET with density_fit decoration
 '''
-mydmet = ssdmet.SSDMET(mf, title=title, imp_idx='Co.*').density_fit()
+mydmet = ssdmet.SSDMET(mf, title=title, imp_idx='Co.*d', bath_option={'MP2':1e-3}, es_natorb=False).density_fit()
 # if impurity is not assigned, the orbitals on the first atom is chosen as impurity
 mydmet.build()
 

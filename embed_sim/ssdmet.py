@@ -6,7 +6,7 @@ import h5py
 from pyscf.lo.orth import lowdin
 from pyscf import gto, scf, ao2mo
 
-from embed_sim.BNO_bath import get_RMP2_bath, get_UMP2_bath, get_ROMP2_bath
+from embed_sim.BNO_bath import get_RMP2_bath, get_UMP2_bath, get_ROMP2_bath, get_RMP2_bath_sos, get_UMP2_bath_sos, get_ROMP2_bath_sos
 from embed_sim.bath_selection import count_imp_env_bonds, partition_env_by_bath_count
 from embed_sim import iao_helper
 from embed_sim import ic_helper
@@ -355,7 +355,7 @@ class SSDMET(lib.StreamObject):
         ldm = reduce(lib.dot, (cloao, self.dm, cloao.conj().T))
         return ldm, caolo, cloao
         
-    def build(self, restore_imp = False, iaopao = False, chk_fname_load='', save_chk=True, xc = None):
+    def build(self, restore_imp = False, iaopao = False, chk_fname_load='', save_chk=True, xc = None, mp2method='full'):
         self.dump_flags()
         dm = mf_or_cas_make_rdm1s(self.mf_or_cas)
         if dm.ndim == 3: # ROHF density matrix have dimension (2, nao, nao)
@@ -429,8 +429,12 @@ class SSDMET(lib.StreamObject):
                                                                                       lo2core, lo2vir, eta=self.bath_option['MP2'])
                             else:
                                 self.log.info('RMP2 bath expansion in used by default')
-                                lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                     lo2core, lo2vir, eta=self.bath_option['MP2'])
+                                if mp2method == 'sos':
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath_sos(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                            lo2core, lo2vir, eta=self.bath_option['MP2'])
+                                else:
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                        lo2core, lo2vir, eta=self.bath_option['MP2'])
                         elif 'RMP2' in self.bath_option.keys():
                             self.es_mf = self.ROHF()
                             if open_shell:
@@ -438,13 +442,22 @@ class SSDMET(lib.StreamObject):
                                 lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
                                                                                       lo2core, lo2vir, eta=self.bath_option['RMP2'])
                             else:
-                                lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                     lo2core, lo2vir, eta=self.bath_option['RMP2'])
+                                if mp2method == 'sos':
+                                    # Direct-only (opposite-spin, SOS) MP2 bath (see comment in the 'MP2' branch)
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath_sos(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                             lo2core, lo2vir, eta=self.bath_option['RMP2'])
+                                else:
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                         lo2core, lo2vir, eta=self.bath_option['RMP2'])
                         elif 'ROMP2' in self.bath_option.keys():
                             self.es_mf = self.ROHF()
                             if open_shell:
-                                lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
-                                                                                      lo2core, lo2vir, readmp2 = self.readmp2, eta=self.bath_option['ROMP2'])
+                                if mp2method == 'sos':
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath_sos(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                             lo2core, lo2vir, readmp2 = self.readmp2, eta=self.bath_option['ROMP2'])
+                                else:
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_ROMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                          lo2core, lo2vir, readmp2 = self.readmp2, eta=self.bath_option['ROMP2'])
                             else:
                                 self.log.info('ROMP2 bath expansion is degraded to RMP2 for closed-shell systems')
                                 lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_RMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
@@ -453,7 +466,11 @@ class SSDMET(lib.StreamObject):
                             self.es_mf = self.ROHF()
                             if open_shell:
                                 self.log.warn('UMP2 bath expansion is less preferred than ROMP2 for ROHF, the results must be checked carefully!')
-                                lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_UMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                if mp2method == 'sos':
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_UMP2_bath_sos(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
+                                                                                             lo2core, lo2vir, eta=self.bath_option['UMP2'])
+                                else:
+                                    lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_UMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
                                                                                      lo2core, lo2vir, eta=self.bath_option['UMP2'])
                             else:
                                 lo2MP2_bath, lo2MP2_core, lo2MP2_vir = get_UMP2_bath(self.mf_or_cas, self.es_mf, self.es_orb, self.fo_orb, self.fv_orb,
@@ -544,6 +561,8 @@ class SSDMET(lib.StreamObject):
             es_mf = scf.RHF(mol).x2c()
         es_mf.max_memory = self.max_mem
         es_mf.mo_energy = np.zeros((self.nes))
+        es_mf.conv_tol = self.mf_or_cas.conv_tol
+        es_mf.conv_tol_grad = getattr(self.mf_or_cas, 'conv_tol_grad', None)
 
         es_ovlp = reduce(lib.dot, (self.es_orb.conj().T, self.mol.intor_symmetric('int1e_ovlp'), self.es_orb))
         es_mf.get_hcore = lambda *args: self.es_int1e
@@ -964,6 +983,15 @@ class SSDMET(lib.StreamObject):
         self.log.info('MP2 correlation energy = %.12f', mymp2.e_corr)
         self.log.info('Total MP2 energy = %.12f', e_tot_mp2)
         return e_tot_mp2, mymp2.e_corr
+
+    def nuc_grad_method(self, **kwargs):
+        """Analytic nuclear gradient of the one-shot DMET energy.
+
+        Stage 1 supports a closed-shell RHF reference with the embedded mean
+        field as cluster solver (HF-in-HF); see embed_sim/grad/ssdmet.py.
+        """
+        from embed_sim.grad.ssdmet import SSDMETGradients
+        return SSDMETGradients(self, **kwargs)
 
     def density_fit(self, with_df=None):
         from embed_sim.df import DFSSDMET

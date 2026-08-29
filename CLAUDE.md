@@ -58,6 +58,7 @@ Check `examples/test_example/README_one_bath_per_bond.md` for detailed results o
 | `siso.py` | Spin–orbit coupling via spin-mixing; `spin_utils.py` for utilities |
 | `pes_guess.py` | Fragment-based initial guesses for reaction-path embedding |
 | `pes_scanner.py` | Geometry scanning helper |
+| `grad/` | Analytic nuclear gradient for one-shot DMET (HF-in-HF, RHF & ROHF refs); `linalg.py` (matrix-function/eigen-subspace derivatives), `ssdmet.py` (`SSDMETGradients`), `numgrad.py` (finite-difference reference) |
 | `iao_helper.py` | IAO (Intrinsic Atomic Orbitals) for impurity definition |
 | `ic_helper.py` | Internal-coordinate helpers (recent, for structured geometry input) |
 
@@ -178,6 +179,7 @@ The `embed_sim` module is also vendored into:
 ## Recent Changes (2026-08)
 
 - **One bath orbital per bond** (`bath_norb` parameter): Fixed bath size based on impurity–environment bond count. See `examples/test_example/one_bath_per_bond.md`.
+- **Analytic one-shot DMET gradients** (`embed_sim/grad/`): HF-in-HF with RHF (closed shell) and ROHF (open shell) references; `mydmet.nuc_grad_method().kernel()`. RHF validated to 9e-15 (`verify_grad_convergence.py`); ROHF validated to Richardson ~1e-10 on truncated bath (`grad_rohf_test.py`). Not yet: CASCI/CASSCF/CC solvers, x2c, DF.
 - **`iao_helper.py`**, **`ic_helper.py`**: New helpers for impurity definition and structured geometry input.
 - **Extended test suite**: Small-molecule validation (H₂, LiH, H₂O, CH₄, F₂, N₂, OH) + ethane C–C PES two-stage benchmark.
 

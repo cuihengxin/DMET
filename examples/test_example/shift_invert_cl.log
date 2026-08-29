@@ -1,0 +1,171 @@
+converged SCF energy = -79.197355889842
+
+full-system RHF   E = -79.197355889842 Ha
+impurity AOs      = [np.int64(0), np.int64(1), np.int64(2), np.int64(3), np.int64(4), np.int64(5), np.int64(6), np.int64(7), np.int64(8)]
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+converged SCF energy = -121.376472739303
+
+NImp = 9, NBath = 9, NFO = 0, NFV = 12
+FV pseudo-canonical eps in [0.2845, 1.4766] Ha
+shell 0: 4 vectors, kernel: 8
+eps_HOMO = -0.484575 Ha  (default sigma, virtual side)
+
+=== T5  AO-representation round trip ===
+  [PASS] ||M_closed_form - M_naive||: 4.811e-16 < 1.0e-12
+  [PASS] sigma matches eps_HOMO: 0.000e+00 < 1.0e-12
+  [PASS] ||eps_prod - eps_ref||: 0.000e+00 < 1.0e-12
+  [PASS] ||C^dag R_ao C - M_ref||: 2.140e-14 < 1.0e-09
+  [PASS] ||C^dag S C - 1||: 2.615e-14 < 1.0e-10
+
+=== T4  definiteness and order reversal ===
+  [PASS] min 1/(eps - sigma): 5.099e-01 > 0.0e+00
+  [PASS] max d(1/(eps - sigma)): -1.355e-05 < 1.0e-14
+
+=== T1  Krylov identity, span{C_0..C_n} = K_{n+1}(A, C_0) ===
+  [PASS] fock: shells 0..1 vs K_2: 4.775e-15 < 1.0e-06
+  [PASS] fock: shells 0..2 vs K_3: 1.152e-09 < 1.0e-06
+  [PASS] fock: shells 0..3 vs K_4: 3.073e-15 < 1.0e-06
+  [PASS] shift_invert: shells 0..1 vs K_2: 1.001e-14 < 1.0e-06
+  [PASS] shift_invert: shells 0..2 vs K_3: 1.154e-09 < 1.0e-06
+  [PASS] shift_invert: shells 0..3 vs K_4: 3.081e-15 < 1.0e-06
+
+=== T2  exhausted Krylov space is operator-independent ===
+  exhausted: fock -> 12 orbitals (kernel 0), shift_invert -> 12 (kernel 0)
+  [PASS] rank difference: 0.000e+00 < 5.0e-01
+  [PASS] ||P_fock - P_shift_invert|| (exhausted): 1.896e-15 < 1.0e-08
+  per-shell overlap fock vs shift_invert (shells 1..): [0.9881 0.979  0.9842]
+  [PASS] leading shells actually differ (1 - overlap): 2.103e-02 > 1.0e-06
+
+=== T3  sigma -> -inf recovers plain Fock CL ===
+  sigma =  -1.0e+00   max shell distance = 3.705e-01   shell sizes = [4, 4, 3, 1]
+  sigma =  -1.0e+01   max shell distance = 6.714e-02   shell sizes = [4, 4, 3, 1]
+  sigma =  -1.0e+02   max shell distance = 7.307e-03   shell sizes = [4, 4, 3, 1]
+  sigma =  -1.0e+03   max shell distance = 7.372e-04   shell sizes = [4, 4, 3, 1]
+  sigma =  -1.0e+04   max shell distance = 7.378e-05   shell sizes = [4, 4, 3, 1]
+  sigma =  -1.0e+05   max shell distance = 7.379e-06   shell sizes = [4, 4, 3, 1]
+  sigma =  -1.0e+06   max shell distance = 7.379e-07   shell sizes = [4, 4, 3, 1]
+  Fock shell sizes = [4, 4, 3, 1]
+  [PASS] shell distance at sigma = -1e6: 7.379e-07 < 1.0e-05
+  [PASS] monotone decrease over the whole sweep: -6.641e-06 < 0.0e+00
+  log-log convergence slope = -0.965  (theory: -1)
+  [PASS] |slope + 1| (first-order rate): 3.513e-02 < 3.0e-01
+
+=== T10  negative control: sigma inside the spectrum ===
+
+WARN: sigma = 0.880522 is not below the candidate spectrum [0.284464, 1.476581]; moving it to 0.234464
+
+  requested sigma = 0.880522 (inside [0.2845, 1.4766])  ->  relocated to 0.234464
+  [PASS] relocated sigma is below the spectrum: 5.000e-02 > 0.0e+00
+
+=== T6/T7/T8  production run: exactness, basis, span ===
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+converged SCF energy = -121.376472739303
+ atom 0 (C) with  5 basis functions from ( 0 to  4)
+Total basis functions (fake_mol.nao): 5
+Fake molecule built with 1 atoms and 5 AOs.
+Fake molecule: [('C', array([0.    , 0.    , 1.4513]))]
+converged SCF energy = -121.376472739303
+
+  --- fock/n_shell=1: promoted 8 orbitals (NES 18 -> 26) ---
+  [PASS] fock/n_shell=1: |E_es + E_fo - E_HF|: 1.421e-14 < 1.0e-08
+  [PASS] fock/n_shell=1: ||lo_cloes^dag lo_cloes - 1||: 5.804e-14 < 1.0e-10
+  [PASS] fock/n_shell=1: NES + NFO + NFV - nao: 0.000e+00 < 5.0e-01
+  [PASS] fock/n_shell=1: ||P_prod - P_ref||: 2.082e-14 < 1.0e-08
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+converged SCF energy = -121.376472739303
+ atom 0 (C) with  5 basis functions from ( 0 to  4)
+Total basis functions (fake_mol.nao): 5
+Fake molecule built with 1 atoms and 5 AOs.
+Fake molecule: [('C', array([0.    , 0.    , 1.4513]))]
+converged SCF energy = -121.376472739303
+
+  --- fock/n_shell=2: promoted 11 orbitals (NES 18 -> 29) ---
+  [PASS] fock/n_shell=2: |E_es + E_fo - E_HF|: 4.263e-14 < 1.0e-08
+  [PASS] fock/n_shell=2: ||lo_cloes^dag lo_cloes - 1||: 5.772e-14 < 1.0e-10
+  [PASS] fock/n_shell=2: NES + NFO + NFV - nao: 0.000e+00 < 5.0e-01
+  [PASS] fock/n_shell=2: ||P_prod - P_ref||: 7.820e-12 < 1.0e-08
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+converged SCF energy = -121.376472739303
+ atom 0 (C) with  5 basis functions from ( 0 to  4)
+Total basis functions (fake_mol.nao): 5
+Fake molecule built with 1 atoms and 5 AOs.
+Fake molecule: [('C', array([0.    , 0.    , 1.4513]))]
+converged SCF energy = -121.376472739303
+
+  --- fock/n_shell=3: promoted 12 orbitals (NES 18 -> 30) ---
+  [PASS] fock/n_shell=3: |E_es + E_fo - E_HF|: 1.421e-14 < 1.0e-08
+  [PASS] fock/n_shell=3: ||lo_cloes^dag lo_cloes - 1||: 5.970e-14 < 1.0e-10
+  [PASS] fock/n_shell=3: NES + NFO + NFV - nao: 0.000e+00 < 5.0e-01
+  [PASS] fock/n_shell=3: ||P_prod - P_ref||: 2.106e-15 < 1.0e-08
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+converged SCF energy = -121.376472739303
+ atom 0 (C) with  5 basis functions from ( 0 to  4)
+Total basis functions (fake_mol.nao): 5
+Fake molecule built with 1 atoms and 5 AOs.
+Fake molecule: [('C', array([0.    , 0.    , 1.4513]))]
+converged SCF energy = -121.376472739303
+
+  --- shift_invert/n_shell=1: promoted 8 orbitals (NES 18 -> 26) ---
+  [PASS] shift_invert/n_shell=1: |E_es + E_fo - E_HF|: 1.421e-14 < 1.0e-08
+  [PASS] shift_invert/n_shell=1: ||lo_cloes^dag lo_cloes - 1||: 5.872e-14 < 1.0e-10
+  [PASS] shift_invert/n_shell=1: NES + NFO + NFV - nao: 0.000e+00 < 5.0e-01
+  [PASS] shift_invert/n_shell=1: ||P_prod - P_ref||: 5.763e-14 < 1.0e-08
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+converged SCF energy = -121.376472739303
+ atom 0 (C) with  5 basis functions from ( 0 to  4)
+Total basis functions (fake_mol.nao): 5
+Fake molecule built with 1 atoms and 5 AOs.
+Fake molecule: [('C', array([0.    , 0.    , 1.4513]))]
+converged SCF energy = -121.376472739303
+
+  --- shift_invert/n_shell=2: promoted 11 orbitals (NES 18 -> 29) ---
+  [PASS] shift_invert/n_shell=2: |E_es + E_fo - E_HF|: 2.842e-14 < 1.0e-08
+  [PASS] shift_invert/n_shell=2: ||lo_cloes^dag lo_cloes - 1||: 5.972e-14 < 1.0e-10
+  [PASS] shift_invert/n_shell=2: NES + NFO + NFV - nao: 0.000e+00 < 5.0e-01
+  [PASS] shift_invert/n_shell=2: ||P_prod - P_ref||: 1.775e-11 < 1.0e-08
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+converged SCF energy = -121.376472739303
+ atom 0 (C) with  5 basis functions from ( 0 to  4)
+Total basis functions (fake_mol.nao): 5
+Fake molecule built with 1 atoms and 5 AOs.
+Fake molecule: [('C', array([0.    , 0.    , 1.4513]))]
+converged SCF energy = -121.376472739303
+
+  --- shift_invert/n_shell=3: promoted 12 orbitals (NES 18 -> 30) ---
+  [PASS] shift_invert/n_shell=3: |E_es + E_fo - E_HF|: 1.421e-14 < 1.0e-08
+  [PASS] shift_invert/n_shell=3: ||lo_cloes^dag lo_cloes - 1||: 5.790e-14 < 1.0e-10
+  [PASS] shift_invert/n_shell=3: NES + NFO + NFV - nao: 0.000e+00 < 5.0e-01
+  [PASS] shift_invert/n_shell=3: ||P_prod - P_ref||: 2.540e-15 < 1.0e-08
+
+=== T9  eps distribution of the promoted orbitals ===
+  FV spectrum [0.2845, 1.4766], midpoint 0.8805 Ha
+  case                       n   mean eps  frac above mid
+  fock/n=1                   8     0.8155            0.25
+  fock/n=2                  11     0.8528            0.45
+  fock/n=3                  12     0.8727            0.50
+  shift_invert/n=1           8     0.7877            0.25
+  shift_invert/n=2          11     0.8484            0.45
+  shift_invert/n=3          12     0.8727            0.50
+
+  prediction: Fock CL has a sizeable fraction above the midpoint
+  (Lanczos converges on both spectral extremes); shift-invert CL
+  should be near zero there.  This is the physics claim, not a
+  correctness test -- no PASS/FAIL is asserted.
+
+====================================================================
+44/44 checks passed
+====================================================================

@@ -1,0 +1,216 @@
+==================================================================================
+ethane / cc-pVDZ / imp=0 C / nao=58
+==================================================================================
+
+[1] structural sanity
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    plain DMET      : nes= 23 nfo=  0 nfv= 35  orth=1.1e-13  dev=2.6e-13
+    WARNING: nfo = 0, the occupied side is not being exercised
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    t_pno=1e-04     : nes= 58 nfo=  0 nfv=  0  orth=1.0e-12  dev=2.3e-13  missing=0  [ok ]
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    t_pno=1e-06     : nes= 58 nfo=  0 nfv=  0  orth=6.8e-13  dev=1.7e-13  missing=0  [ok ]
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    t_pno=1e-08     : nes= 58 nfo=  0 nfv=  0  orth=1.7e-12  dev=2.6e-13  missing=0  [ok ]
+
+[2] MP2-in-HF convergence   (full MP2 Ecorr = -0.30760248)
+    scheme          nes  %AO   nfo  nfv     Ecorr(emb)    error   recovered
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    plain bath       23  39.7     0   35    -0.08072618  2.27e-01    26.24%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-03     25  43.1     0   33    -0.10705622  2.01e-01    34.80%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-04     58 100.0     0    0    -0.30760248  4.75e-10   100.00%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-05     58 100.0     0    0    -0.30760248  4.75e-10   100.00%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-06     58 100.0     0    0    -0.30760248  4.75e-10   100.00%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-07     58 100.0     0    0    -0.30760248  4.75e-10   100.00%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-08     58 100.0     0    0    -0.30760248  4.75e-10   100.00%
+
+[3] equal-size comparison (more negative Ecorr = better)
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    add(o,v)  nes               occ          energy      occ_x_pair   best
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0, 1)    24     -0.09140690     -0.09119074     -0.09154085   occ_x_pair
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0, 2)    25     -0.10698617     -0.10672833     -0.10672583   occ
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0, 4)    27     -0.13997651     -0.13981113     -0.13955841   occ
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0, 8)    31     -0.19042796     -0.19087018     -0.18969948   energy
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0,12)    35     -0.21982416     -0.22015900     -0.21982766   energy
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0,16)    39     -0.24195757     -0.24038118     -0.24314271   occ_x_pair
+    (plain nes=23, nfo=0, nfv=35; full MP2 Ecorr=-0.30760248)
+
+[4] energy-targeted threshold
+    target(Ha)  nes   discarded(occ) discarded(vir)   Ecorr(emb)    error
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    1e-02       54       0.000e+00     -7.989e-03    -0.29559524  1.20e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    1e-03       58       0.000e+00     -2.776e-17    -0.30760248  4.75e-10
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    1e-04       58       0.000e+00     -2.776e-17    -0.30760248  4.75e-10
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    1e-05       58       0.000e+00     -2.776e-17    -0.30760248  4.75e-10
+==================================================================================
+water / cc-pVTZ / imp=0 O / nao=58
+==================================================================================
+
+[1] structural sanity
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    plain DMET      : nes= 35 nfo=  0 nfv= 23  orth=3.4e-14  dev=2.1e-13
+    WARNING: nfo = 0, the occupied side is not being exercised
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    t_pno=1e-04     : nes= 36 nfo=  0 nfv= 22  orth=8.9e-14  dev=4.3e-13  missing=0  [ok ]
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    t_pno=1e-06     : nes= 58 nfo=  0 nfv=  0  orth=8.9e-14  dev=2.0e-13  missing=0  [ok ]
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    t_pno=1e-08     : nes= 58 nfo=  0 nfv=  0  orth=8.9e-14  dev=2.3e-13  missing=0  [ok ]
+
+[2] MP2-in-HF convergence   (full MP2 Ecorr = -0.27513232)
+    scheme          nes  %AO   nfo  nfv     Ecorr(emb)    error   recovered
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    plain bath       35  60.3     0   23    -0.19918864  7.59e-02    72.40%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-03     35  60.3     0   23    -0.19918864  7.59e-02    72.40%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-04     36  62.1     0   22    -0.20490336  7.02e-02    74.47%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-05     58 100.0     0    0    -0.27513232  1.09e-09   100.00%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-06     58 100.0     0    0    -0.27513232  1.09e-09   100.00%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-07     58 100.0     0    0    -0.27513232  1.09e-09   100.00%
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    PNO t=1e-08     58 100.0     0    0    -0.27513232  1.09e-09   100.00%
+
+[3] equal-size comparison (more negative Ecorr = better)
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    add(o,v)  nes               occ          energy      occ_x_pair   best
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0, 1)    36     -0.20495585     -0.20495194     -0.20492169   occ
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0, 2)    37     -0.21835783     -0.21848105     -0.22068728   occ_x_pair
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0, 4)    39     -0.23580894     -0.23578116     -0.23549234   occ
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0, 8)    43     -0.25316255     -0.25311887     -0.25222622   occ
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0,12)    47     -0.26265131     -0.26267046     -0.26023728   energy
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+      ( 0,16)    51     -0.26802279     -0.26777366     -0.26743788   occ
+    (plain nes=35, nfo=0, nfv=23; full MP2 Ecorr=-0.27513232)
+
+[4] energy-targeted threshold
+    target(Ha)  nes   discarded(occ) discarded(vir)   Ecorr(emb)    error
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    1e-02       37       0.000e+00     -9.011e-03    -0.22309786  5.20e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    1e-03       56       0.000e+00     -8.214e-04    -0.26872248  6.41e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    1e-04       58       0.000e+00      1.735e-18    -0.27513232  1.09e-09
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+    1e-05       58       0.000e+00      1.735e-18    -0.27513232  1.09e-09
+
+==================================================================================
+structural sanity: PASSED
+==================================================================================
+end time: 2026-08-22 11:44:24
+elapsed: 00:00:24
