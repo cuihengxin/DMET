@@ -1,0 +1,13 @@
+  h=1e-04:  dE/dtheta(num) =  2.38031816e-09   d2E/dtheta2(num) =  1.47211686e+01
+  h=5e-05:  dE/dtheta(num) =  7.10542736e-10   d2E/dtheta2(num) =  1.47211665e+01
+
+  x . g          = -1.47233151e-12
+  x . h_op(x)    =  7.35950652e+00
+
+  ratio  (dE/dtheta) / (x.g)        = -1616.699871
+  ratio  (d2E/dtheta2) / (x.h_op(x)) =  2.000293
+
+若二阶比值 = 2 -> h_op 是真实 Hessian 的一半，
+   Z-vector 的 rhs 应取 dL/dtheta / 2（即我现在的 Z 大了 2 倍）。
+end time: 2026-08-24 11:26:11
+elapsed: 00:00:01

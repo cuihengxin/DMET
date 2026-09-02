@@ -1,0 +1,3085 @@
+当前文件名: bath_expansion.py
+#INFO: **** input file is /data/home/cuihx/pyscf_learn/LAMP_emb/examples/test_example/bath_expansion.py ****
+import os,sys
+sys.path.append('/data/home/cuihx/pyscf_learn/LAMP_emb/')
+
+import numpy as np
+from pyscf import gto, scf, df, tools
+from embed_sim import aodmet, sacasscf_mixer, siso, rdiis
+import time
+#title = 'bath_expansion_CoSH4'
+start_time = time.time()    
+current_file_name = os.path.basename(sys.argv[0])
+print(f"当前文件名: {current_file_name}")
+title = current_file_name.split('.py')[0]
+
+
+def get_mol(dihedral):
+    mol = gto.M(atom = '''
+               Co             
+               S                  1            2.30186590
+               S                  1            2.30186590    2            109.47122060
+               S                  1            2.30186590    3            109.47122065    2            -120.00000001                  0
+               S                  1            2.30186590    4            109.47122060    3            120.00000001                   0
+               H                  2            1.30714645    1            109.47121982    4            '''+str(-60-dihedral)+'''      0
+               H                  4            1.30714645    1            109.47121982    3            '''+str(60+dihedral)+'''       0
+               H                  5            1.30714645    1            109.47121982    4            '''+str(-180+dihedral)+'''     0
+               H                  3            1.30714645    1            109.47121982    4            '''+str(60-dihedral)+'''       0
+    ''',
+    basis='ANO-R1', symmetry=0, spin = 3, charge = -2, nucmod='G', verbose= 4)
+
+    return mol
+
+mol = get_mol(0)
+
+auxbasis = df.autoaux(mol)
+mf = scf.ROHF(mol).density_fit(auxbasis=auxbasis).x2c()
+folder = './'
+if os.path.exists(folder+title+'_df.h5'):
+    mf.with_df._cderi = folder+title+'_df.h5'
+    mf.with_df.auxmol = df.make_auxmol(mol, auxbasis=auxbasis)
+else:
+    mf.with_df._cderi_to_save = folder+title+'_df.h5'
+
+chk_fname = title + '_rohf.chk'
+mf.diis = rdiis.RDIIS(rdiis_prop='dS',imp_idx=mol.search_ao_label(['Co.*d']),power=0.2)
+mf.chkfile = chk_fname
+mf.init_guess = 'atom'
+mf.level_shift = 2.0
+mf.max_cycle = 1000
+mf.kernel()
+
+'''
+DMET with density fitting is highly recommanded when performing bath expansion,
+as DF reduces the formal scaling of local MP2 from O(N^4) to O(N^3),
+see Nusspickel, M.; Booth, G. H. Phys. Rev. X. 2022, 12, 011046. for more details.
+'''
+'''
+The bath_option have to be a dictionary, with the key representing the method for bath expansion,
+and the value representing the threshold (eta in the reference).
+When ROHF is the low-level solver, MP2, RMP2, ROMP2 and UMP2 are all available for the key.
+In this case, both MP2 and RMP2 will be automatically switched to ROMP2. UMP2 may give very similar
+results to ROMP2 when the spin-contamination is small, but you should note that applying UMP2 to ROHF
+is not theoretically rigorous.
+'''
+mydmet = aodmet.AODMET(mf, title=title, imp_idx='Co.*', es_natorb=False, bath_option={'MP2':1e-3}).density_fit()
+mydmet.build(save_chk=False)
+
+ncas, nelec, es_mo = mydmet.avas('Co 3d', minao=mol._basis['Co'], threshold=0.5, openshell_option=2)
+es_cas = sacasscf_mixer.sacasscf_mixer(mydmet.es_mf, ncas, nelec)
+es_cas.kernel(es_mo)
+
+es_ecorr = sacasscf_mixer.sacasscf_nevpt2(es_cas)
+es_cas.fcisolver.e_states = es_cas.fcisolver.e_states + es_ecorr
+total_cas = mydmet.total_cas(es_cas)
+total_cas.analyze()
+Ha2cm = 219474.63
+np.savetxt(mydmet.title+'_opt.txt',(es_cas.fcisolver.e_states-np.min(es_cas.fcisolver.e_states))*Ha2cm,fmt='%.6f')
+
+'''
+The amfi means one-center approximated SOMF Hamiltonian (SOMF(1X)), which strictly speaking
+is not AMFI. The notation here is just for the consistence with Block2.
+'''
+mysiso = siso.SISO(title, total_cas, amfi=True).density_fit()
+mysiso.kernel()
+
+tools.molden.from_mcscf(total_cas, title + '_cas.molden', cas_natorb=True)
+# 记录结束时间并计算总时长
+end_time = time.time()
+total_time = end_time - start_time
+
+# 格式化输出时间
+hours = int(total_time // 3600)
+minutes = int((total_time % 3600) // 60)
+seconds = total_time % 60
+
+print(f"\n{'='*50}")
+print(f"程序总运行时间: {hours}小时 {minutes}分钟 {seconds:.2f}秒")
+print(f"总秒数: {total_time:.2f}秒")
+print(f"{'='*50}")
+
+
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='amd-cpu', release='6.8.0-86-generic', version='#87~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Sep 29 09:48:07 UTC 2', machine='x86_64')  Threads 16
+Python 3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 16:09:02) [GCC 11.2.0]
+numpy 2.1.3  scipy 1.15.3  h5py 3.12.1
+Date: Sat Nov 22 22:11:22 2025
+PySCF version 2.11.0
+PySCF path  /data/home/cuihx/anaconda3/lib/python3.13/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 9
+[INPUT] num. electrons = 97
+[INPUT] charge = -2
+[INPUT] spin (= nelec alpha-beta = 2S) = 3
+[INPUT] symmetry 0 subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 Co     0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 S      2.301865900000   0.000000000000   0.000000000000 AA    4.349896126475   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  3 S     -0.767288632027   0.000000000000   2.170219983491 AA   -1.449965373023   0.000000000000   4.101121398857 Bohr   0.0
+[INPUT]  4 S     -0.767288634002   1.879465636735  -1.085109991681 AA   -1.449965376756   3.551675313960  -2.050560699307 Bohr   0.0
+[INPUT]  5 S     -0.767288634021  -1.879465636673  -1.085109991774 AA   -1.449965376792  -3.551675313844  -2.050560699483 Bohr   0.0
+[INPUT]  6 H      2.737581365814  -0.000000000187  -1.232389497926 AA    5.173279025102  -0.000000000353  -2.328878629870 Bohr   0.0
+[INPUT]  7 H     -0.331573141714   2.946746233413  -0.468915233929 AA   -0.626582428101   5.568543339745  -0.886121367762 Bohr   0.0
+[INPUT]  8 H     -0.331573141920  -2.946746233387  -0.468915233951 AA   -0.626582428489  -5.568543339694  -0.886121367803 Bohr   0.0
+[INPUT]  9 H     -2.074435082027  -0.000000000215   2.170219965696 AA   -3.920114168221  -0.000000000406   4.101121365229 Bohr   0.0
+[INPUT] Gaussian nuclear model for atoms ['Co', 'S', 'S', 'S', 'S', 'H', 'H', 'H', 'H']
+
+nuclear repulsion = 683.055032921424
+number of shells = 24
+number of NR pGTOs = 552
+number of NR cGTOs = 123
+basis = ANO-R1
+ecp = {}
+CPU time:         0.83
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eDFROHF'> ********
+method = sfX2C1eDFROHF
+initial guess = atom
+damping factor = 0
+level_shift factor = 2.0
+DIIS = <embed_sim.rdiis.RDIIS object at 0x1446b9b75160>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 1000
+direct_scf = False
+chkfile to save SCF result = bath_expansion_rohf.chk
+max_memory 4000 MB (current use 170 MB)
+num. doubly occ = 47  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+Initial guess from the superposition of atomic densities.
+Spherically averaged atomic HF for {'S', 'H', 'Co'}
+
+
+******** <class 'pyscf.scf.atom_hf.AtomSphAverageRHF'> ********
+method = AtomSphAverageRHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /tmp/tmpcqza8juz
+max_memory 4000 MB (current use 172 MB)
+atom = Co
+Set gradient conv threshold to 3.16228e-05
+Initial guess from minao.
+init E= -1376.52677586368
+cycle= 1 E= -1376.2703815488  delta_E= 0.256  |g|=    0  |ddm|= 1.14
+cycle= 2 E= -1376.00211968953  delta_E= 0.268  |g|=    0  |ddm|=  1.5
+cycle= 3 E= -1376.78801227364  delta_E= -0.786  |g|=    0  |ddm|= 0.876
+cycle= 4 E= -1376.78910582899  delta_E= -0.00109  |g|=    0  |ddm|= 0.0306
+cycle= 5 E= -1376.78910595965  delta_E= -1.31e-07  |g|=    0  |ddm|= 0.000262
+cycle= 6 E= -1376.78910613985  delta_E= -1.8e-07  |g|=    0  |ddm|= 0.000393
+cycle= 7 E= -1376.78910613996  delta_E= -1.12e-10  |g|=    0  |ddm|= 9.66e-06
+Extra cycle  E= -1376.78910613996  delta_E= -4.55e-13  |g|=    0  |ddm|= 3.59e-07
+Atomic HF for atom  Co  converged. SCF energy = -1376.78910613996
+
+
+
+******** <class 'pyscf.scf.atom_hf.AtomSphAverageRHF'> ********
+method = AtomSphAverageRHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /tmp/tmpwhks8plx
+max_memory 4000 MB (current use 178 MB)
+atom = S
+Set gradient conv threshold to 3.16228e-05
+Initial guess from minao.
+init E= -396.973899798986
+cycle= 1 E= -396.978434757523  delta_E= -0.00453  |g|=    0  |ddm|= 0.0904
+cycle= 2 E= -396.978523198077  delta_E= -8.84e-05  |g|=    0  |ddm|= 0.0178
+cycle= 3 E= -396.978526685229  delta_E= -3.49e-06  |g|=    0  |ddm|= 0.00286
+cycle= 4 E= -396.978526753121  delta_E= -6.79e-08  |g|=    0  |ddm|= 0.00058
+cycle= 5 E= -396.978526753134  delta_E= -1.29e-11  |g|=    0  |ddm|= 5.41e-06
+Extra cycle  E= -396.978526753134  delta_E= 1.71e-13  |g|=    0  |ddm|= 2.5e-08
+Atomic HF for atom  S  converged. SCF energy = -396.978526753134
+
+
+
+******** 1 electron system ********
+Atomic HF for atom  H  converged. SCF energy = -0.495064898902323
+
+******** <class 'pyscf.df.df.DF'> ********
+auxbasis = {'H': [[0, [26.75252, 1.0]], [0, [14.86251, 1.0]], [0, [8.25695, 1.0]], [0, [4.587195, 1.0]], [0, [2.548441, 1.0]], [0, [1.415801, 1.0]], [0, [0.786556, 1.0]], [0, [0.4369755, 1.0]], [0, [0.2427642, 1.0]], [0, [0.134869, 1.0]], [0, [0.07492722, 1.0]], [1, [1.003383, 1.0]], [1, [0.5016915, 1.0]], [1, [0.2508457, 1.0]], [2, [2.065539, 1.0]], [2, [0.9388814, 1.0]], [2, [0.4267643, 1.0]]], 'S': [[0, [2842.002, 1.0]], [0, [1578.89, 1.0]], [0, [877.1611, 1.0]], [0, [487.3117, 1.0]], [0, [270.7287, 1.0]], [0, [150.4049, 1.0]], [0, [83.55825, 1.0]], [0, [46.42125, 1.0]], [0, [25.78958, 1.0]], [0, [14.32755, 1.0]], [0, [7.959748, 1.0]], [0, [4.422082, 1.0]], [0, [2.456712, 1.0]], [0, [1.36484, 1.0]], [0, [0.7582446, 1.0]], [0, [0.421247, 1.0]], [0, [0.2340261, 1.0]], [0, [0.1300145, 1.0]], [0, [0.07223028, 1.0]], [1, [487.3117, 1.0]], [1, [270.7287, 1.0]], [1, [150.4049, 1.0]], [1, [83.55825, 1.0]], [1, [46.42125, 1.0]], [1, [25.78958, 1.0]], [1, [14.32755, 1.0]], [1, [7.959748, 1.0]], [1, [4.422082, 1.0]], [1, [2.456712, 1.0]], [1, [1.36484, 1.0]], [1, [0.7582446, 1.0]], [1, [0.421247, 1.0]], [1, [0.2340261, 1.0]], [1, [0.1300145, 1.0]], [1, [0.07223028, 1.0]], [2, [270.7287, 1.0]], [2, [150.4049, 1.0]], [2, [83.55825, 1.0]], [2, [46.42125, 1.0]], [2, [25.78958, 1.0]], [2, [14.32755, 1.0]], [2, [7.959748, 1.0]], [2, [4.422082, 1.0]], [2, [2.456712, 1.0]], [2, [1.36484, 1.0]], [2, [0.7582446, 1.0]], [2, [0.421247, 1.0]], [2, [0.2340261, 1.0]], [2, [0.1300145, 1.0]], [2, [0.07223028, 1.0]], [3, [10.91848, 1.0]], [3, [4.962944, 1.0]], [3, [2.255884, 1.0]], [3, [1.025402, 1.0]], [3, [0.4660917, 1.0]], [3, [0.2118599, 1.0]]], 'Co': [[0, [13380.09, 1.0]], [0, [7433.385, 1.0]], [0, [4129.659, 1.0]], [0, [2294.255, 1.0]], [0, [1274.586, 1.0]], [0, [708.1033, 1.0]], [0, [393.3907, 1.0]], [0, [218.5504, 1.0]], [0, [121.4169, 1.0]], [0, [67.45383, 1.0]], [0, [37.47435, 1.0]], [0, [20.81908, 1.0]], [0, [11.56616, 1.0]], [0, [6.425643, 1.0]], [0, [3.569802, 1.0]], [0, [1.983223, 1.0]], [0, [1.101791, 1.0]], [0, [0.6121059, 1.0]], [0, [0.3400588, 1.0]], [0, [0.1889216, 1.0]], [0, [0.1049564, 1.0]], [0, [0.05830913, 1.0]], [0, [0.03239396, 1.0]], [1, [1739.145, 1.0]], [1, [966.1919, 1.0]], [1, [536.7733, 1.0]], [1, [298.2074, 1.0]], [1, [165.6708, 1.0]], [1, [92.03932, 1.0]], [1, [51.13295, 1.0]], [1, [28.4072, 1.0]], [1, [15.78178, 1.0]], [1, [8.767653, 1.0]], [1, [4.870918, 1.0]], [1, [2.706066, 1.0]], [1, [1.50337, 1.0]], [1, [0.8352055, 1.0]], [1, [0.4640031, 1.0]], [1, [0.2577795, 1.0]], [1, [0.1432108, 1.0]], [2, [1066.268, 1.0]], [2, [592.3712, 1.0]], [2, [329.0951, 1.0]], [2, [182.8306, 1.0]], [2, [101.5726, 1.0]], [2, [56.4292, 1.0]], [2, [31.34956, 1.0]], [2, [17.41642, 1.0]], [2, [9.675789, 1.0]], [2, [5.375438, 1.0]], [2, [2.986355, 1.0]], [2, [1.659086, 1.0]], [2, [0.9217144, 1.0]], [2, [0.5120635, 1.0]], [2, [0.2844797, 1.0]], [2, [0.1580443, 1.0]], [2, [0.08780239, 1.0]], [3, [966.1919, 1.0]], [3, [536.7733, 1.0]], [3, [298.2074, 1.0]], [3, [165.6708, 1.0]], [3, [92.03932, 1.0]], [3, [51.13295, 1.0]], [3, [28.4072, 1.0]], [3, [15.78178, 1.0]], [3, [8.767653, 1.0]], [3, [4.870918, 1.0]], [3, [2.706066, 1.0]], [3, [1.50337, 1.0]], [3, [0.8352055, 1.0]], [3, [0.4640031, 1.0]], [3, [0.2577795, 1.0]], [3, [0.1432108, 1.0]], [4, [92.03932, 1.0]], [4, [51.13295, 1.0]], [4, [28.4072, 1.0]], [4, [15.78178, 1.0]], [4, [8.767653, 1.0]], [4, [4.870918, 1.0]], [4, [2.706066, 1.0]], [4, [1.50337, 1.0]], [4, [0.8352055, 1.0]], [4, [0.4640031, 1.0]], [4, [0.2577795, 1.0]], [4, [0.1432108, 1.0]], [5, [4.24536, 1.0]], [5, [1.845809, 1.0]], [5, [0.8025256, 1.0]], [5, [0.3489242, 1.0]]]}
+max_memory = 4000
+_cderi_to_save = ./bath_expansion_df.h5
+init E= -2987.81379781163
+  HOMO = 0.717668730187987  LUMO = 1.73909305413432
+cycle= 1 E= -2987.81801286189  delta_E= -0.00422  |g|= 0.942  |ddm|=  2.7
+----------RDIIS-Entropy 0.785
+  HOMO = 1.40692297230996  LUMO = 2.26227276371101
+cycle= 2 E= -2988.23149783644  delta_E= -0.413  |g|= 0.866  |ddm|= 0.672
+----------RDIIS-Entropy 0.438
+  HOMO = 1.20997305717968  LUMO = 2.26007754728436
+cycle= 3 E= -2988.42997913656  delta_E= -0.198  |g|= 0.43  |ddm|= 0.402
+----------RDIIS-Entropy 0.312
+  HOMO = 1.2016567064744  LUMO = 2.25839946670036
+cycle= 4 E= -2988.57801751557  delta_E= -0.148  |g|= 0.338  |ddm|= 0.384
+----------RDIIS-Entropy 0.177
+  HOMO = 1.1815069618863  LUMO = 2.25887114868568
+cycle= 5 E= -2988.69472246081  delta_E= -0.117  |g|= 0.253  |ddm|= 0.392
+----------RDIIS-Entropy 0.090
+  HOMO = 1.20431683776769  LUMO = 2.25890396234568
+cycle= 6 E= -2988.74974916288  delta_E= -0.055  |g|= 0.205  |ddm|= 0.258
+----------RDIIS-Entropy 0.056
+  HOMO = 1.10894745650038  LUMO = 2.25791042997068
+cycle= 7 E= -2988.776518579  delta_E= -0.0268  |g|= 0.155  |ddm|= 0.209
+----------RDIIS-Entropy 0.039
+  HOMO = 1.15034706116816  LUMO = 2.258075891916
+cycle= 8 E= -2988.79029686141  delta_E= -0.0138  |g|= 0.117  |ddm|= 0.14
+----------RDIIS-Entropy 0.033
+  HOMO = 1.15938929217152  LUMO = 2.25825552756319
+cycle= 9 E= -2988.79631080674  delta_E= -0.00601  |g|= 0.0945  |ddm|= 0.0904
+----------RDIIS-Entropy 0.030
+  HOMO = 1.16293864137667  LUMO = 2.25827172404035
+cycle= 10 E= -2988.80038609458  delta_E= -0.00408  |g|= 0.0728  |ddm|= 0.073
+----------RDIIS-Entropy 0.028
+  HOMO = 1.16737708533994  LUMO = 2.25825176029131
+cycle= 11 E= -2988.80226386809  delta_E= -0.00188  |g|= 0.0561  |ddm|= 0.05
+----------RDIIS-Entropy 0.027
+  HOMO = 1.16754690070463  LUMO = 2.25824091686171
+cycle= 12 E= -2988.80346836294  delta_E= -0.0012  |g|= 0.0434  |ddm|= 0.0399
+----------RDIIS-Entropy 0.026
+  HOMO = 1.16829748226179  LUMO = 2.25821607136725
+cycle= 13 E= -2988.80419696443  delta_E= -0.000729  |g|= 0.0327  |ddm|= 0.0315
+----------RDIIS-Entropy 0.026
+  HOMO = 1.16978702615234  LUMO = 2.25822430720116
+cycle= 14 E= -2988.80459324094  delta_E= -0.000396  |g|= 0.0242  |ddm|= 0.0229
+----------RDIIS-Entropy 0.026
+  HOMO = 1.16894673865367  LUMO = 2.25822477374899
+cycle= 15 E= -2988.80483522533  delta_E= -0.000242  |g|= 0.0192  |ddm|= 0.0178
+----------RDIIS-Entropy 0.025
+  HOMO = 1.1689645881072  LUMO = 2.25819701545733
+cycle= 16 E= -2988.80498852871  delta_E= -0.000153  |g|= 0.0151  |ddm|= 0.0143
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16906528262645  LUMO = 2.25819915097742
+cycle= 17 E= -2988.80508780301  delta_E= -9.93e-05  |g|= 0.012  |ddm|= 0.0114
+----------RDIIS-Entropy 0.025
+  HOMO = 1.1688603277751  LUMO = 2.25819148875954
+cycle= 18 E= -2988.80515062826  delta_E= -6.28e-05  |g|= 0.00957  |ddm|= 0.00887
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16882900964288  LUMO = 2.25818429255816
+cycle= 19 E= -2988.80519217524  delta_E= -4.15e-05  |g|= 0.00757  |ddm|= 0.00704
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16868943401952  LUMO = 2.2581895710591
+cycle= 20 E= -2988.80521748578  delta_E= -2.53e-05  |g|= 0.00623  |ddm|= 0.00546
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16857222058274  LUMO = 2.25818598412694
+cycle= 21 E= -2988.80523426628  delta_E= -1.68e-05  |g|= 0.00512  |ddm|= 0.00432
+----------RDIIS-Entropy 0.025
+  HOMO = 1.1686713798453  LUMO = 2.25818639147616
+cycle= 22 E= -2988.80524458265  delta_E= -1.03e-05  |g|= 0.00417  |ddm|= 0.00337
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16856512287747  LUMO = 2.25818418333371
+cycle= 23 E= -2988.80525157287  delta_E= -6.99e-06  |g|= 0.00344  |ddm|= 0.00264
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16856640253121  LUMO = 2.25818446315253
+cycle= 24 E= -2988.80525638807  delta_E= -4.82e-06  |g|= 0.00279  |ddm|= 0.00213
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16851650467879  LUMO = 2.25818618828368
+cycle= 25 E= -2988.80525949621  delta_E= -3.11e-06  |g|= 0.00232  |ddm|= 0.00164
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16850325226439  LUMO = 2.25818600654493
+cycle= 26 E= -2988.80526158836  delta_E= -2.09e-06  |g|= 0.00191  |ddm|= 0.00132
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16851121179826  LUMO = 2.25818596808602
+cycle= 27 E= -2988.80526304035  delta_E= -1.45e-06  |g|= 0.00157  |ddm|= 0.00109
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16849270348471  LUMO = 2.25818620750902
+cycle= 28 E= -2988.80526397473  delta_E= -9.34e-07  |g|= 0.00131  |ddm|= 0.000873
+----------RDIIS-Entropy 0.025
+  HOMO = 1.1684915600467  LUMO = 2.2581857828941
+cycle= 29 E= -2988.80526461552  delta_E= -6.41e-07  |g|= 0.00108  |ddm|= 0.000715
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16848274947757  LUMO = 2.258185908828
+cycle= 30 E= -2988.80526506229  delta_E= -4.47e-07  |g|= 0.000914  |ddm|= 0.000601
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16849046656084  LUMO = 2.25818592316488
+cycle= 31 E= -2988.80526536171  delta_E= -2.99e-07  |g|= 0.000765  |ddm|= 0.000489
+----------RDIIS-Entropy 0.025
+  HOMO = 1.1684731339387  LUMO = 2.25818583765298
+cycle= 32 E= -2988.80526557388  delta_E= -2.12e-07  |g|= 0.00065  |ddm|= 0.000418
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16848260480166  LUMO = 2.25818560174787
+cycle= 33 E= -2988.80526572096  delta_E= -1.47e-07  |g|= 0.000536  |ddm|= 0.000352
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847935856217  LUMO = 2.25818577661765
+cycle= 34 E= -2988.80526582317  delta_E= -1.02e-07  |g|= 0.000449  |ddm|= 0.000292
+----------RDIIS-Entropy 0.025
+  HOMO = 1.1684776378577  LUMO = 2.25818577092432
+cycle= 35 E= -2988.80526589315  delta_E= -7e-08  |g|= 0.000374  |ddm|= 0.000242
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847861332844  LUMO = 2.2581858475363
+cycle= 36 E= -2988.80526594277  delta_E= -4.96e-08  |g|= 0.00031  |ddm|= 0.000208
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847739063673  LUMO = 2.25818595785378
+cycle= 37 E= -2988.80526597663  delta_E= -3.39e-08  |g|= 0.00026  |ddm|= 0.000176
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847786693916  LUMO = 2.25818598764254
+cycle= 38 E= -2988.80526600037  delta_E= -2.37e-08  |g|= 0.000217  |ddm|= 0.000147
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847675655375  LUMO = 2.25818604076374
+cycle= 39 E= -2988.80526601702  delta_E= -1.66e-08  |g|= 0.000183  |ddm|= 0.000123
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847924920155  LUMO = 2.25818603029071
+cycle= 40 E= -2988.8052660285  delta_E= -1.15e-08  |g|= 0.000152  |ddm|= 0.000103
+----------RDIIS-Entropy 0.025
+  HOMO = 1.1684780862105  LUMO = 2.25818609851985
+cycle= 41 E= -2988.80526603671  delta_E= -8.21e-09  |g|= 0.000128  |ddm|= 8.82e-05
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847834612896  LUMO = 2.25818613124994
+cycle= 42 E= -2988.80526604247  delta_E= -5.76e-09  |g|= 0.000107  |ddm|= 7.46e-05
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847852169989  LUMO = 2.25818614774313
+cycle= 43 E= -2988.80526604653  delta_E= -4.06e-09  |g|= 9.06e-05  |ddm|= 6.28e-05
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847862351919  LUMO = 2.25818615279958
+cycle= 44 E= -2988.80526604935  delta_E= -2.82e-09  |g|= 7.59e-05  |ddm|= 5.27e-05
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847867267635  LUMO = 2.25818616651646
+cycle= 45 E= -2988.80526605137  delta_E= -2.02e-09  |g|= 6.36e-05  |ddm|= 4.53e-05
+----------RDIIS-Entropy 0.025
+  HOMO = 1.1684787329034  LUMO = 2.25818617631819
+cycle= 46 E= -2988.80526605278  delta_E= -1.41e-09  |g|= 5.34e-05  |ddm|= 3.77e-05
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847910345189  LUMO = 2.25818618449172
+cycle= 47 E= -2988.80526605378  delta_E= -9.99e-10  |g|= 4.45e-05  |ddm|= 3.21e-05
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847893681023  LUMO = 2.25818620134376
+cycle= 48 E= -2988.80526605449  delta_E= -7.07e-10  |g|= 3.75e-05  |ddm|= 2.7e-05
+----------RDIIS-Entropy 0.025
+  HOMO = 1.16847945936288  LUMO = 2.25818620460731
+cycle= 49 E= -2988.80526605499  delta_E= -5.04e-10  |g|= 3.11e-05  |ddm|= 2.29e-05
+  HOMO = 0.168491980129752  LUMO = 0.258186384360983
+Extra cycle  E= -2988.80526605417  delta_E= 8.21e-10  |g|= 6.63e-05  |ddm|= 0.000159
+converged SCF energy = -2988.80526605417
+
+******** <class 'embed_sim.df.DFAODMET'> ********
+DMET from ROHF
+number of impurity orbitals = 31
+number of bath orbitals = 50
+number of embedded cluster orbitals = 81
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 42
+number of frozen orbitals = 42
+percentage of embedded cluster orbitals = 65.85%
+percentage of frozen orbitals = 34.15%
+
+
+
+******** <class 'pyscf.df.df_jk.DFsfX2C1eROHF'> ********
+method = DFsfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 2.0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = False
+chkfile to save SCF result = /tmp/tmpxffj2i_k
+max_memory 4000 MB (current use 270 MB)
+num. doubly occ = 47  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -3671.8602989755
+  HOMO = 1.16845375327431  LUMO = 2.26940552132938
+cycle= 1 E= -3671.86029897714  delta_E= -1.64e-09  |g|= 2.48e-05  |ddm|= 4.27e-05
+  HOMO = 1.1684787778296  LUMO = 2.26940559404886
+cycle= 2 E= -3671.86029897745  delta_E= -3.05e-10  |g|= 9.62e-06  |ddm|= 1.77e-05
+converged SCF energy = -3671.86029897745
+ROMP2 bath expansion in used by default
+
+constructing ROMP2 bath
+Occupied BNO histogram
+
+
+
+
+
+
+
+
+
+
++------------------------------------------------+
+E-0 E-1  E-2  E-3  E-4  E-5  E-6  E-7  E-8  E-9  E-10
+
+Virtual BNO histogram
+
+
+
+
+
+
+
+
+
+
++------------------------------------------------+
+E-0 E-1  E-2  E-3  E-4  E-5  E-6  E-7  E-8  E-9  E-10
+
+Number of newly added bath orbitals = 42 (0 from core, 42 from virtual)
+
+number of impurity orbitals = 31
+number of bath orbitals = 92
+number of embedded cluster orbitals = 123
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 0
+number of frozen orbitals = 0
+percentage of embedded cluster orbitals = 100.00%
+percentage of frozen orbitals = 0.00%
+
+
+******** <class 'pyscf.df.df_jk.DFsfX2C1eROHF'> ********
+method = DFsfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 2.0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = False
+chkfile to save SCF result = /tmp/tmpi3haqjju
+max_memory 4000 MB (current use 397 MB)
+num. doubly occ = 47  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -3661.0137108632
+
+WARN: HOMO 1.2318378513272 >= LUMO 0.571218576321998
+
+cycle= 1 E= -3686.51159907365  delta_E= -25.5  |g|= 32.3  |ddm|= 22.4
+
+WARN: HOMO 0.823444448605895 >= LUMO -0.367005893109513
+
+cycle= 2 E= -3692.17726754981  delta_E= -5.67  |g|= 20.6  |ddm|= 8.31
+
+WARN: HOMO 1.80744371274685 >= LUMO 1.59189809530279
+
+cycle= 3 E= -3683.43891887025  delta_E= 8.74  |g|=   16  |ddm|= 7.02
+
+WARN: HOMO 0.734466887763865 >= LUMO 0.215335588080578
+
+cycle= 4 E= -3689.32948961441  delta_E= -5.89  |g|= 10.2  |ddm|=  4.8
+
+WARN: HOMO 1.3496179540026 >= LUMO -0.220812425133332
+
+cycle= 5 E= -3688.10017684851  delta_E= 1.23  |g|= 15.2  |ddm|=  5.2
+  HOMO = 0.427223271725075  LUMO = 1.48700929410179
+cycle= 6 E= -3686.24517597467  delta_E= 1.86  |g|= 15.6  |ddm|= 2.36
+
+WARN: HOMO 1.60046906145632 >= LUMO 0.361288206558379
+
+cycle= 7 E= -3686.76732959164  delta_E= -0.522  |g|= 15.8  |ddm|= 2.46
+  HOMO = 0.534000982522097  LUMO = 1.41611804137208
+cycle= 8 E= -3687.21515788557  delta_E= -0.448  |g|= 16.1  |ddm|= 0.822
+
+WARN: HOMO 1.59128821126412 >= LUMO 0.495388505734325
+
+cycle= 9 E= -3687.85016163381  delta_E= -0.635  |g|=   16  |ddm|= 1.88
+  HOMO = 0.680414926885075  LUMO = 1.50271337938532
+cycle= 10 E= -3687.69895270776  delta_E= 0.151  |g|= 15.8  |ddm|= 0.455
+  HOMO = 0.66674524803184  LUMO = 1.35795815931001
+cycle= 11 E= -3685.20208609057  delta_E=  2.5  |g|= 16.7  |ddm|= 0.99
+
+WARN: HOMO 1.7911330702249 >= LUMO 0.399967807430341
+
+cycle= 12 E= -3684.00134430297  delta_E=  1.2  |g|= 16.6  |ddm|=  1.6
+  HOMO = 0.690880586199782  LUMO = 1.41188627476854
+cycle= 13 E= -3681.38966526701  delta_E= 2.61  |g|= 17.1  |ddm|= 3.07
+  HOMO = 0.574650476782674  LUMO = 1.43843681885544
+cycle= 14 E= -3683.56549385511  delta_E= -2.18  |g|= 18.9  |ddm|= 2.84
+
+WARN: HOMO 1.67921715032644 >= LUMO 0.252357902272575
+
+cycle= 15 E= -3688.73575916305  delta_E= -5.17  |g|=   17  |ddm|= 3.84
+
+WARN: HOMO 1.48376663868666 >= LUMO 0.325704243199917
+
+cycle= 16 E= -3689.49418668602  delta_E= -0.758  |g|= 13.4  |ddm|= 3.21
+
+WARN: HOMO 1.49562575478764 >= LUMO -0.0239146922795384
+
+cycle= 17 E= -3689.94136477961  delta_E= -0.447  |g|= 12.6  |ddm|= 4.27
+
+WARN: HOMO 1.79961014465548 >= LUMO 0.513676168083008
+
+cycle= 18 E= -3688.10347570899  delta_E= 1.84  |g|= 10.7  |ddm|= 5.32
+
+WARN: HOMO 1.52120679598131 >= LUMO 0.67748440469761
+
+cycle= 19 E= -3684.9709468562  delta_E= 3.13  |g|= 9.84  |ddm|= 6.71
+  HOMO = 0.788707359310992  LUMO = 1.63666156491364
+cycle= 20 E= -3686.30062855166  delta_E= -1.33  |g|= 11.6  |ddm|= 3.66
+
+WARN: HOMO 1.61886196832033 >= LUMO 0.955947273011841
+
+cycle= 21 E= -3687.00977756611  delta_E= -0.709  |g|= 13.2  |ddm|= 3.19
+
+WARN: HOMO 1.74075984026184 >= LUMO 0.598834094647918
+
+cycle= 22 E= -3687.33320199768  delta_E= -0.323  |g|= 14.3  |ddm|= 4.25
+  HOMO = 0.775836331646335  LUMO = 1.6023422840914
+cycle= 23 E= -3688.8364231378  delta_E= -1.5  |g|= 14.9  |ddm|= 1.55
+  HOMO = 0.853931696136578  LUMO = 1.55874258408159
+cycle= 24 E= -3691.67912779247  delta_E= -2.84  |g|= 14.2  |ddm|= 1.44
+  HOMO = 0.778879031365814  LUMO = 1.55382731971491
+cycle= 25 E= -3689.27558615183  delta_E=  2.4  |g|= 13.6  |ddm|= 2.15
+  HOMO = 0.758968730619455  LUMO = 1.60625262735491
+cycle= 26 E= -3689.99935130226  delta_E= -0.724  |g|= 12.8  |ddm|= 2.78
+  HOMO = 0.71153678701051  LUMO = 1.49197310660127
+cycle= 27 E= -3690.21829455238  delta_E= -0.219  |g|= 13.2  |ddm|= 3.01
+
+WARN: HOMO 1.64388836720059 >= LUMO 0.72182564193379
+
+cycle= 28 E= -3690.47121814441  delta_E= -0.253  |g|= 13.2  |ddm|=  4.3
+  HOMO = 0.602010078387949  LUMO = 1.55780322397746
+cycle= 29 E= -3690.96231254934  delta_E= -0.491  |g|= 13.7  |ddm|=  3.1
+
+WARN: HOMO 1.53970325268377 >= LUMO 0.72776045441938
+
+cycle= 30 E= -3692.69312417179  delta_E= -1.73  |g|= 12.8  |ddm|= 2.94
+  HOMO = 0.754036196773229  LUMO = 1.49672502268876
+cycle= 31 E= -3692.43027449027  delta_E= 0.263  |g|= 12.1  |ddm|=  2.3
+  HOMO = 0.757329573671074  LUMO = 1.7071460008265
+cycle= 32 E= -3691.26788653226  delta_E= 1.16  |g|=   11  |ddm|= 2.47
+
+WARN: HOMO 1.55519528080376 >= LUMO 0.396698791514574
+
+cycle= 33 E= -3689.72810659336  delta_E= 1.54  |g|= 10.2  |ddm|= 3.11
+
+WARN: HOMO 1.5066797664572 >= LUMO 0.692364665287002
+
+cycle= 34 E= -3689.18569454114  delta_E= 0.542  |g|= 9.51  |ddm|=  2.6
+
+WARN: HOMO 1.51965723964402 >= LUMO 0.671132240236952
+
+cycle= 35 E= -3688.22819033049  delta_E= 0.958  |g|= 10.8  |ddm|= 2.99
+  HOMO = 0.734916965363863  LUMO = 1.66620304532478
+cycle= 36 E= -3687.91894995883  delta_E= 0.309  |g|= 12.1  |ddm|= 2.05
+
+WARN: HOMO 1.6040990398026 >= LUMO 0.134042210291798
+
+cycle= 37 E= -3688.07221482678  delta_E= -0.153  |g|= 12.9  |ddm|= 3.62
+
+WARN: HOMO 1.72957489256317 >= LUMO 0.447900911888761
+
+cycle= 38 E= -3688.35115339151  delta_E= -0.279  |g|= 13.8  |ddm|= 2.51
+  HOMO = 0.802770892091988  LUMO = 1.47858436644208
+cycle= 39 E= -3688.61781042712  delta_E= -0.267  |g|= 14.3  |ddm|= 1.45
+
+WARN: HOMO 1.82115475609955 >= LUMO 0.63924116326487
+
+cycle= 40 E= -3689.72000026457  delta_E= -1.1  |g|= 14.2  |ddm|= 3.36
+  HOMO = 0.814786377241792  LUMO = 1.55090992998689
+cycle= 41 E= -3689.61437517487  delta_E= 0.106  |g|= 14.8  |ddm|=  1.3
+  HOMO = 0.800951220102271  LUMO = 1.57047918291437
+cycle= 42 E= -3689.73267616749  delta_E= -0.118  |g|= 15.2  |ddm|= 1.08
+
+WARN: HOMO 1.58956003647736 >= LUMO 0.793649823574096
+
+cycle= 43 E= -3689.98417899878  delta_E= -0.252  |g|= 16.1  |ddm|= 3.17
+  HOMO = 0.773273240716396  LUMO = 1.34119711256668
+cycle= 44 E= -3689.70491198964  delta_E= 0.279  |g|= 15.8  |ddm|= 4.29
+  HOMO = 0.597070763967303  LUMO = 1.36255891503576
+cycle= 45 E= -3690.90565002365  delta_E= -1.2  |g|=   16  |ddm|= 4.66
+  HOMO = 0.855391043998461  LUMO = 1.59443640165327
+cycle= 46 E= -3693.75268830598  delta_E= -2.85  |g|= 16.3  |ddm|= 2.93
+  HOMO = 0.847309284138593  LUMO = 1.62086370466048
+cycle= 47 E= -3695.2935754581  delta_E= -1.54  |g|= 15.1  |ddm|= 2.19
+
+WARN: HOMO 1.6174106451264 >= LUMO 0.812205027971717
+
+cycle= 48 E= -3695.32800128274  delta_E= -0.0344  |g|= 12.4  |ddm|= 3.02
+  HOMO = 0.551504706992503  LUMO = 1.63496215959992
+cycle= 49 E= -3693.59575066532  delta_E= 1.73  |g|= 11.8  |ddm|= 2.27
+
+WARN: HOMO 1.67864349873328 >= LUMO 0.733323743985163
+
+cycle= 50 E= -3692.74266953525  delta_E= 0.853  |g|= 11.5  |ddm|= 4.21
+SCF not converged.
+SCF energy = -3692.74266953525
+
+energy from frozen occupied orbitals = 683.055032921424
+deviation from DMET exact condition = -20.88237055965692
+
+******** AVAS flags ********
+aolabels = Co 3d
+ncore = 0
+nunocc = 0
+minao = [[0, [9616751.7966, 7.32402e-05, -2.24237e-05, 7.9612e-06, -1.8745e-06, 5.025e-07], [1325187.8874, 0.0002495224, -7.64344e-05, 2.71418e-05, -6.391e-06, 1.7203e-06], [248036.88489, 0.0008381803, -0.0002571168, 9.12844e-05, -2.14932e-05, 5.7285e-06], [58985.204624, 0.0025849738, -0.0007947632, 0.0002824397, -6.65122e-05, 1.80918e-05], [16869.095639, 0.0077217825, -0.002387719, 0.0008478567, -0.0001996134, 5.23307e-05], [5549.153694, 0.0221415186, -0.0069195359, 0.0024653818, -0.0005807547, 0.0001613086], [2026.4581271, 0.0598837639, -0.0192321624, 0.0068486458, -0.0016124264, 0.0004117869], [798.97705794, 0.1454366352, -0.0494851619, 0.0178131084, -0.0041997895, 0.0011997082], [332.84472433, 0.2879762333, -0.1119578339, 0.0406418548, -0.0095781104, 0.0023471376], [144.07695642, 0.3811294259, -0.1941993496, 0.0735751978, -0.0174139707, 0.0053261558], [63.94880928, 0.2257359376, -0.16493974, 0.0649665338, -0.0153630035, 0.0024233348], [28.78023754, 0.0265304588, 0.2153155601, -0.0971346833, 0.0231431213, -0.0019634555], [12.99612874, -0.0022609288, 0.6605264821, -0.4467336866, 0.1112828708, -0.040292222], [5.82256236, -0.0030948055, 0.3170349685, -0.2870669674, 0.0720060229, -0.0006284313], [2.55388729, 0.0006005077, -0.0045803664, 0.579228776, -0.1694726271, 0.0174444698], [1.07835791, -0.0002813629, -0.0081015514, 0.6554232174, -0.2796536783, 0.1519037952], [0.42890133, 0.0001845413, -0.0042503432, 0.0914523556, -0.143534614, -0.1765034472], [0.15624773, -7.18867e-05, 0.0009134149, 0.0003732558, 0.5584729265, 0.3181534266], [0.05030648, 2.91069e-05, -0.0005446059, 0.0032640944, 0.6840780531, -1.4578199127], [0.01619698, -8.1786e-06, 0.0001158442, 0.0001250022, -0.0487507674, 1.7446845299]], [1, [9124.9226431, 0.0003317667, -0.0001214887, 8.94002e-05], [1872.6188822, 0.0024483952, -0.000896763, 0.0006633239], [539.12372345, 0.0139197834, -0.0051540463, 0.0038001968], [192.35020956, 0.0564662512, -0.021216911, 0.0158262927], [77.99016053, 0.1670091189, -0.0653997436, 0.0491103351], [33.92143209, 0.3404552903, -0.139452144, 0.1063845239], [15.24900993, 0.4082602256, -0.1779697247, 0.1344970743], [6.9091561, 0.1875538953, 0.0360656917, -0.0817694364], [3.0880112, 0.016348784, 0.4296259683, -0.556904417], [1.32606453, 0.0022228081, 0.5056666398, 0.0023866262], [0.5258793, -0.0003482278, 0.1658864856, 0.3244708283], [0.2085487, 0.0001883812, 0.0025991007, 0.7018453304]], [2, [160.50535837, 0.0022512885, -0.0023925653], [47.4999919, 0.0175476815, -0.0194398612], [17.64671558, 0.070978852, -0.075993072], [7.30777711, 0.188751954, -0.2237519043], [3.13717622, 0.3186936363, -0.3513394197], [1.33306611, 0.3592200426, -0.0818747664], [0.53882497, 0.2885277375, 0.414860408], [0.19642501, 0.1188241534, 0.4832003811], [0.07160541, 0.0119917696, 0.1406185298]], [3, [6.98057299, 0.1258670747], [3.7517231, 0.2086666883], [1.81265985, 0.4492293675], [0.75497508, 0.3646746135], [0.27731876, 0.1514304084]]]
+threshold = 0.5
+with_iao = False
+openshell_option = 2
+canonicalize = False
+
+** AVAS **
+  Total number of HF MOs  is equal to    123
+  Number of occupied HF MOs is equal to  50
+reference AO indices for [[0, [9616751.7966, 7.32402e-05, -2.24237e-05, 7.9612e-06, -1.8745e-06, 5.025e-07], [1325187.8874, 0.0002495224, -7.64344e-05, 2.71418e-05, -6.391e-06, 1.7203e-06], [248036.88489, 0.0008381803, -0.0002571168, 9.12844e-05, -2.14932e-05, 5.7285e-06], [58985.204624, 0.0025849738, -0.0007947632, 0.0002824397, -6.65122e-05, 1.80918e-05], [16869.095639, 0.0077217825, -0.002387719, 0.0008478567, -0.0001996134, 5.23307e-05], [5549.153694, 0.0221415186, -0.0069195359, 0.0024653818, -0.0005807547, 0.0001613086], [2026.4581271, 0.0598837639, -0.0192321624, 0.0068486458, -0.0016124264, 0.0004117869], [798.97705794, 0.1454366352, -0.0494851619, 0.0178131084, -0.0041997895, 0.0011997082], [332.84472433, 0.2879762333, -0.1119578339, 0.0406418548, -0.0095781104, 0.0023471376], [144.07695642, 0.3811294259, -0.1941993496, 0.0735751978, -0.0174139707, 0.0053261558], [63.94880928, 0.2257359376, -0.16493974, 0.0649665338, -0.0153630035, 0.0024233348], [28.78023754, 0.0265304588, 0.2153155601, -0.0971346833, 0.0231431213, -0.0019634555], [12.99612874, -0.0022609288, 0.6605264821, -0.4467336866, 0.1112828708, -0.040292222], [5.82256236, -0.0030948055, 0.3170349685, -0.2870669674, 0.0720060229, -0.0006284313], [2.55388729, 0.0006005077, -0.0045803664, 0.579228776, -0.1694726271, 0.0174444698], [1.07835791, -0.0002813629, -0.0081015514, 0.6554232174, -0.2796536783, 0.1519037952], [0.42890133, 0.0001845413, -0.0042503432, 0.0914523556, -0.143534614, -0.1765034472], [0.15624773, -7.18867e-05, 0.0009134149, 0.0003732558, 0.5584729265, 0.3181534266], [0.05030648, 2.91069e-05, -0.0005446059, 0.0032640944, 0.6840780531, -1.4578199127], [0.01619698, -8.1786e-06, 0.0001158442, 0.0001250022, -0.0487507674, 1.7446845299]], [1, [9124.9226431, 0.0003317667, -0.0001214887, 8.94002e-05], [1872.6188822, 0.0024483952, -0.000896763, 0.0006633239], [539.12372345, 0.0139197834, -0.0051540463, 0.0038001968], [192.35020956, 0.0564662512, -0.021216911, 0.0158262927], [77.99016053, 0.1670091189, -0.0653997436, 0.0491103351], [33.92143209, 0.3404552903, -0.139452144, 0.1063845239], [15.24900993, 0.4082602256, -0.1779697247, 0.1344970743], [6.9091561, 0.1875538953, 0.0360656917, -0.0817694364], [3.0880112, 0.016348784, 0.4296259683, -0.556904417], [1.32606453, 0.0022228081, 0.5056666398, 0.0023866262], [0.5258793, -0.0003482278, 0.1658864856, 0.3244708283], [0.2085487, 0.0001883812, 0.0025991007, 0.7018453304]], [2, [160.50535837, 0.0022512885, -0.0023925653], [47.4999919, 0.0175476815, -0.0194398612], [17.64671558, 0.070978852, -0.075993072], [7.30777711, 0.188751954, -0.2237519043], [3.13717622, 0.3186936363, -0.3513394197], [1.33306611, 0.3592200426, -0.0818747664], [0.53882497, 0.2885277375, 0.414860408], [0.19642501, 0.1188241534, 0.4832003811], [0.07160541, 0.0119917696, 0.1406185298]], [3, [6.98057299, 0.1258670747], [3.7517231, 0.2086666883], [1.81265985, 0.4492293675], [0.75497508, 0.3646746135], [0.27731876, 0.1514304084]]] Co 3d:
+ [14 15 16 17 18]
+Option 2: threshold 0.5
+Active from occupied = 3 , eig [0.79558403 0.96127884 0.97957657]
+Inactive from occupied = 47
+Active from unoccupied = 2 , eig [0.6090243  0.85089003]
+Inactive from unoccupied = 71
+Dimensions of active 5
+# of alpha electrons 3
+# of beta electrons 0
+statelis is None
+generate statelis [ 0 40  0 10]
+Attempting SA-CASSCF with
+fix_spin parameter 0.5 on spin multiplicity 2
+40 states with spin multiplicity 2
+fix_spin parameter 0.5 on spin multiplicity 4
+10 states with spin multiplicity 4
+
+******** <class 'pyscf.mcscf.addons.StateAverageDFCASSCF'> ********
+CAS (3e+0e, 5o), ncore = 47, nvir = 71
+max_cycle_macro = 50
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+orbital rotation threshold for CI restart = 0.01
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 1e-08
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = /tmp/tmpi3haqjju
+max_memory 4000 MB (current use 398 MB)
+internal_rotation = False
+******** <class 'pyscf.mcscf.addons.StateAverageMixSpinPenaltyFCISolver'> ********
+max. cycles = 100
+conv_tol = 1e-10
+davidson only = True
+linear dependence = 1e-14
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 50
+pspace_size = 400
+spin = 1
+State-average over 50 states with weights [0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02]
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+CASCI E = -3679.28206968381  S^2 = 1.4100000
+Set conv_tol_grad to 0.000316228
+macro iter   1 ( 30 JK    1 micro), CASSCF E = -3683.06829650359  dE = -3.78622682e+00  S^2 = 1.7700000
+               |grad[o]|= 33.9  |ddm|=1.82e-15  |maxRot[o]|= 0.02
+macro iter   2 ( 30 JK    1 micro), CASSCF E = -3683.62756756580  dE = -5.59271062e-01  S^2 = 1.7700000
+               |grad[o]|= 33.9  |ddm|=1.52e-10  |maxRot[o]|=0.0202
+macro iter   3 ( 30 JK    1 micro), CASSCF E = -3682.14673546541  dE =  1.48083210e+00  S^2 = 1.4700000
+               |grad[o]|= 33.8  |ddm|=3.18e-12  |maxRot[o]|= 0.02
+macro iter   4 ( 30 JK    1 micro), CASSCF E = -3685.53073479673  dE = -3.38399933e+00  S^2 = 1.7700000
+               |grad[o]|= 27.8  |ddm|=5.62e-12  |maxRot[o]|=0.006
+macro iter   5 ( 30 JK    1 micro), CASSCF E = -3685.81618348592  dE = -2.85448689e-01  S^2 = 1.7700000
+               |grad[o]|= 31.9  |ddm|=6.96e-16  |maxRot[o]|=0.0109
+macro iter   6 ( 30 JK    1 micro), CASSCF E = -3686.09742608923  dE = -2.81242603e-01  S^2 = 1.7100000
+               |grad[o]|= 31.3  |ddm|=8.61e-16  |maxRot[o]|=0.0148
+macro iter   7 ( 30 JK    1 micro), CASSCF E = -3685.96635834231  dE =  1.31067747e-01  S^2 = 1.7100000
+               |grad[o]|= 31.2  |ddm|=5.75e-16  |maxRot[o]|=0.0171
+macro iter   8 ( 30 JK    1 micro), CASSCF E = -3682.01012254193  dE =  3.95623580e+00  S^2 = 1.4700000
+               |grad[o]|= 31.7  |ddm|=1.08e-15  |maxRot[o]|=0.00517
+macro iter   9 ( 30 JK    1 micro), CASSCF E = -3686.05801240397  dE = -4.04788986e+00  S^2 = 1.7100000
+               |grad[o]|= 26.5  |ddm|=2.99e-15  |maxRot[o]|=0.00155
+macro iter  10 ( 30 JK    1 micro), CASSCF E = -3686.13346903158  dE = -7.54566276e-02  S^2 = 1.7100000
+               |grad[o]|= 31.5  |ddm|=2.54e-12  |maxRot[o]|=0.00558
+macro iter  11 ( 30 JK    1 micro), CASSCF E = -3686.35199375812  dE = -2.18524727e-01  S^2 = 1.7100000
+               |grad[o]|= 31.4  |ddm|=5.39e-15  |maxRot[o]|=0.0106
+macro iter  12 ( 30 JK    1 micro), CASSCF E = -3686.49526760950  dE = -1.43273851e-01  S^2 = 1.7100000
+               |grad[o]|= 31.3  |ddm|=6.5e-12  |maxRot[o]|=0.0145
+macro iter  13 ( 30 JK    1 micro), CASSCF E = -3681.84897910845  dE =  4.64628850e+00  S^2 = 1.4700000
+               |grad[o]|= 30.9  |ddm|=9.77e-12  |maxRot[o]|=0.0171
+macro iter  14 ( 30 JK    1 micro), CASSCF E = -3681.79478183839  dE =  5.41972701e-02  S^2 = 1.4700000
+               |grad[o]|= 25.2  |ddm|=1.11e-14  |maxRot[o]|=0.00511
+macro iter  15 ( 30 JK    1 micro), CASSCF E = -3686.54587231365  dE = -4.75109048e+00  S^2 = 1.7100000
+               |grad[o]|= 24.8  |ddm|=2.25e-14  |maxRot[o]|=0.00153
+macro iter  16 ( 30 JK    1 micro), CASSCF E = -3686.57932028769  dE = -3.34479740e-02  S^2 = 1.7100000
+               |grad[o]|= 30.4  |ddm|=2.87e-12  |maxRot[o]|=0.00554
+macro iter  17 ( 30 JK    1 micro), CASSCF E = -3686.63204410165  dE = -5.27238140e-02  S^2 = 1.7100000
+               |grad[o]|= 30.4  |ddm|=1.96e-14  |maxRot[o]|=0.0105
+macro iter  18 ( 30 JK    1 micro), CASSCF E = -3686.69849085238  dE = -6.64467507e-02  S^2 = 1.7100000
+               |grad[o]|= 30.5  |ddm|=1.23e-13  |maxRot[o]|=0.0145
+macro iter  19 ( 30 JK    1 micro), CASSCF E = -3686.73236240747  dE = -3.38715551e-02  S^2 = 1.7100000
+               |grad[o]|= 30.6  |ddm|=2.15e-12  |maxRot[o]|=0.017
+macro iter  20 ( 30 JK    1 micro), CASSCF E = -3686.74376870136  dE = -1.14062939e-02  S^2 = 1.7100000
+               |grad[o]|= 30.6  |ddm|=2.66e-13  |maxRot[o]|=0.0186
+macro iter  21 ( 30 JK    1 micro), CASSCF E = -3686.80466961311  dE = -6.09009117e-02  S^2 = 1.7100000
+               |grad[o]|= 30.7  |ddm|=7.9e-12  |maxRot[o]|=0.0192
+macro iter  22 ( 30 JK    1 micro), CASSCF E = -3680.96995332949  dE =  5.83471628e+00  S^2 = 1.4700000
+               |grad[o]|= 30.9  |ddm|=5.38e-13  |maxRot[o]|=0.0196
+macro iter  23 ( 30 JK    1 micro), CASSCF E = -3686.88410000297  dE = -5.91414667e+00  S^2 = 1.7100000
+               |grad[o]|= 23.5  |ddm|=2.12e-11  |maxRot[o]|=0.00588
+macro iter  24 ( 30 JK    1 micro), CASSCF E = -3686.86945055222  dE =  1.46494508e-02  S^2 = 1.7100000
+               |grad[o]|= 31.2  |ddm|=3.77e-12  |maxRot[o]|=0.0109
+macro iter  25 ( 30 JK    1 micro), CASSCF E = -3686.87058143922  dE = -1.13088700e-03  S^2 = 1.7100000
+               |grad[o]|= 31.3  |ddm|=3.41e-13  |maxRot[o]|=0.00325
+macro iter  26 ( 30 JK    1 micro), CASSCF E = -3680.66273150977  dE =  6.20784993e+00  S^2 = 1.5300000
+               |grad[o]|= 31.3  |ddm|=4.95e-14  |maxRot[o]|=0.00807
+macro iter  27 ( 30 JK    1 micro), CASSCF E = -3679.09046383856  dE =  1.57226767e+00  S^2 = 1.7100000
+               |grad[o]|= 23.3  |ddm|=2.41e-11  |maxRot[o]|=0.00242
+macro iter  28 ( 30 JK    1 micro), CASSCF E = -3680.45486718685  dE = -1.36440335e+00  S^2 = 1.7100000
+               |grad[o]|= 26.8  |ddm|=4.47e-16  |maxRot[o]|=0.000726
+macro iter  29 ( 30 JK    1 micro), CASSCF E = -3686.79227534726  dE = -6.33740816e+00  S^2 = 1.7100000
+               |grad[o]|= 23.5  |ddm|=2.15e-15  |maxRot[o]|=0.00381
+macro iter  30 ( 30 JK    1 micro), CASSCF E = -3686.79769554440  dE = -5.42019715e-03  S^2 = 1.7100000
+               |grad[o]|= 31.4  |ddm|=9.5e-16  |maxRot[o]|=0.00874
+macro iter  31 ( 30 JK    1 micro), CASSCF E = -3686.79806291049  dE = -3.67366094e-04  S^2 = 1.7100000
+               |grad[o]|= 31.5  |ddm|=1.36e-15  |maxRot[o]|=0.0132
+macro iter  32 ( 30 JK    1 micro), CASSCF E = -3686.76889627171  dE =  2.91666388e-02  S^2 = 1.7100000
+               |grad[o]|= 31.6  |ddm|=1.15e-15  |maxRot[o]|=0.0163
+macro iter  33 ( 30 JK    1 micro), CASSCF E = -3686.77855134651  dE = -9.65507480e-03  S^2 = 1.7100000
+               |grad[o]|= 31.8  |ddm|=4.44e-16  |maxRot[o]|=0.00488
+macro iter  34 ( 30 JK    1 micro), CASSCF E = -3686.77433066752  dE =  4.22067899e-03  S^2 = 1.7100000
+               |grad[o]|= 31.8  |ddm|=1.02e-15  |maxRot[o]|=0.00988
+macro iter  35 ( 30 JK    1 micro), CASSCF E = -3686.76527395443  dE =  9.05671309e-03  S^2 = 1.7100000
+               |grad[o]|=   32  |ddm|=9.23e-16  |maxRot[o]|=0.00296
+macro iter  36 ( 30 JK    1 micro), CASSCF E = -3686.76768004162  dE = -2.40608719e-03  S^2 = 1.7100000
+               |grad[o]|= 32.1  |ddm|=1.18e-15  |maxRot[o]|=0.000889
+macro iter  37 ( 30 JK    1 micro), CASSCF E = -3686.72938375754  dE =  3.82962841e-02  S^2 = 1.7100000
+               |grad[o]|= 32.1  |ddm|=1.47e-14  |maxRot[o]|=0.00422
+macro iter  38 ( 30 JK    1 micro), CASSCF E = -3686.73215972423  dE = -2.77596668e-03  S^2 = 1.7100000
+               |grad[o]|= 32.2  |ddm|=6.14e-14  |maxRot[o]|=0.00126
+macro iter  39 ( 30 JK    1 micro), CASSCF E = -3686.73225504703  dE = -9.53228059e-05  S^2 = 1.7100000
+               |grad[o]|= 32.2  |ddm|=1.53e-15  |maxRot[o]|=0.00503
+macro iter  40 ( 30 JK    1 micro), CASSCF E = -3686.62279108248  dE =  1.09463965e-01  S^2 = 1.7100000
+               |grad[o]|= 32.3  |ddm|=3.16e-14  |maxRot[o]|= 0.01
+macro iter  41 ( 30 JK    1 micro), CASSCF E = -3679.90600710013  dE =  6.71678398e+00  S^2 = 1.5300000
+               |grad[o]|= 32.6  |ddm|=1.2e-13  |maxRot[o]|=0.00301
+macro iter  42 ( 30 JK    1 micro), CASSCF E = -3686.59647499848  dE = -6.69046790e+00  S^2 = 1.7100000
+               |grad[o]|= 22.5  |ddm|=2.1e-15  |maxRot[o]|=0.000903
+macro iter  43 ( 30 JK    1 micro), CASSCF E = -3686.58229964054  dE =  1.41753579e-02  S^2 = 1.7100000
+               |grad[o]|= 32.7  |ddm|=1.12e-11  |maxRot[o]|=0.00425
+macro iter  44 ( 30 JK    1 micro), CASSCF E = -3686.58616434891  dE = -3.86470837e-03  S^2 = 1.7100000
+               |grad[o]|= 32.8  |ddm|=4.02e-15  |maxRot[o]|=0.00127
+macro iter  45 ( 30 JK    1 micro), CASSCF E = -3686.59816983640  dE = -1.20054875e-02  S^2 = 1.7100000
+               |grad[o]|= 32.8  |ddm|=1.49e-14  |maxRot[o]|=0.00505
+macro iter  46 ( 30 JK    1 micro), CASSCF E = -3686.59027541659  dE =  7.89441981e-03  S^2 = 1.7100000
+               |grad[o]|= 32.9  |ddm|=1.85e-14  |maxRot[o]|= 0.01
+macro iter  47 ( 30 JK    1 micro), CASSCF E = -3686.59760212753  dE = -7.32671094e-03  S^2 = 1.7100000
+               |grad[o]|= 33.1  |ddm|=6.06e-14  |maxRot[o]|=0.00301
+macro iter  48 ( 30 JK    1 micro), CASSCF E = -3686.59542099155  dE =  2.18113598e-03  S^2 = 1.7100000
+               |grad[o]|= 33.1  |ddm|=1.55e-14  |maxRot[o]|=0.00777
+macro iter  49 ( 30 JK    1 micro), CASSCF E = -3686.59412969684  dE =  1.29129471e-03  S^2 = 1.7100000
+               |grad[o]|= 33.3  |ddm|=3.29e-13  |maxRot[o]|=0.00233
+macro iter  50 ( 30 JK    1 micro), CASSCF E = -3686.59310121249  dE =  1.02848435e-03  S^2 = 1.7100000
+               |grad[o]|= 33.3  |ddm|=4.28e-14  |maxRot[o]|=0.000699
+1-step CASSCF not converged,  50 macro (1500 JK  50 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [0.64161019 0.69330908 0.58990109 0.50333364 0.571846  ]
+CASSCF energy = -3686.59310121249
+CASCI E = -3686.59310121249  E(CI) = -11.9153248101065  S^2 = 1.7100000
+CASCI state-averaged energy = -3686.59310121249
+CASCI energy for each state
+  State 0 weight 0.02  E = -3694.6047249805 S^2 = 0.7500000
+  State 1 weight 0.02  E = -3694.45285243214 S^2 = 0.7500000
+  State 2 weight 0.02  E = -3694.34847341247 S^2 = 0.7500000
+  State 3 weight 0.02  E = -3693.65686420581 S^2 = 0.7500000
+  State 4 weight 0.02  E = -3689.00842396764 S^2 = 0.7500000
+  State 5 weight 0.02  E = -3688.8608812981 S^2 = 0.7500000
+  State 6 weight 0.02  E = -3688.84694400989 S^2 = 0.7500000
+  State 7 weight 0.02  E = -3688.78420771588 S^2 = 0.7500000
+  State 8 weight 0.02  E = -3688.7686762767 S^2 = 0.7500000
+  State 9 weight 0.02  E = -3688.62872539552 S^2 = 0.7500000
+  State 10 weight 0.02  E = -3688.5866662335 S^2 = 0.7500000
+  State 11 weight 0.02  E = -3688.57565753038 S^2 = 0.7500000
+  State 12 weight 0.02  E = -3688.46947249304 S^2 = 0.7500000
+  State 13 weight 0.02  E = -3688.12067363213 S^2 = 0.7500000
+  State 14 weight 0.02  E = -3688.06286817303 S^2 = 0.7500000
+  State 15 weight 0.02  E = -3687.96926708386 S^2 = 0.7500000
+  State 16 weight 0.02  E = -3687.92152288181 S^2 = 0.7500000
+  State 17 weight 0.02  E = -3687.86244031859 S^2 = 0.7500000
+  State 18 weight 0.02  E = -3687.81335379585 S^2 = 0.7500000
+  State 19 weight 0.02  E = -3687.42287716175 S^2 = 3.7500000
+  State 20 weight 0.02  E = -3687.34607805365 S^2 = 3.7500000
+  State 21 weight 0.02  E = -3687.14901840595 S^2 = 3.7500000
+  State 22 weight 0.02  E = -3687.14579108416 S^2 = 0.7500000
+  State 23 weight 0.02  E = -3686.6778822131 S^2 = 3.7500000
+  State 24 weight 0.02  E = -3686.54269627953 S^2 = 3.7500000
+  State 25 weight 0.02  E = -3686.4340468862 S^2 = 3.7500000
+  State 26 weight 0.02  E = -3683.19482910853 S^2 = 0.7500000
+  State 27 weight 0.02  E = -3683.14125807229 S^2 = 0.7500000
+  State 28 weight 0.02  E = -3682.97996878507 S^2 = 0.7500000
+  State 29 weight 0.02  E = -3682.93881633695 S^2 = 0.7500000
+  State 30 weight 0.02  E = -3682.93791727364 S^2 = 0.7500000
+  State 31 weight 0.02  E = -3682.85603968645 S^2 = 0.7500000
+  State 32 weight 0.02  E = -3682.67857956067 S^2 = 0.7500000
+  State 33 weight 0.02  E = -3682.62256009522 S^2 = 0.7500000
+  State 34 weight 0.02  E = -3682.48019506553 S^2 = 0.7500000
+  State 35 weight 0.02  E = -3682.34266678741 S^2 = 0.7500000
+  State 36 weight 0.02  E = -3682.3218812389 S^2 = 0.7500000
+  State 37 weight 0.02  E = -3682.26228799777 S^2 = 0.7500000
+  State 38 weight 0.02  E = -3682.24179112483 S^2 = 0.7500000
+  State 39 weight 0.02  E = -3682.11926858189 S^2 = 0.7500000
+  State 40 weight 0.02  E = -3688.92287716175 S^2 = 3.7500000
+  State 41 weight 0.02  E = -3688.84607805365 S^2 = 3.7500000
+  State 42 weight 0.02  E = -3688.64901840595 S^2 = 3.7500000
+  State 43 weight 0.02  E = -3688.17788221309 S^2 = 3.7500000
+  State 44 weight 0.02  E = -3688.04269627953 S^2 = 3.7500000
+  State 45 weight 0.02  E = -3687.9340468862 S^2 = 3.7500000
+  State 46 weight 0.02  E = -3683.02283229063 S^2 = 3.7500000
+  State 47 weight 0.02  E = -3682.40417132128 S^2 = 3.7500000
+  State 48 weight 0.02  E = -3682.32767592207 S^2 = 3.7500000
+  State 49 weight 0.02  E = -3682.14863645398 S^2 = 3.7500000
+sacasscf_nevpt2_casci_ver
+CASCI
+
+******** <class 'pyscf.mcscf.df.DFCASCI'> ********
+CAS (2e+1e, 5o), ncore = 47, nvir = 71
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 4000 MB (current use 404 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 40
+pspace_size = 400
+spin = 1
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+
+WARN: Mulitple states found in CASCI solver. First state is used to compute the Fock matrix and natural orbitals in active space.
+
+Density matrix diagonal elements [0.6785099  1.55780421 0.07741058 0.06769596 0.61857935]
+CASCI converged
+CASCI state   0  E = -3681.40417457777  E(CI) = -13.6929154103050  S^2 = 0.7500000
+CASCI state   1  E = -3681.36934914474  E(CI) = -13.6580899772725  S^2 = 0.7500000
+CASCI state   2  E = -3681.12455028172  E(CI) = -13.4132911142528  S^2 = 0.7500000
+CASCI state   3  E = -3680.39524094303  E(CI) = -12.6839817755645  S^2 = 0.7500000
+CASCI state   4  E = -3678.80447908061  E(CI) = -11.0932199131425  S^2 = 0.7500000
+CASCI state   5  E = -3678.75599115680  E(CI) = -11.0447319893383  S^2 = 0.7500000
+CASCI state   6  E = -3678.75257636975  E(CI) = -11.0413172022886  S^2 = 0.7500000
+CASCI state   7  E = -3678.65355487137  E(CI) = -10.9422957039028  S^2 = 0.7500000
+CASCI state   8  E = -3678.55508760323  E(CI) = -10.8438284357612  S^2 = 0.7500000
+CASCI state   9  E = -3678.53806844915  E(CI) = -10.8268092816825  S^2 = 0.7500000
+CASCI state  10  E = -3678.48858873958  E(CI) = -10.7773295721172  S^2 = 0.7500000
+CASCI state  11  E = -3678.47062034252  E(CI) = -10.7593611750567  S^2 = 0.7500000
+CASCI state  12  E = -3678.22069788085  E(CI) = -10.5094387133877  S^2 = 0.7500000
+CASCI state  13  E = -3677.86266700605  E(CI) = -10.1514078385821  S^2 = 0.7500000
+CASCI state  14  E = -3677.82867641600  E(CI) = -10.1174172485385  S^2 = 0.7500000
+CASCI state  15  E = -3677.81319268876  E(CI) = -10.1019335212973  S^2 = 0.7500000
+CASCI state  16  E = -3677.78411780690  E(CI) = -10.0728586394393  S^2 = 0.7500000
+CASCI state  17  E = -3677.57331656607  E(CI) = -9.86205739860270  S^2 = 0.7500000
+CASCI state  18  E = -3677.51756140350  E(CI) = -9.80630223603703  S^2 = 0.7500000
+CASCI state  19  E = -3677.31948840149  E(CI) = -9.60822923402156  S^2 = 3.7500000
+CASCI state  20  E = -3677.11798926290  E(CI) = -9.40673009543752  S^2 = 3.7500000
+CASCI state  21  E = -3677.05483067249  E(CI) = -9.34357150502865  S^2 = 3.7500000
+CASCI state  22  E = -3676.81389830144  E(CI) = -9.10263913397375  S^2 = 0.7500000
+CASCI state  23  E = -3676.42902389347  E(CI) = -8.71776472600277  S^2 = 3.7500000
+CASCI state  24  E = -3676.40341485757  E(CI) = -8.69215569010657  S^2 = 3.7500000
+CASCI state  25  E = -3676.13094679527  E(CI) = -8.41968762780516  S^2 = 3.7500000
+CASCI state  26  E = -3676.07962075693  E(CI) = -8.36836158946744  S^2 = 0.7500000
+CASCI state  27  E = -3675.96855102949  E(CI) = -8.25729186202125  S^2 = 0.7500000
+CASCI state  28  E = -3675.91586848588  E(CI) = -8.20460931841717  S^2 = 0.7500000
+CASCI state  29  E = -3675.83439802137  E(CI) = -8.12313885390495  S^2 = 0.7500000
+CASCI state  30  E = -3675.81881093853  E(CI) = -8.10755177106284  S^2 = 0.7500000
+CASCI state  31  E = -3675.69995215388  E(CI) = -7.98869298641466  S^2 = 0.7500000
+CASCI state  32  E = -3675.61267570237  E(CI) = -7.90141653490127  S^2 = 0.7500000
+CASCI state  33  E = -3675.51653879817  E(CI) = -7.80527963070654  S^2 = 0.7500000
+CASCI state  34  E = -3675.24574401406  E(CI) = -7.53448484659611  S^2 = 0.7500000
+CASCI state  35  E = -3675.20105333414  E(CI) = -7.48979416667498  S^2 = 0.7500000
+CASCI state  36  E = -3675.19129918823  E(CI) = -7.48004002076686  S^2 = 0.7500000
+CASCI state  37  E = -3675.10300332688  E(CI) = -7.39174415941397  S^2 = 0.7500000
+CASCI state  38  E = -3674.98318416648  E(CI) = -7.27192499901594  S^2 = 0.7500000
+CASCI state  39  E = -3674.96195516286  E(CI) = -7.25069599540029  S^2 = 0.7500000
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 0
+Sr    (-1)',   E = -11.48574714534118
+Si    (+1)',   E = -10.90509411925011
+Sijrs (0)  ,   E = -2.66955305360117
+Sijr  (+1) ,   E = -0.16911087259931
+Srsi  (-1) ,   E = -0.08356688804370
+Srs   (-2) ,   E = -0.00574406338028
+Sij   (+2) ,   E = -0.35336011879367
+Sir   (0)' ,   E = 94.04086222670368
+Nevpt2 Energy = 68.368685965694269
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 1
+Sr    (-1)',   E = -11.24964082940615
+Si    (+1)',   E = -12.24823139679197
+Sijrs (0)  ,   E = -1.43395440755135
+Sijr  (+1) ,   E = 14.62404844680148
+Srsi  (-1) ,   E = -0.10486454785682
+Srs   (-2) ,   E = -0.00578844253117
+Sij   (+2) ,   E = 0.03042816548485
+Sir   (0)' ,   E = -2469.15776469701359
+Nevpt2 Energy = -2479.545767708864787
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 2
+Sr    (-1)',   E = -11.77046613615978
+Si    (+1)',   E = -10.17777547436223
+Sijrs (0)  ,   E = -0.60457959377308
+Sijr  (+1) ,   E = -0.04564942065600
+Srsi  (-1) ,   E = -0.10789013697039
+Srs   (-2) ,   E = -0.00595464464500
+Sij   (+2) ,   E = 0.28738425882259
+Sir   (0)' ,   E = -338.15985307112680
+Nevpt2 Energy = -360.584784218870709
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 3
+Sr    (-1)',   E = -12.23283537640229
+Si    (+1)',   E = -10.64054806253152
+Sijrs (0)  ,   E = -0.21942652988935
+Sijr  (+1) ,   E = -0.42363161679302
+Srsi  (-1) ,   E = -0.09760084336630
+Srs   (-2) ,   E = -0.00477442089155
+Sij   (+2) ,   E = -0.06953539848774
+Sir   (0)' ,   E = -233.31937318076942
+Nevpt2 Energy = -257.007725429131199
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 4
+Sr    (-1)',   E = -6.92655022863298
+Si    (+1)',   E = 13.17505676107508
+Sijrs (0)  ,   E = -1.23079173014261
+Sijr  (+1) ,   E = 0.27168455616832
+Srsi  (-1) ,   E = -0.12509676585035
+Srs   (-2) ,   E = -0.00934576527406
+Sij   (+2) ,   E = -0.11279092925421
+Sir   (0)' ,   E = -26.79466606264547
+Nevpt2 Energy = -21.752500164556277
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 5
+Sr    (-1)',   E = -6.59811777256220
+Si    (+1)',   E = 17.10748283553780
+Sijrs (0)  ,   E = -0.49025209959941
+Sijr  (+1) ,   E = -0.04319445221666
+Srsi  (-1) ,   E = -0.11926091805182
+Srs   (-2) ,   E = -0.00948347822456
+Sij   (+2) ,   E = -0.02812547524986
+Sir   (0)' ,   E = 17.82918581698625
+Nevpt2 Energy = 27.648234456619548
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 6
+Sr    (-1)',   E = -6.56095137334277
+Si    (+1)',   E = 119.58888911665376
+Sijrs (0)  ,   E = -1.02842231982421
+Sijr  (+1) ,   E = -1.31893840618661
+Srsi  (-1) ,   E = -0.10881131408127
+Srs   (-2) ,   E = -0.01014652875368
+Sij   (+2) ,   E = -0.04987261691928
+Sir   (0)' ,   E = 8.35867372307786
+Nevpt2 Energy = 118.870420280623762
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 7
+Sr    (-1)',   E = -6.29653865899391
+Si    (+1)',   E = 14.34364915081814
+Sijrs (0)  ,   E = -0.65523609857890
+Sijr  (+1) ,   E = -0.11329485835972
+Srsi  (-1) ,   E = -0.12899100856860
+Srs   (-2) ,   E = -0.01227196956655
+Sij   (+2) ,   E = -0.16294889481975
+Sir   (0)' ,   E = 66.69478890514870
+Nevpt2 Energy = 73.669156567079412
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 8
+Sr    (-1)',   E = -7.25341326070344
+Si    (+1)',   E = 12.24571906248055
+Sijrs (0)  ,   E = -0.81475424431132
+Sijr  (+1) ,   E = 0.05119393156458
+Srsi  (-1) ,   E = -0.12813369548275
+Srs   (-2) ,   E = -0.00850100021254
+Sij   (+2) ,   E = -0.22279864009041
+Sir   (0)' ,   E = 43.48507016070924
+Nevpt2 Energy = 47.354382313953906
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 9
+Sr    (-1)',   E = -7.18299651096146
+Si    (+1)',   E = 12.66959681412406
+Sijrs (0)  ,   E = -0.99282182515722
+Sijr  (+1) ,   E = 0.01331036828374
+Srsi  (-1) ,   E = -0.12075853497142
+Srs   (-2) ,   E = -0.01056093294599
+Sij   (+2) ,   E = 0.03318225971477
+Sir   (0)' ,   E = 30.22176898433436
+Nevpt2 Energy = 34.630720622420839
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 10
+Sr    (-1)',   E = -6.97878672548613
+Si    (+1)',   E = 12.46817161827469
+Sijrs (0)  ,   E = -0.65142766815343
+Sijr  (+1) ,   E = -0.67367552221791
+Srsi  (-1) ,   E = -0.00619811529358
+Srs   (-2) ,   E = -0.00924510424906
+Sij   (+2) ,   E = -0.09295704355603
+Sir   (0)' ,   E = 116.52755218916316
+Nevpt2 Energy = 120.583433628481700
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 11
+Sr    (-1)',   E = -6.88208555455562
+Si    (+1)',   E = 12.51905214172754
+Sijrs (0)  ,   E = 0.05159067871945
+Sijr  (+1) ,   E = -0.08289189906348
+Srsi  (-1) ,   E = -0.13707627775719
+Srs   (-2) ,   E = -0.01086872539145
+Sij   (+2) ,   E = -0.05045033433693
+Sir   (0)' ,   E = 117.23000910534543
+Nevpt2 Energy = 122.637279134687745
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 12
+Sr    (-1)',   E = -7.54956090347546
+Si    (+1)',   E = 11.74528767806799
+Sijrs (0)  ,   E = 0.19354097006468
+Sijr  (+1) ,   E = -0.03357942665832
+Srsi  (-1) ,   E = -0.33908994718402
+Srs   (-2) ,   E = -0.01566366688120
+Sij   (+2) ,   E = 0.27464666016804
+Sir   (0)' ,   E = -90.28142981968418
+Nevpt2 Energy = -86.005848455582466
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 13
+Sr    (-1)',   E = -7.85789167772784
+Si    (+1)',   E = 13.09337781399775
+Sijrs (0)  ,   E = -0.98750820901876
+Sijr  (+1) ,   E = -0.26440831209167
+Srsi  (-1) ,   E = -0.11689191130907
+Srs   (-2) ,   E = -0.00760490872594
+Sij   (+2) ,   E = 0.16862083131025
+Sir   (0)' ,   E = 73.35779460923317
+Nevpt2 Energy = 77.385488235667879
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 14
+Sr    (-1)',   E = -7.48724970247864
+Si    (+1)',   E = 10.41028210364738
+Sijrs (0)  ,   E = 0.10599219059243
+Sijr  (+1) ,   E = 0.08070392725327
+Srsi  (-1) ,   E = -0.14013948682540
+Srs   (-2) ,   E = -0.00750771688335
+Sij   (+2) ,   E = -0.06011633869176
+Sir   (0)' ,   E = -3359.47619401719840
+Nevpt2 Energy = -3356.574229040584669
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 15
+Sr    (-1)',   E = -7.72494475541828
+Si    (+1)',   E = -26.69111716380674
+Sijrs (0)  ,   E = -0.68039922329115
+Sijr  (+1) ,   E = 0.42705424320851
+Srsi  (-1) ,   E = -0.14628916823815
+Srs   (-2) ,   E = -0.00766004403865
+Sij   (+2) ,   E = -0.07258124551504
+Sir   (0)' ,   E = 60.25790367265558
+Nevpt2 Energy = 25.361966315556089
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 16
+Sr    (-1)',   E = -7.41920701842533
+Si    (+1)',   E = 17.09721319899770
+Sijrs (0)  ,   E = -0.54355265149091
+Sijr  (+1) ,   E = 0.24972959922224
+Srsi  (-1) ,   E = -0.05229531780761
+Srs   (-2) ,   E = -0.00764334376382
+Sij   (+2) ,   E = -0.04893016947770
+Sir   (0)' ,   E = 4424.61888031952731
+Nevpt2 Energy = 4433.894194616781533
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 17
+Sr    (-1)',   E = -8.19981739126728
+Si    (+1)',   E = 11.94441373121902
+Sijrs (0)  ,   E = 2.22562271919236
+Sijr  (+1) ,   E = -0.79998824953819
+Srsi  (-1) ,   E = -0.20004013303033
+Srs   (-2) ,   E = -0.00811008093869
+Sij   (+2) ,   E = 0.01163746181089
+Sir   (0)' ,   E = -383.85672956634852
+Nevpt2 Energy = -378.883011508900722
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 18
+Sr    (-1)',   E = -8.08394292640062
+Si    (+1)',   E = 13.20121357534249
+Sijrs (0)  ,   E = -1.44931754787631
+Sijr  (+1) ,   E = -0.29076030839584
+Srsi  (-1) ,   E = -0.13249997670442
+Srs   (-2) ,   E = -0.00888480027036
+Sij   (+2) ,   E = -0.02737096188674
+Sir   (0)' ,   E = -365.18967093264871
+Nevpt2 Energy = -361.981233878840499
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 19
+Sr    (-1)',   E = -6.52213630337215
+Si    (+1)',   E = 8.68315589375869
+Sijrs (0)  ,   E = -0.92834285338501
+Sijr  (+1) ,   E = -1.10866088220515
+Srsi  (-1) ,   E = -0.09525817086635
+Srs   (-2) ,   E = -0.00850590823966
+Sij   (+2) ,   E = -0.02594314236750
+Sir   (0)' ,   E = 6.97136983327845
+Nevpt2 Energy = 6.965678466601319
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 20
+Sr    (-1)',   E = -7.16425086540077
+Si    (+1)',   E = 12.58028281068006
+Sijrs (0)  ,   E = 2.11082528049724
+Sijr  (+1) ,   E = -0.20469293097282
+Srsi  (-1) ,   E = -0.11606842055373
+Srs   (-2) ,   E = -0.00735556503282
+Sij   (+2) ,   E = -0.05419871602795
+Sir   (0)' ,   E = 28.82232998707794
+Nevpt2 Energy = 35.966871580267139
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 21
+Sr    (-1)',   E = -6.89656847590902
+Si    (+1)',   E = 12.55239697594046
+Sijrs (0)  ,   E = 0.35209955232252
+Sijr  (+1) ,   E = 0.06899782885269
+Srsi  (-1) ,   E = -0.50647576606641
+Srs   (-2) ,   E = -0.00792643118395
+Sij   (+2) ,   E = -0.02529487320258
+Sir   (0)' ,   E = 114.13960988992577
+Nevpt2 Energy = 119.676838700679482
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 22
+Sr    (-1)',   E = -8.11528353352158
+Si    (+1)',   E = 18.47568564374611
+Sijrs (0)  ,   E = -0.52216787425313
+Sijr  (+1) ,   E = -0.29274977772243
+Srsi  (-1) ,   E = -0.07234097474744
+Srs   (-2) ,   E = -0.00935930262579
+Sij   (+2) ,   E = -0.13682974920727
+Sir   (0)' ,   E = -66.50385214461541
+Nevpt2 Energy = -57.176897712946946
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 23
+Sr    (-1)',   E = -7.77228785764485
+Si    (+1)',   E = 12.89946314023144
+Sijrs (0)  ,   E = 0.34798259148039
+Sijr  (+1) ,   E = -0.07318109182059
+Srsi  (-1) ,   E = -0.09323756812079
+Srs   (-2) ,   E = -0.00584834647974
+Sij   (+2) ,   E = -0.07369891559733
+Sir   (0)' ,   E = 80.51674672088198
+Nevpt2 Energy = 85.745938672930507
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 24
+Sr    (-1)',   E = -7.50405608281335
+Si    (+1)',   E = 9.23490310518962
+Sijrs (0)  ,   E = -0.21545763015857
+Sijr  (+1) ,   E = -0.36871883579717
+Srsi  (-1) ,   E = -0.13259474187218
+Srs   (-2) ,   E = -0.00551943188650
+Sij   (+2) ,   E = -0.14185048787767
+Sir   (0)' ,   E = 3284.91202678998934
+Nevpt2 Energy = 3285.778732684773331
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 25
+Sr    (-1)',   E = -8.13320718534354
+Si    (+1)',   E = 11.91196029778176
+Sijrs (0)  ,   E = -0.78132423403657
+Sijr  (+1) ,   E = -0.71038984789449
+Srsi  (-1) ,   E = -0.14777765948650
+Srs   (-2) ,   E = -0.00719336547550
+Sij   (+2) ,   E = -0.09542919048810
+Sir   (0)' ,   E = -346.93078026579997
+Nevpt2 Energy = -344.894141450742893
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 26
+Sr    (-1)',   E = -1.98365213676919
+Si    (+1)',   E = 19.93856558730328
+Sijrs (0)  ,   E = -0.30286480208290
+Sijr  (+1) ,   E = -1.06836900239727
+Srsi  (-1) ,   E = -13.62088548214787
+Srs   (-2) ,   E = -0.01967616928464
+Sij   (+2) ,   E = -0.16337198644786
+Sir   (0)' ,   E = 2.53046627219950
+Nevpt2 Energy = 5.310212280373046
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 27
+Sr    (-1)',   E = -1.53367550821784
+Si    (+1)',   E = 18.17067109084596
+Sijrs (0)  ,   E = 0.71666284402216
+Sijr  (+1) ,   E = -0.30131021762522
+Srsi  (-1) ,   E = -0.52797251758422
+Srs   (-2) ,   E = -0.02051466706138
+Sij   (+2) ,   E = -0.04450914469725
+Sir   (0)' ,   E = 8.84749311901484
+Nevpt2 Energy = 25.306844998697038
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 28
+Sr    (-1)',   E = -2.90521257564431
+Si    (+1)',   E = 16.51680148674487
+Sijrs (0)  ,   E = -1.46983121842463
+Sijr  (+1) ,   E = -0.92248390081286
+Srsi  (-1) ,   E = -0.13033169005263
+Srs   (-2) ,   E = -0.01835084907561
+Sij   (+2) ,   E = -0.01662257529812
+Sir   (0)' ,   E = -29.26560807254336
+Nevpt2 Energy = -18.211639395106648
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 29
+Sr    (-1)',   E = -2.92957274904624
+Si    (+1)',   E = 18.91022920638472
+Sijrs (0)  ,   E = -2.07926060264880
+Sijr  (+1) ,   E = 0.34436662443135
+Srsi  (-1) ,   E = 0.31851077110602
+Srs   (-2) ,   E = -0.01705237546177
+Sij   (+2) ,   E = 0.00526904233766
+Sir   (0)' ,   E = 209.29680019843744
+Nevpt2 Energy = 223.849290115540384
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 30
+Sr    (-1)',   E = -2.75669879015057
+Si    (+1)',   E = 18.87948898468716
+Sijrs (0)  ,   E = -0.66501029734698
+Sijr  (+1) ,   E = -0.56560108630513
+Srsi  (-1) ,   E = -0.13412614479335
+Srs   (-2) ,   E = -0.01976453930462
+Sij   (+2) ,   E = -0.12991996743909
+Sir   (0)' ,   E = 117.35355725800984
+Nevpt2 Energy = 131.961925417357264
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 31
+Sr    (-1)',   E = 2.11023954345367
+Si    (+1)',   E = 22.81413372750217
+Sijrs (0)  ,   E = -1.01408707982017
+Sijr  (+1) ,   E = -0.59805829332774
+Srsi  (-1) ,   E = -0.15918507715865
+Srs   (-2) ,   E = -0.02119810489244
+Sij   (+2) ,   E = 0.11417418075095
+Sir   (0)' ,   E = -204.46480214429309
+Nevpt2 Energy = -181.218783247785296
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 32
+Sr    (-1)',   E = -4.16602637029290
+Si    (+1)',   E = 14.93980036959786
+Sijrs (0)  ,   E = -16.44147968618954
+Sijr  (+1) ,   E = -0.35747516592850
+Srsi  (-1) ,   E = -0.09896844018554
+Srs   (-2) ,   E = -0.02273397457938
+Sij   (+2) ,   E = 0.14365438311431
+Sir   (0)' ,   E = 2.84409700898115
+Nevpt2 Energy = -3.159131875482544
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 33
+Sr    (-1)',   E = -2.00176088059579
+Si    (+1)',   E = 18.16193757492286
+Sijrs (0)  ,   E = -0.93635366082772
+Sijr  (+1) ,   E = 5.28665427573157
+Srsi  (-1) ,   E = -0.21749119547632
+Srs   (-2) ,   E = -0.01550750755757
+Sij   (+2) ,   E = -0.10738519399988
+Sir   (0)' ,   E = 113.29048412413243
+Nevpt2 Energy = 133.460577536329566
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 34
+Sr    (-1)',   E = 2.30194640234575
+Si    (+1)',   E = 17.98848113282627
+Sijrs (0)  ,   E = -1.13447049282360
+Sijr  (+1) ,   E = -0.09490352373881
+Srsi  (-1) ,   E = -0.29236546963027
+Srs   (-2) ,   E = -0.01390642177169
+Sij   (+2) ,   E = -0.00371161602304
+Sir   (0)' ,   E = -38.78008154107101
+Nevpt2 Energy = -20.029011529886404
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 35
+Sr    (-1)',   E = 0.17565344621663
+Si    (+1)',   E = 18.20515045993096
+Sijrs (0)  ,   E = -0.82325912857228
+Sijr  (+1) ,   E = -0.21435057567476
+Srsi  (-1) ,   E = -0.28306732557266
+Srs   (-2) ,   E = -0.01620312210186
+Sij   (+2) ,   E = -0.07977220288620
+Sir   (0)' ,   E = -9.89290727144967
+Nevpt2 Energy = 7.071244279890157
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 36
+Sr    (-1)',   E = -20.49346419081931
+Si    (+1)',   E = 18.28404050512483
+Sijrs (0)  ,   E = -1.31034384170240
+Sijr  (+1) ,   E = -0.57255948410740
+Srsi  (-1) ,   E = -5.78046453640817
+Srs   (-2) ,   E = -0.01758386591069
+Sij   (+2) ,   E = -0.06372917408452
+Sir   (0)' ,   E = -12.06470628403448
+Nevpt2 Energy = -22.018810871942133
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 37
+Sr    (-1)',   E = -2.69112551649050
+Si    (+1)',   E = 19.63998264548176
+Sijrs (0)  ,   E = -4.06617411777691
+Sijr  (+1) ,   E = -0.52600295847860
+Srsi  (-1) ,   E = -0.14947904018297
+Srs   (-2) ,   E = -0.01757010255344
+Sij   (+2) ,   E = -0.12050360151922
+Sir   (0)' ,   E = 34.22633247284793
+Nevpt2 Energy = 46.295459781328056
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 38
+Sr    (-1)',   E = -4.80198061713898
+Si    (+1)',   E = 16.82001198885976
+Sijrs (0)  ,   E = -0.89340108244747
+Sijr  (+1) ,   E = -0.05045560768286
+Srsi  (-1) ,   E = -0.21909064287855
+Srs   (-2) ,   E = -0.01487345196254
+Sij   (+2) ,   E = 0.01341336333531
+Sir   (0)' ,   E = 2.36923256245854
+Nevpt2 Energy = 13.222856512543212
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (2e+1e, 5o), ncore = 47, nvir = 71
+spin = 1  root = 39
+Sr    (-1)',   E = -4.98071025361935
+Si    (+1)',   E = 17.91484250228985
+Sijrs (0)  ,   E = -0.93021583386344
+Sijr  (+1) ,   E = -2.64453239239570
+Srsi  (-1) ,   E = 0.08859415298885
+Srs   (-2) ,   E = -0.01951635220946
+Sij   (+2) ,   E = -0.03169579611735
+Sir   (0)' ,   E = 0.14046751147517
+Nevpt2 Energy = 9.537233538548570
+CASCI
+
+******** <class 'pyscf.mcscf.df.DFCASCI'> ********
+CAS (3e+0e, 5o), ncore = 47, nvir = 71
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 4000 MB (current use 520 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 10
+pspace_size = 400
+spin = 3
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+
+WARN: Mulitple states found in CASCI solver. First state is used to compute the Fock matrix and natural orbitals in active space.
+
+Density matrix diagonal elements [0.55640601 0.85517643 0.92262112 0.06963655 0.59615989]
+CASCI converged
+CASCI state   0  E = -3678.81948840186  E(CI) = -11.1082292343085  S^2 = 3.7500000
+CASCI state   1  E = -3678.61798926329  E(CI) = -10.9067300957354  S^2 = 3.7500000
+CASCI state   2  E = -3678.55483067287  E(CI) = -10.8435715053183  S^2 = 3.7500000
+CASCI state   3  E = -3677.92902389386  E(CI) = -10.2177647263011  S^2 = 3.7500000
+CASCI state   4  E = -3677.90341485795  E(CI) = -10.1921556903953  S^2 = 3.7500000
+CASCI state   5  E = -3677.63094679566  E(CI) = -9.91968762810848  S^2 = 3.7500000
+CASCI state   6  E = -3675.91021063996  E(CI) = -8.19895147240777  S^2 = 3.7500000
+CASCI state   7  E = -3675.26883564918  E(CI) = -7.55757648162717  S^2 = 3.7500000
+CASCI state   8  E = -3675.04367797394  E(CI) = -7.33241880638843  S^2 = 3.7500000
+CASCI state   9  E = -3674.98697461535  E(CI) = -7.27571544779994  S^2 = 3.7500000
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 0
+Sr    (-1)',   E = -6.50875271686165
+Si    (+1)',   E = 12.85833663746488
+Sijrs (0)  ,   E = -0.49445453960756
+Sijr  (+1) ,   E = 0.71816818837206
+Srsi  (-1) ,   E = -0.12109780877968
+Srs   (-2) ,   E = -0.00850267175533
+Sij   (+2) ,   E = -0.06838483853367
+Sir   (0)' ,   E = 21.06469154124056
+Nevpt2 Energy = 27.440003791539610
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 1
+Sr    (-1)',   E = -7.23222762460442
+Si    (+1)',   E = 12.10603445892936
+Sijrs (0)  ,   E = -1.06877055643073
+Sijr  (+1) ,   E = -0.22821188565220
+Srsi  (-1) ,   E = -0.24927596418335
+Srs   (-2) ,   E = -0.00733751265795
+Sij   (+2) ,   E = -0.03179763631335
+Sir   (0)' ,   E = 17.72397396676987
+Nevpt2 Energy = 21.012387245857219
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 2
+Sr    (-1)',   E = -6.86742425894187
+Si    (+1)',   E = 12.85889671949460
+Sijrs (0)  ,   E = -1.00488710696460
+Sijr  (+1) ,   E = 0.12963480941152
+Srsi  (-1) ,   E = -0.13215587976588
+Srs   (-2) ,   E = -0.00793480910232
+Sij   (+2) ,   E = -0.01335041641472
+Sir   (0)' ,   E = 103.48796819927307
+Nevpt2 Energy = 108.450747256989800
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 3
+Sr    (-1)',   E = -7.81646551713495
+Si    (+1)',   E = 13.00231078007327
+Sijrs (0)  ,   E = -1.79166686882506
+Sijr  (+1) ,   E = 0.09802501763213
+Srsi  (-1) ,   E = -0.14194866735938
+Srs   (-2) ,   E = -0.00585105726303
+Sij   (+2) ,   E = -0.06451107068359
+Sir   (0)' ,   E = 85.39346105416693
+Nevpt2 Energy = 88.673353670606332
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 4
+Sr    (-1)',   E = -7.94522718143009
+Si    (+1)',   E = -87.45544419659294
+Sijrs (0)  ,   E = -0.13141917361553
+Sijr  (+1) ,   E = 0.23178464990234
+Srsi  (-1) ,   E = -0.12723754923865
+Srs   (-2) ,   E = -0.00554759687721
+Sij   (+2) ,   E = -0.06254088926613
+Sir   (0)' ,   E = 469.74489925643354
+Nevpt2 Energy = 374.249267319315322
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 5
+Sr    (-1)',   E = -8.12745809770326
+Si    (+1)',   E = 12.00016959473434
+Sijrs (0)  ,   E = -1.14867934057695
+Sijr  (+1) ,   E = -0.28720460461596
+Srsi  (-1) ,   E = -0.14134372989395
+Srs   (-2) ,   E = -0.00719713979439
+Sij   (+2) ,   E = -0.04902415088892
+Sir   (0)' ,   E = -966.94692771677069
+Nevpt2 Energy = -964.707665185509768
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 6
+Sr    (-1)',   E = -2.63469327366884
+Si    (+1)',   E = 18.51470517316383
+Sijrs (0)  ,   E = -0.87487823750918
+Sijr  (+1) ,   E = -4.09973875604567
+Srsi  (-1) ,   E = -0.18145815932808
+Srs   (-2) ,   E = -0.01501360266091
+Sij   (+2) ,   E = -0.05077170036744
+Sir   (0)' ,   E = -8.56508864312452
+Nevpt2 Energy = 2.093062800459201
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 7
+Sr    (-1)',   E = -2.78977037694752
+Si    (+1)',   E = 17.73731311474281
+Sijrs (0)  ,   E = -1.07829325097701
+Sijr  (+1) ,   E = 0.21062670745340
+Srsi  (-1) ,   E = -0.11141377618440
+Srs   (-2) ,   E = -0.01376672125281
+Sij   (+2) ,   E = -0.04568780375197
+Sir   (0)' ,   E = 10.78392937318593
+Nevpt2 Energy = 24.692937266268423
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 8
+Sr    (-1)',   E = 12.42095360465766
+Si    (+1)',   E = 1.74781819446948
+Sijrs (0)  ,   E = 0.06625477570623
+Sijr  (+1) ,   E = 0.02138393005084
+Srsi  (-1) ,   E = 0.04129764492605
+Srs   (-2) ,   E = -0.01427773083455
+Sij   (+2) ,   E = -0.07726905977097
+Sir   (0)' ,   E = 17.13417693853712
+Nevpt2 Energy = 31.340338297741859
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (3e+0e, 5o), ncore = 47, nvir = 71
+spin = 3  root = 9
+Sr    (-1)',   E = -3.52142106880733
+Si    (+1)',   E = 27.22760455591590
+Sijrs (0)  ,   E = -1.09651563720755
+Sijr  (+1) ,   E = -0.16213647316639
+Srsi  (-1) ,   E = -0.19713058643748
+Srs   (-2) ,   E = -0.01256731935188
+Sij   (+2) ,   E = -0.16720463604135
+Sir   (0)' ,   E = 90.55884021174997
+Nevpt2 Energy = 112.629469046653895
+Attempting SA-CASSCF with
+fix_spin parameter 0.5 on spin multiplicity 2
+40 states with spin multiplicity 2
+fix_spin parameter 0.5 on spin multiplicity 4
+10 states with spin multiplicity 4
+Natural occ [0.71999441 0.63960145 0.59860932 0.56163948 0.48015535]
+Natural orbital (expansion on meta-Lowdin AOs) in CAS space
+               #1        #2        #3        #4        #5       
+0 Co 1s         -0.00045   0.00012  -0.00008  -0.00002   0.00015
+0 Co 2s          0.00345  -0.00029   0.00202  -0.00203  -0.00063
+0 Co 3s         -0.01288   0.01464  -0.00916  -0.01177   0.04036
+0 Co 4s          0.23323   0.08528  -0.01007   0.04201  -0.06626
+0 Co 5s          0.09021  -0.03996  -0.00627   0.00919  -0.00923
+0 Co 2px        -0.02932   0.00708  -0.00740   0.01134   0.00928
+0 Co 2py        -0.00149  -0.00045   0.00309  -0.00607   0.00039
+0 Co 2pz         0.00422  -0.00072  -0.00691   0.00748   0.00119
+0 Co 3px        -0.07260  -0.01969   0.02213  -0.01463   0.00886
+0 Co 3py        -0.01078  -0.01130  -0.00619  -0.00493  -0.00192
+0 Co 3pz        -0.00009   0.01286   0.01384   0.01638  -0.00565
+0 Co 4px         0.00127   0.01043  -0.00958  -0.01928   0.01391
+0 Co 4py        -0.01837  -0.04156  -0.00096  -0.02518   0.04397
+0 Co 4pz        -0.00565   0.05000   0.01686   0.02186  -0.04566
+0 Co 3dxy       -0.23425   0.78810  -0.01452  -0.23218  -0.35610
+0 Co 3dyz       -0.23698  -0.25516  -0.59866  -0.01982  -0.51141
+0 Co 3dz^2       0.53262   0.06358   0.17043  -0.09005  -0.17260
+0 Co 3dxz       -0.15342   0.17457   0.19915   0.86823  -0.08109
+0 Co 3dx2-y2     0.30232   0.29892  -0.71088   0.16604   0.38340
+0 Co 4dxy       -0.00967  -0.03983   0.00053   0.01070   0.02830
+0 Co 4dyz       -0.00329   0.01320   0.04309   0.00327   0.03359
+0 Co 4dz^2      -0.06928  -0.04160   0.00295  -0.06146   0.02203
+0 Co 4dxz        0.01885  -0.00307  -0.02646  -0.03055   0.00339
+0 Co 4dx2-y2    -0.00954  -0.00199   0.03909   0.00287  -0.04875
+0 Co 4f-3       -0.02298   0.02733   0.02277  -0.05902   0.01608
+0 Co 4f-2        0.00205  -0.00339  -0.00200  -0.00045   0.00161
+0 Co 4f-1        0.02742  -0.02270   0.02536  -0.01965  -0.04424
+0 Co 4f+0        0.00735  -0.00559  -0.00448  -0.00051  -0.00055
+0 Co 4f+1       -0.00594  -0.00272   0.00549  -0.02076   0.02339
+0 Co 4f+2        0.00725  -0.05400  -0.02585   0.07529  -0.03452
+0 Co 4f+3        0.04305  -0.10690  -0.02373  -0.00430  -0.03336
+1 S 1s          -0.00874  -0.00409   0.00045  -0.00412   0.00450
+1 S 2s           0.00613   0.00060   0.00179  -0.00663   0.00357
+1 S 3s          -0.07428   0.03366   0.01707  -0.05896   0.01587
+1 S 4s          -0.13077  -0.01478   0.00475   0.03505  -0.13061
+1 S 2px         -0.01552  -0.01322  -0.00334  -0.00250   0.01069
+1 S 2py          0.01744   0.01148   0.00515  -0.00816   0.00856
+1 S 2pz         -0.00183   0.00390   0.00183   0.00648  -0.01325
+1 S 3px         -0.05785  -0.02822  -0.00648   0.04717   0.22743
+1 S 3py          0.00332   0.02156  -0.00158   0.01181  -0.01978
+1 S 3pz         -0.05188   0.10279   0.09548  -0.09287   0.12575
+1 S 4px          0.12452   0.06640  -0.00324   0.01188   0.01979
+1 S 4py          0.01308  -0.01544   0.00230   0.00216  -0.01043
+1 S 4pz          0.03209   0.00453  -0.03491   0.05158  -0.03412
+1 S 3dxy        -0.00069  -0.00040   0.00407  -0.00922  -0.00287
+1 S 3dyz        -0.01063  -0.00003   0.00206  -0.00525   0.00257
+1 S 3dz^2        0.05862   0.00606  -0.00118   0.01714   0.02100
+1 S 3dxz        -0.00471  -0.01864   0.00263  -0.00776  -0.04458
+1 S 3dx2-y2     -0.02064  -0.01158  -0.00114  -0.01244  -0.04609
+2 S 1s          -0.00565  -0.00228   0.00023  -0.00039   0.00345
+2 S 2s          -0.00551   0.00470  -0.00326  -0.00303   0.01193
+2 S 3s           0.12082  -0.01616   0.00231  -0.03809   0.01647
+2 S 4s          -0.11462   0.06347   0.01304  -0.07228   0.03512
+2 S 2px          0.06052   0.02032  -0.00738   0.02496  -0.02074
+2 S 2py          0.05427   0.02782   0.00306   0.00475  -0.01938
+2 S 2pz         -0.01872  -0.00569   0.00564   0.00054   0.00655
+2 S 3px          0.09165  -0.00329   0.00088   0.04908  -0.22266
+2 S 3py         -0.07019  -0.06560  -0.01683   0.00156   0.03473
+2 S 3pz         -0.10006   0.05329   0.02791  -0.08303   0.03021
+2 S 4px         -0.10117  -0.02859  -0.01646   0.02161   0.06222
+2 S 4py          0.01506   0.10550   0.02586  -0.02324   0.11270
+2 S 4pz          0.04255  -0.03776  -0.04354   0.01458   0.00573
+2 S 3dxy        -0.02091   0.00426  -0.02018   0.05791   0.04085
+2 S 3dyz        -0.01826   0.07565  -0.05940   0.03157   0.06501
+2 S 3dz^2       -0.02517  -0.00678  -0.00425   0.01318  -0.01612
+2 S 3dxz         0.12589   0.08241  -0.01120   0.03052  -0.01906
+2 S 3dx2-y2      0.06274   0.03326   0.00137   0.01566  -0.01075
+3 S 1s           0.00837  -0.00115  -0.00354   0.00695   0.00127
+3 S 2s          -0.02443  -0.02852   0.00506   0.00516   0.00430
+3 S 3s          -0.03840  -0.00066   0.06175  -0.02393   0.03065
+3 S 4s          -0.17566   0.09184  -0.00226  -0.04129   0.09894
+3 S 2px         -0.05371  -0.01005   0.00051  -0.00567   0.03581
+3 S 2py         -0.00519  -0.00944  -0.01353   0.01901  -0.00619
+3 S 2pz         -0.00285   0.00589   0.00377  -0.00441   0.01067
+3 S 3px          0.05268   0.08522   0.05127   0.05929   0.01707
+3 S 3py         -0.08876   0.03821  -0.05568  -0.07791   0.13242
+3 S 3pz         -0.02310  -0.02051   0.03634  -0.02725   0.03514
+3 S 4px         -0.04779   0.00188  -0.00152  -0.00161   0.02871
+3 S 4py          0.12863   0.03953   0.02188   0.00226  -0.03050
+3 S 4pz          0.01458  -0.04247   0.01377  -0.02632  -0.00224
+3 S 3dxy         0.03923   0.02720  -0.01358  -0.02073   0.01463
+3 S 3dyz         0.00170   0.07843   0.01912  -0.01300   0.06704
+3 S 3dz^2       -0.02100  -0.01258  -0.00519  -0.00064   0.01085
+3 S 3dxz        -0.00230   0.01152  -0.00198   0.02944   0.00908
+3 S 3dx2-y2     -0.03659  -0.00405  -0.02294  -0.02718   0.06208
+4 S 1s           0.00089  -0.00700  -0.00017  -0.00970   0.00398
+4 S 2s           0.00053   0.00317  -0.00369   0.00286  -0.00536
+4 S 3s          -0.12408  -0.04231  -0.02083   0.01534   0.09644
+4 S 4s          -0.18792  -0.06286  -0.03472   0.02059   0.09173
+4 S 2px          0.00092  -0.00379  -0.00513   0.00741  -0.01304
+4 S 2py         -0.02911   0.01136  -0.00481  -0.00192  -0.00092
+4 S 2pz         -0.01365  -0.00367  -0.00653   0.01295  -0.00756
+4 S 3px         -0.07558  -0.05595   0.01188  -0.02337  -0.02755
+4 S 3py         -0.07600   0.01013  -0.00796  -0.01728   0.05746
+4 S 3pz          0.06020   0.00661  -0.07898   0.08472  -0.05020
+4 S 4px         -0.12410   0.05639  -0.03519   0.03797   0.09667
+4 S 4py         -0.10969   0.00466   0.00702  -0.03948   0.06488
+4 S 4pz         -0.00163  -0.01746  -0.00037   0.03783  -0.03808
+4 S 3dxy        -0.11935   0.06269  -0.04571   0.05977   0.02007
+4 S 3dyz         0.01054  -0.01713  -0.05710   0.15514  -0.06515
+4 S 3dz^2        0.03327  -0.03050  -0.02773   0.06675  -0.04858
+4 S 3dxz        -0.07734  -0.05924   0.04507  -0.10809   0.09622
+4 S 3dx2-y2     -0.00442  -0.02772   0.01019  -0.02017   0.01027
+5 H 1s          -0.10381  -0.03499  -0.05320   0.03848  -0.04355
+5 H 2s          -0.08709  -0.00947  -0.00669  -0.02757   0.01299
+5 H 2px          0.00130   0.00808   0.01641  -0.00730  -0.00679
+5 H 2py         -0.00268   0.00705   0.00966  -0.00865   0.00160
+5 H 2pz         -0.01058  -0.01584  -0.03283   0.03377  -0.04080
+6 H 1s           0.01632  -0.03183  -0.02008  -0.01348   0.04733
+6 H 2s          -0.03293  -0.11038  -0.03062   0.01586  -0.00815
+6 H 2px          0.01131   0.02525   0.00670  -0.00979   0.00177
+6 H 2py          0.01888   0.08816   0.00321   0.02544   0.00214
+6 H 2pz          0.14616  -0.03808   0.00804  -0.04988  -0.06724
+7 H 1s          -0.09353  -0.02240  -0.02343   0.01443   0.08866
+7 H 2s           0.07619   0.03678   0.04609  -0.01896  -0.17885
+7 H 2px         -0.01061  -0.05183   0.01590  -0.01534  -0.02855
+7 H 2py         -0.02842   0.01264  -0.00744  -0.00471   0.04656
+7 H 2pz         -0.08851   0.09671   0.00565  -0.03270   0.14301
+8 H 1s          -0.11040   0.00417   0.01739  -0.06123   0.20565
+8 H 2s           0.00662  -0.08199  -0.00524   0.04923  -0.10834
+8 H 2px         -0.08350   0.00115   0.01181  -0.05231   0.08551
+8 H 2py          0.01874  -0.02143  -0.01240   0.04829  -0.07009
+8 H 2pz         -0.03176   0.02836   0.01676  -0.01931   0.02698
+<mo_coeff-mcscf|mo_coeff-hf>  1      1        0.99998221
+<mo_coeff-mcscf|mo_coeff-hf>  2      2       -0.52511323
+<mo_coeff-mcscf|mo_coeff-hf>  2      4        0.61890153
+<mo_coeff-mcscf|mo_coeff-hf>  2      5       -0.53973940
+<mo_coeff-mcscf|mo_coeff-hf>  3      2       -0.67205050
+<mo_coeff-mcscf|mo_coeff-hf>  3      5        0.72854128
+<mo_coeff-mcscf|mo_coeff-hf>  4      3       -0.49720403
+<mo_coeff-mcscf|mo_coeff-hf>  4      4       -0.73540852
+<mo_coeff-mcscf|mo_coeff-hf>  5      2       -0.41995354
+<mo_coeff-mcscf|mo_coeff-hf>  5      3        0.83025272
+<mo_coeff-mcscf|mo_coeff-hf>  6      6       -0.99595216
+<mo_coeff-mcscf|mo_coeff-hf>  7      7       -0.81774230
+<mo_coeff-mcscf|mo_coeff-hf>  7      9        0.49388707
+<mo_coeff-mcscf|mo_coeff-hf>  8      7        0.43457466
+<mo_coeff-mcscf|mo_coeff-hf>  8      8        0.86799375
+<mo_coeff-mcscf|mo_coeff-hf>  9      8       -0.40657465
+<mo_coeff-mcscf|mo_coeff-hf>  9      9        0.82969988
+<mo_coeff-mcscf|mo_coeff-hf>  10     10       0.76824367
+<mo_coeff-mcscf|mo_coeff-hf>  11     11       0.65686497
+<mo_coeff-mcscf|mo_coeff-hf>  11     13      -0.49823093
+<mo_coeff-mcscf|mo_coeff-hf>  12     12       0.49419950
+<mo_coeff-mcscf|mo_coeff-hf>  12     13      -0.65771398
+<mo_coeff-mcscf|mo_coeff-hf>  13     11      -0.53883993
+<mo_coeff-mcscf|mo_coeff-hf>  13     12      -0.56931327
+<mo_coeff-mcscf|mo_coeff-hf>  14     20       0.67634208
+<mo_coeff-mcscf|mo_coeff-hf>  15     24       0.40600789
+<mo_coeff-mcscf|mo_coeff-hf>  16     21       0.42362035
+<mo_coeff-mcscf|mo_coeff-hf>  18     18       0.47798375
+<mo_coeff-mcscf|mo_coeff-hf>  18     24      -0.44119732
+<mo_coeff-mcscf|mo_coeff-hf>  18     25       0.48991172
+<mo_coeff-mcscf|mo_coeff-hf>  19     15       0.41070279
+<mo_coeff-mcscf|mo_coeff-hf>  19     25       0.42601380
+<mo_coeff-mcscf|mo_coeff-hf>  20     15       0.57115319
+<mo_coeff-mcscf|mo_coeff-hf>  21     16      -0.61615606
+<mo_coeff-mcscf|mo_coeff-hf>  21     23       0.47433445
+<mo_coeff-mcscf|mo_coeff-hf>  22     19      -0.42997892
+<mo_coeff-mcscf|mo_coeff-hf>  22     23       0.44529809
+<mo_coeff-mcscf|mo_coeff-hf>  23     21       0.56603880
+<mo_coeff-mcscf|mo_coeff-hf>  24     14       0.46631559
+<mo_coeff-mcscf|mo_coeff-hf>  25     26       0.52973558
+<mo_coeff-mcscf|mo_coeff-hf>  26     26      -0.46635180
+<mo_coeff-mcscf|mo_coeff-hf>  27     20      -0.50362850
+<mo_coeff-mcscf|mo_coeff-hf>  28     17       0.68377357
+<mo_coeff-mcscf|mo_coeff-hf>  29     28      -0.88786730
+<mo_coeff-mcscf|mo_coeff-hf>  31     27      -0.63885095
+<mo_coeff-mcscf|mo_coeff-hf>  31     29       0.63620305
+<mo_coeff-mcscf|mo_coeff-hf>  36     32      -0.44183696
+<mo_coeff-mcscf|mo_coeff-hf>  37     32      -0.43460656
+<mo_coeff-mcscf|mo_coeff-hf>  38     30       0.47675607
+<mo_coeff-mcscf|mo_coeff-hf>  38     33       0.60745768
+<mo_coeff-mcscf|mo_coeff-hf>  39     30       0.54402050
+<mo_coeff-mcscf|mo_coeff-hf>  39     31      -0.47792419
+<mo_coeff-mcscf|mo_coeff-hf>  41     37      -0.41055281
+<mo_coeff-mcscf|mo_coeff-hf>  41     39      -0.40568635
+<mo_coeff-mcscf|mo_coeff-hf>  46     31       0.56185544
+<mo_coeff-mcscf|mo_coeff-hf>  48     34       0.57626191
+<mo_coeff-mcscf|mo_coeff-hf>  48     35       0.55956429
+<mo_coeff-mcscf|mo_coeff-hf>  49     48       0.67645932
+<mo_coeff-mcscf|mo_coeff-hf>  50     50      -0.71032627
+<mo_coeff-mcscf|mo_coeff-hf>  51     49      -0.48710514
+<mo_coeff-mcscf|mo_coeff-hf>  52     35      -0.58688125
+<mo_coeff-mcscf|mo_coeff-hf>  52     49      -0.49039015
+<mo_coeff-mcscf|mo_coeff-hf>  72     53       0.43345392
+<mo_coeff-mcscf|mo_coeff-hf>  83     78       0.43253316
+<mo_coeff-mcscf|mo_coeff-hf>  106    118     -0.47639290
+<mo_coeff-mcscf|mo_coeff-hf>  108    119      0.44703525
+<mo_coeff-mcscf|mo_coeff-hf>  109    118     -0.44331475
+<mo_coeff-mcscf|mo_coeff-hf>  113    120     -0.44292084
+<mo_coeff-mcscf|mo_coeff-hf>  116    113      0.42970968
+** Largest CI components **
+  [alpha occ-orbitals] [beta occ-orbitals]  state 0   CI coefficient
+  [0 1]                [0]                             0.358852754812
+  [0 1]                [1]                             0.773885328408
+  [0 1]                [2]                            -0.122301170225
+  [0 1]                [3]                            -0.129725737485
+  [1 2]                [1]                             0.138254606279
+  [0 3]                [1]                            -0.181487652276
+  [1 3]                [1]                            -0.111926091849
+  [0 4]                [1]                             0.211176515109
+  [1 4]                [0]                             0.116438092977
+  [1 4]                [1]                             0.250759523746
+  [alpha occ-orbitals] [beta occ-orbitals]  state 1   CI coefficient
+  [0 2]                [0]                             0.152595432010
+  [0 2]                [1]                             0.333405064209
+  [1 2]                [0]                             0.339624662080
+  [1 2]                [1]                             0.731810147870
+  [1 2]                [2]                            -0.115118823700
+  [1 2]                [3]                            -0.125116668743
+  [2 3]                [1]                             0.116745357933
+  [0 4]                [1]                            -0.138352836890
+  [1 4]                [0]                            -0.141163051914
+  [1 4]                [1]                            -0.304090934561
+  [alpha occ-orbitals] [beta occ-orbitals]  state 2   CI coefficient
+  [0 1]                [0]                            -0.169752199335
+  [0 1]                [1]                            -0.365828888556
+  [0 2]                [1]                             0.174608051067
+  [1 2]                [0]                             0.115652372884
+  [1 2]                [1]                             0.248170307284
+  [1 3]                [0]                            -0.106151976199
+  [1 3]                [1]                            -0.227137461611
+  [0 4]                [0]                             0.114580197688
+  [0 4]                [1]                             0.250615276835
+  [1 4]                [0]                             0.296319535853
+  [1 4]                [1]                             0.637351689768
+  [1 4]                [2]                            -0.102122261952
+  [1 4]                [3]                            -0.107046095044
+  [2 4]                [1]                            -0.133828056497
+  [alpha occ-orbitals] [beta occ-orbitals]  state 3   CI coefficient
+  [0 3]                [0]                             0.152936663178
+  [0 3]                [1]                             0.335414076395
+  [1 3]                [0]                             0.346085061719
+  [1 3]                [1]                             0.747767308679
+  [1 3]                [2]                            -0.119173913354
+  [1 3]                [3]                            -0.120174823364
+  [2 3]                [1]                            -0.106004856294
+  [0 4]                [1]                             0.116014543886
+  [1 4]                [0]                             0.108200643358
+  [1 4]                [1]                             0.233841566605
+  [3 4]                [1]                            -0.133234920022
+  [alpha occ-orbitals] [beta occ-orbitals]  state 4   CI coefficient
+  [0 1]                [0]                            -0.714268439515
+  [0 1]                [1]                             0.265040967155
+  [0 1]                [3]                            -0.201394356149
+  [0 1]                [4]                             0.348571380842
+  [1 2]                [0]                            -0.110321242646
+  [0 3]                [0]                             0.178992443298
+  [1 3]                [0]                             0.127113986047
+  [0 4]                [0]                            -0.206400066403
+  [1 4]                [0]                            -0.264118908994
+  [1 4]                [1]                             0.106542445670
+  [alpha occ-orbitals] [beta occ-orbitals]  state 5   CI coefficient
+  [0 1]                [1]                            -0.198822209604
+  [0 1]                [2]                            -0.292666681897
+  [0 1]                [4]                             0.160264623618
+  [0 2]                [0]                            -0.376982751385
+  [0 2]                [1]                            -0.480508412031
+  [0 2]                [2]                             0.125311032689
+  [1 2]                [0]                            -0.187841730089
+  [1 2]                [1]                             0.296969936053
+  [1 2]                [3]                            -0.110703669210
+  [1 2]                [4]                             0.149443030979
+  [2 3]                [1]                             0.148067272259
+  [0 4]                [0]                             0.192166449930
+  [0 4]                [1]                             0.231008947275
+  [0 4]                [2]                            -0.125584327347
+  [1 4]                [1]                            -0.230431698442
+  [2 4]                [1]                            -0.221247550100
+  [alpha occ-orbitals] [beta occ-orbitals]  state 6   CI coefficient
+  [0 1]                [1]                             0.160628010393
+  [0 1]                [2]                             0.547994333105
+  [0 1]                [4]                            -0.238821590476
+  [0 2]                [0]                            -0.216041639310
+  [0 2]                [4]                             0.114535842354
+  [1 2]                [0]                            -0.486951267641
+  [1 2]                [1]                             0.207341091273
+  [1 2]                [2]                             0.127270843586
+  [1 2]                [3]                            -0.121858630200
+  [1 2]                [4]                             0.170147746249
+  [0 3]                [2]                            -0.135490422563
+  [0 4]                [2]                             0.138528681395
+  [0 4]                [4]                            -0.113957207657
+  [1 4]                [0]                             0.222492574498
+  [1 4]                [2]                             0.150250643720
+  [1 4]                [4]                            -0.178386791333
+  [alpha occ-orbitals] [beta occ-orbitals]  state 7   CI coefficient
+  [0 1]                [2]                            -0.201398329397
+  [0 1]                [3]                             0.124133554353
+  [0 1]                [4]                            -0.309271531117
+  [0 2]                [0]                            -0.201835030687
+  [0 2]                [1]                            -0.277540801012
+  [1 2]                [1]                             0.170139343347
+  [0 3]                [0]                             0.156528403989
+  [0 3]                [1]                             0.194853547427
+  [1 3]                [1]                            -0.150449215265
+  [0 4]                [0]                            -0.377035658764
+  [0 4]                [1]                            -0.480530820822
+  [1 4]                [0]                            -0.171259289737
+  [1 4]                [1]                             0.342951453977
+  [2 4]                [1]                            -0.106423658686
+  [alpha occ-orbitals] [beta occ-orbitals]  state 8   CI coefficient
+  [0 1]                [0]                            -0.473591186501
+  [0 1]                [1]                             0.235066290703
+  [0 1]                [2]                            -0.251715461067
+  [0 1]                [3]                             0.105871034227
+  [0 1]                [4]                            -0.337921591159
+  [0 2]                [0]                             0.149402290964
+  [1 2]                [0]                             0.171911305970
+  [1 2]                [2]                            -0.111576545062
+  [1 2]                [4]                            -0.129356439885
+  [0 3]                [4]                             0.127429871856
+  [1 3]                [0]                            -0.131303871279
+  [1 3]                [4]                             0.150698858843
+  [0 4]                [4]                            -0.199324638537
+  [1 4]                [0]                             0.326166621421
+  [1 4]                [1]                            -0.100739455427
+  [1 4]                [2]                            -0.106863643803
+  [1 4]                [3]                             0.165335672967
+  [1 4]                [4]                            -0.342739861263
+  [alpha occ-orbitals] [beta occ-orbitals]  state 9   CI coefficient
+  [0 1]                [2]                             0.127051836825
+  [0 2]                [2]                             0.250757257650
+  [0 2]                [4]                            -0.208627791965
+  [1 2]                [1]                             0.214071247260
+  [1 2]                [2]                             0.577854746357
+  [1 2]                [4]                            -0.451037084331
+  [1 3]                [2]                             0.104925759875
+  [0 4]                [2]                            -0.180331722871
+  [1 4]                [2]                            -0.418136532826
+  [1 4]                [4]                             0.120722598424
+  [alpha occ-orbitals] [beta occ-orbitals]  state 10  CI coefficient
+  [0 1]                [2]                             0.154561237194
+  [0 2]                [0]                             0.140479082859
+  [0 2]                [1]                             0.157165493604
+  [0 2]                [4]                             0.156237261701
+  [1 2]                [1]                            -0.294374884409
+  [1 2]                [4]                             0.245640193019
+  [1 3]                [2]                             0.128686784951
+  [2 3]                [0]                             0.115053668657
+  [2 3]                [1]                             0.191301552270
+  [0 4]                [2]                            -0.134320778078
+  [1 4]                [2]                            -0.346145027367
+  [2 4]                [0]                            -0.290558039747
+  [2 4]                [1]                            -0.591785220405
+  [2 4]                [2]                             0.146190774323
+  [2 4]                [3]                             0.117029030134
+  [2 4]                [4]                            -0.112436629470
+  [alpha occ-orbitals] [beta occ-orbitals]  state 11  CI coefficient
+  [0 1]                [2]                            -0.184111047244
+  [0 1]                [4]                             0.184735333033
+  [0 2]                [2]                             0.283997484095
+  [1 2]                [0]                             0.178585399578
+  [1 2]                [2]                             0.552162295198
+  [1 2]                [3]                            -0.138044980685
+  [1 2]                [4]                             0.249951552863
+  [1 3]                [2]                            -0.135616702308
+  [1 3]                [4]                             0.134954148080
+  [2 3]                [2]                             0.118417466305
+  [0 4]                [4]                            -0.175608024113
+  [1 4]                [0]                            -0.123094841267
+  [1 4]                [1]                             0.162874814776
+  [1 4]                [2]                             0.209387324864
+  [1 4]                [3]                             0.118083215681
+  [1 4]                [4]                            -0.424333704005
+  [alpha occ-orbitals] [beta occ-orbitals]  state 12  CI coefficient
+  [0 1]                [0]                             0.193544603873
+  [0 1]                [1]                            -0.112278734860
+  [0 1]                [2]                             0.175052386244
+  [0 1]                [3]                            -0.102535295685
+  [0 1]                [4]                             0.278818118968
+  [0 2]                [2]                            -0.167491943940
+  [0 2]                [4]                            -0.140290716926
+  [1 2]                [0]                            -0.127518159696
+  [1 2]                [2]                            -0.298517703263
+  [1 2]                [3]                             0.101650180785
+  [1 2]                [4]                            -0.205229625761
+  [1 3]                [2]                             0.128060454446
+  [1 3]                [4]                             0.211291899629
+  [0 4]                [4]                            -0.198798190272
+  [1 4]                [0]                            -0.221348344397
+  [1 4]                [1]                             0.155894126269
+  [1 4]                [2]                            -0.247416372652
+  [1 4]                [3]                             0.191749358409
+  [1 4]                [4]                            -0.501596380408
+  [2 4]                [4]                             0.105398689494
+  [alpha occ-orbitals] [beta occ-orbitals]  state 13  CI coefficient
+  [0 1]                [3]                             0.354179958165
+  [0 1]                [4]                             0.161539534399
+  [0 3]                [0]                            -0.365954362208
+  [0 3]                [1]                            -0.162488476342
+  [0 3]                [3]                            -0.108791107999
+  [1 3]                [0]                            -0.516668434683
+  [1 3]                [1]                             0.312074388432
+  [1 3]                [3]                            -0.217334893025
+  [1 3]                [4]                             0.251693149463
+  [0 4]                [0]                            -0.146055383019
+  [1 4]                [0]                            -0.200507699161
+  [1 4]                [1]                             0.115818183691
+  [1 4]                [4]                             0.131786901962
+  [3 4]                [1]                            -0.194452753576
+  [alpha occ-orbitals] [beta occ-orbitals]  state 14  CI coefficient
+  [0 1]                [1]                             0.140981017413
+  [0 1]                [3]                             0.533770575382
+  [0 1]                [4]                             0.219698539944
+  [1 2]                [3]                             0.100707691888
+  [0 3]                [0]                             0.237527813778
+  [0 3]                [1]                             0.463524005945
+  [0 3]                [3]                            -0.203290338745
+  [1 3]                [1]                            -0.215919626751
+  [0 4]                [1]                             0.202151156542
+  [0 4]                [3]                             0.128450690179
+  [1 4]                [3]                             0.207212997204
+  [3 4]                [0]                             0.136993590642
+  [3 4]                [1]                             0.299271497747
+  [alpha occ-orbitals] [beta occ-orbitals]  state 15  CI coefficient
+  [0 2]                [3]                             0.104353119065
+  [1 2]                [2]                             0.106451996190
+  [1 2]                [3]                             0.245820550119
+  [0 3]                [2]                             0.268971768523
+  [0 3]                [4]                            -0.118191582515
+  [1 3]                [1]                             0.213919631752
+  [1 3]                [2]                             0.589321446789
+  [1 3]                [4]                            -0.252991096075
+  [2 3]                [0]                             0.164618648263
+  [2 3]                [1]                             0.343500897243
+  [2 3]                [2]                            -0.132606887805
+  [0 4]                [2]                             0.105568088788
+  [1 4]                [2]                             0.203643181720
+  [1 4]                [3]                            -0.106591258265
+  [1 4]                [4]                            -0.129024859333
+  [2 4]                [1]                             0.146616406625
+  [3 4]                [1]                             0.146399837589
+  [3 4]                [2]                            -0.138638138859
+  [alpha occ-orbitals] [beta occ-orbitals]  state 16  CI coefficient
+  [0 2]                [3]                             0.259304266023
+  [0 2]                [4]                             0.100358287670
+  [1 2]                [1]                             0.147097772658
+  [1 2]                [3]                             0.559146374309
+  [1 2]                [4]                             0.233580034553
+  [2 3]                [0]                            -0.221825624818
+  [2 3]                [1]                            -0.462509260971
+  [2 3]                [3]                             0.168517714410
+  [0 4]                [3]                            -0.111489898744
+  [1 4]                [3]                            -0.236066172263
+  [1 4]                [4]                            -0.116431128924
+  [2 4]                [1]                            -0.213052810948
+  [3 4]                [1]                            -0.205806556850
+  [alpha occ-orbitals] [beta occ-orbitals]  state 17  CI coefficient
+  [0 1]                [3]                            -0.118550133690
+  [0 3]                [0]                             0.192909256452
+  [0 3]                [3]                            -0.127031204472
+  [0 3]                [4]                             0.241241125284
+  [1 3]                [0]                             0.211293829639
+  [1 3]                [1]                            -0.269401827785
+  [1 3]                [2]                             0.279255362562
+  [1 3]                [3]                            -0.237449088705
+  [1 3]                [4]                             0.466002617354
+  [2 3]                [1]                             0.195154388211
+  [0 4]                [4]                             0.130184843929
+  [1 4]                [1]                            -0.112485483844
+  [1 4]                [2]                             0.133303632960
+  [1 4]                [3]                             0.161312186399
+  [1 4]                [4]                             0.250647947728
+  [3 4]                [0]                            -0.200739947585
+  [3 4]                [1]                            -0.304690430585
+  [3 4]                [4]                            -0.145659125008
+  [alpha occ-orbitals] [beta occ-orbitals]  state 18  CI coefficient
+  [0 1]                [3]                            -0.304361665894
+  [0 1]                [4]                            -0.117583021191
+  [0 2]                [3]                             0.146466711263
+  [1 2]                [3]                             0.193229581301
+  [0 3]                [1]                            -0.223809542316
+  [1 3]                [3]                            -0.232678743388
+  [2 3]                [1]                            -0.192934787587
+  [2 3]                [3]                             0.101461888129
+  [0 4]                [3]                             0.199476317791
+  [1 4]                [1]                             0.177611389923
+  [1 4]                [3]                             0.457829520513
+  [1 4]                [4]                             0.228383937888
+  [3 4]                [0]                             0.205485495273
+  [3 4]                [1]                             0.440624268530
+  [3 4]                [3]                            -0.125335788266
+  [alpha occ-orbitals] [beta occ-orbitals]  state 19  CI coefficient
+  [0 1]                [2]                             0.469918267322
+  [0 1]                [4]                            -0.238661097485
+  [0 2]                [1]                            -0.469918267322
+  [0 2]                [3]                             0.105691435516
+  [1 2]                [0]                             0.469918267322
+  [1 2]                [4]                            -0.157415517351
+  [0 3]                [2]                            -0.105691435516
+  [2 3]                [0]                             0.105691435516
+  [0 4]                [1]                             0.238661097484
+  [1 4]                [0]                            -0.238661097485
+  [1 4]                [2]                             0.157415517351
+  [2 4]                [1]                            -0.157415517351
+  [alpha occ-orbitals] [beta occ-orbitals]  state 20  CI coefficient
+  [0 1]                [2]                             0.225437577394
+  [0 1]                [3]                            -0.200843012930
+  [0 1]                [4]                             0.470099393701
+  [0 2]                [1]                            -0.225437577394
+  [0 2]                [4]                            -0.108064011681
+  [1 2]                [0]                             0.225437577394
+  [0 3]                [1]                             0.200843012928
+  [1 3]                [0]                            -0.200843012927
+  [0 4]                [1]                            -0.470099393703
+  [0 4]                [2]                             0.108064011680
+  [1 4]                [0]                             0.470099393702
+  [2 4]                [0]                            -0.108064011681
+  [alpha occ-orbitals] [beta occ-orbitals]  state 21  CI coefficient
+  [0 1]                [2]                             0.213986835897
+  [0 2]                [1]                            -0.213986835894
+  [0 2]                [4]                             0.191890325287
+  [1 2]                [0]                             0.213986835895
+  [1 2]                [3]                            -0.180072234156
+  [1 2]                [4]                             0.456900629602
+  [1 3]                [2]                             0.180072234198
+  [2 3]                [1]                            -0.180072234187
+  [0 4]                [2]                            -0.191890325280
+  [1 4]                [2]                            -0.456900629586
+  [2 4]                [0]                             0.191890325284
+  [2 4]                [1]                             0.456900629590
+  [alpha occ-orbitals] [beta occ-orbitals]  state 22  CI coefficient
+  [0 3]                [3]                             0.351291501589
+  [0 3]                [4]                             0.123022893806
+  [1 3]                [1]                             0.111588877020
+  [1 3]                [3]                             0.784002670022
+  [1 3]                [4]                             0.276595077910
+  [2 3]                [3]                            -0.110201633009
+  [0 4]                [3]                             0.125371290571
+  [1 4]                [3]                             0.253982408952
+  [1 4]                [4]                             0.111534385405
+  [3 4]                [3]                            -0.140324713354
+  [alpha occ-orbitals] [beta occ-orbitals]  state 23  CI coefficient
+  [0 1]                [3]                            -0.467103512111
+  [0 1]                [4]                            -0.151412166654
+  [1 2]                [3]                            -0.103023676743
+  [0 3]                [1]                             0.467103512112
+  [0 3]                [4]                             0.180532781420
+  [1 3]                [0]                            -0.467103512113
+  [1 3]                [2]                             0.103023676742
+  [1 3]                [4]                             0.210213095385
+  [2 3]                [1]                            -0.103023676742
+  [0 4]                [1]                             0.151412166655
+  [0 4]                [3]                            -0.180532781421
+  [1 4]                [0]                            -0.151412166654
+  [1 4]                [3]                            -0.210213095389
+  [3 4]                [0]                             0.180532781421
+  [3 4]                [1]                             0.210213095388
+  [alpha occ-orbitals] [beta occ-orbitals]  state 24  CI coefficient
+  [0 2]                [3]                            -0.196742024522
+  [1 2]                [3]                            -0.445381265595
+  [1 2]                [4]                            -0.189090573491
+  [0 3]                [2]                             0.196742024522
+  [1 3]                [2]                             0.445381265594
+  [1 3]                [4]                            -0.200326228156
+  [2 3]                [0]                            -0.196742024522
+  [2 3]                [1]                            -0.445381265594
+  [1 4]                [2]                             0.189090573491
+  [1 4]                [3]                             0.200326228150
+  [2 4]                [1]                            -0.189090573490
+  [3 4]                [1]                            -0.200326228151
+  [alpha occ-orbitals] [beta occ-orbitals]  state 25  CI coefficient
+  [0 1]                [3]                             0.246461490780
+  [0 1]                [4]                             0.126729931275
+  [0 2]                [3]                            -0.108468888347
+  [1 2]                [3]                            -0.164837970063
+  [0 3]                [1]                            -0.246461490779
+  [0 3]                [2]                             0.108468888347
+  [0 3]                [4]                             0.146678168278
+  [1 3]                [0]                             0.246461490778
+  [1 3]                [2]                             0.164837970062
+  [1 3]                [4]                             0.429949607070
+  [2 3]                [0]                            -0.108468888348
+  [2 3]                [1]                            -0.164837970062
+  [0 4]                [1]                            -0.126729931274
+  [0 4]                [3]                            -0.146678168278
+  [1 4]                [0]                             0.126729931275
+  [1 4]                [3]                            -0.429949607075
+  [3 4]                [0]                             0.146678168280
+  [3 4]                [1]                             0.429949607075
+  [alpha occ-orbitals] [beta occ-orbitals]  state 26  CI coefficient
+  [0 1]                [0]                             0.157054822655
+  [0 2]                [0]                             0.550160438115
+  [0 2]                [1]                            -0.205221096266
+  [0 2]                [3]                             0.160600261797
+  [0 2]                [4]                            -0.242496574092
+  [1 2]                [0]                            -0.195168576550
+  [0 3]                [0]                             0.126173220141
+  [2 3]                [0]                            -0.161775550014
+  [0 4]                [0]                            -0.416708306768
+  [0 4]                [1]                             0.150566515028
+  [0 4]                [3]                            -0.121845745306
+  [0 4]                [4]                             0.194981049728
+  [1 4]                [0]                             0.221735660460
+  [2 4]                [0]                             0.254785468035
+  [alpha occ-orbitals] [beta occ-orbitals]  state 27  CI coefficient
+  [0 2]                [0]                             0.440254990685
+  [0 2]                [1]                            -0.162519043751
+  [0 2]                [3]                             0.132911255389
+  [0 2]                [4]                            -0.203501799383
+  [1 2]                [0]                            -0.164797539450
+  [0 3]                [0]                            -0.265889268828
+  [0 3]                [1]                             0.100541724023
+  [0 3]                [4]                             0.124769677995
+  [1 3]                [0]                             0.112085497982
+  [2 3]                [0]                            -0.107507169021
+  [0 4]                [0]                             0.543044541166
+  [0 4]                [1]                            -0.199658272744
+  [0 4]                [3]                             0.162418349531
+  [0 4]                [4]                            -0.255395729615
+  [1 4]                [0]                            -0.220444287583
+  [1 4]                [4]                             0.108895696597
+  [2 4]                [0]                             0.160389698736
+  [alpha occ-orbitals] [beta occ-orbitals]  state 28  CI coefficient
+  [0 1]                [2]                             0.140824775397
+  [0 1]                [4]                            -0.109224202946
+  [0 2]                [0]                            -0.127660404564
+  [0 2]                [1]                             0.186929187157
+  [0 2]                [2]                             0.329427141269
+  [0 2]                [3]                             0.136559932219
+  [0 2]                [4]                            -0.434077402963
+  [1 2]                [2]                            -0.120303964812
+  [1 2]                [4]                             0.162443106438
+  [0 3]                [2]                             0.174215742938
+  [1 3]                [2]                            -0.101528385556
+  [2 3]                [4]                             0.109164865413
+  [0 4]                [1]                            -0.141146463423
+  [0 4]                [2]                            -0.490385925735
+  [0 4]                [4]                             0.251794450297
+  [1 4]                [2]                             0.236969482345
+  [1 4]                [4]                            -0.135211645448
+  [2 4]                [2]                             0.131929109450
+  [2 4]                [4]                            -0.160900958145
+  [alpha occ-orbitals] [beta occ-orbitals]  state 29  CI coefficient
+  [0 2]                [1]                            -0.122475724810
+  [0 2]                [2]                            -0.562276958271
+  [1 2]                [2]                             0.213985759617
+  [0 3]                [2]                             0.134924537188
+  [0 3]                [4]                            -0.188058383721
+  [2 3]                [0]                             0.107504373390
+  [2 3]                [2]                             0.130059503689
+  [0 4]                [0]                             0.128099313523
+  [0 4]                [1]                            -0.165938607550
+  [0 4]                [2]                            -0.168181709953
+  [0 4]                [3]                            -0.150296137245
+  [0 4]                [4]                             0.437719040267
+  [1 4]                [4]                            -0.176921274045
+  [2 4]                [0]                            -0.263266306958
+  [2 4]                [2]                            -0.183863824388
+  [2 4]                [4]                             0.140185808838
+  [alpha occ-orbitals] [beta occ-orbitals]  state 30  CI coefficient
+  [0 2]                [0]                            -0.325587762345
+  [0 2]                [1]                             0.149989715284
+  [0 2]                [2]                            -0.236181656231
+  [0 2]                [4]                            -0.180679234988
+  [1 2]                [0]                             0.236340518777
+  [2 3]                [0]                            -0.170940027921
+  [2 3]                [4]                             0.158198752629
+  [0 4]                [0]                             0.167239103455
+  [0 4]                [2]                             0.273328415636
+  [0 4]                [4]                             0.171468538848
+  [1 4]                [2]                            -0.143157207372
+  [1 4]                [4]                            -0.121961368376
+  [2 4]                [0]                             0.454007650663
+  [2 4]                [1]                            -0.159133422160
+  [2 4]                [2]                            -0.148043455251
+  [2 4]                [3]                             0.199581001361
+  [2 4]                [4]                            -0.326119529243
+  [alpha occ-orbitals] [beta occ-orbitals]  state 31  CI coefficient
+  [0 2]                [0]                             0.177096528497
+  [0 2]                [2]                             0.484351742724
+  [0 2]                [3]                            -0.143134412464
+  [0 2]                [4]                             0.234673193536
+  [1 2]                [2]                            -0.191364083414
+  [0 3]                [0]                            -0.111666289840
+  [0 3]                [2]                            -0.180511924461
+  [0 3]                [4]                            -0.205526898763
+  [0 4]                [0]                             0.226451114342
+  [0 4]                [1]                            -0.142273535480
+  [0 4]                [2]                             0.294267922883
+  [0 4]                [3]                            -0.191906091697
+  [0 4]                [4]                             0.421772790034
+  [1 4]                [2]                            -0.115516341651
+  [1 4]                [4]                            -0.174965483008
+  [2 4]                [2]                             0.126033454352
+  [2 4]                [4]                             0.102366763475
+  [alpha occ-orbitals] [beta occ-orbitals]  state 32  CI coefficient
+  [0 2]                [2]                             0.164482362120
+  [0 2]                [4]                            -0.177779084930
+  [1 2]                [2]                            -0.187699228266
+  [1 2]                [4]                             0.186337825082
+  [2 3]                [2]                             0.240019888553
+  [2 3]                [4]                            -0.219147932923
+  [2 4]                [0]                             0.112857162233
+  [2 4]                [1]                            -0.232287695170
+  [2 4]                [2]                            -0.559859039329
+  [2 4]                [3]                            -0.149816509567
+  [2 4]                [4]                             0.532668234215
+  [alpha occ-orbitals] [beta occ-orbitals]  state 33  CI coefficient
+  [0 2]                [0]                            -0.111828230225
+  [0 2]                [2]                            -0.196207529893
+  [0 2]                [4]                            -0.150538755372
+  [1 2]                [2]                             0.210389751465
+  [1 2]                [4]                             0.156892127656
+  [2 3]                [2]                            -0.253437240465
+  [2 3]                [4]                            -0.183149324033
+  [2 4]                [0]                             0.233633098060
+  [2 4]                [1]                            -0.113911560612
+  [2 4]                [2]                             0.592258801182
+  [2 4]                [3]                            -0.251475670539
+  [2 4]                [4]                             0.443734200024
+  [alpha occ-orbitals] [beta occ-orbitals]  state 34  CI coefficient
+  [0 3]                [0]                             0.591828142146
+  [0 3]                [1]                            -0.217142161427
+  [0 3]                [3]                             0.168767415608
+  [0 3]                [4]                            -0.319670318790
+  [1 3]                [0]                            -0.235157058823
+  [1 3]                [4]                             0.135673151406
+  [0 4]                [0]                             0.250086799632
+  [0 4]                [3]                             0.108939835915
+  [0 4]                [4]                            -0.113440613045
+  [3 4]                [0]                             0.428610156071
+  [3 4]                [1]                            -0.168713248500
+  [3 4]                [3]                             0.109012062880
+  [3 4]                [4]                            -0.160662026068
+  [alpha occ-orbitals] [beta occ-orbitals]  state 35  CI coefficient
+  [0 1]                [3]                             0.112038171233
+  [0 2]                [3]                             0.460686445048
+  [0 2]                [4]                             0.220252557960
+  [1 2]                [3]                            -0.155843300118
+  [1 2]                [4]                            -0.104667504588
+  [1 3]                [0]                            -0.116061203611
+  [2 3]                [0]                            -0.470544238173
+  [2 3]                [1]                             0.164259619380
+  [2 3]                [3]                            -0.243305248380
+  [2 3]                [4]                             0.138625068091
+  [0 4]                [3]                            -0.236630235280
+  [0 4]                [4]                            -0.118575311813
+  [1 4]                [3]                             0.112756619452
+  [2 4]                [0]                            -0.249859372641
+  [2 4]                [1]                             0.123478759404
+  [2 4]                [3]                             0.129544205210
+  [2 4]                [4]                             0.177233001617
+  [3 4]                [0]                            -0.243414836311
+  [3 4]                [3]                            -0.101617979356
+  [alpha occ-orbitals] [beta occ-orbitals]  state 36  CI coefficient
+  [0 2]                [3]                             0.271433968459
+  [1 2]                [3]                            -0.102760257780
+  [0 3]                [1]                             0.149241250631
+  [0 3]                [2]                             0.526885414845
+  [0 3]                [4]                            -0.246815182382
+  [1 3]                [2]                            -0.222423884707
+  [2 3]                [0]                             0.255451445578
+  [2 3]                [1]                            -0.119663626548
+  [2 3]                [2]                            -0.111698002115
+  [2 3]                [4]                            -0.136466928654
+  [0 4]                [2]                             0.219074917412
+  [0 4]                [3]                            -0.145296859946
+  [0 4]                [4]                            -0.180178994581
+  [1 4]                [3]                             0.101589979974
+  [2 4]                [0]                             0.121880180563
+  [2 4]                [3]                             0.173218151942
+  [3 4]                [0]                             0.101518322934
+  [3 4]                [2]                             0.309685080536
+  [3 4]                [4]                            -0.246049478084
+  [alpha occ-orbitals] [beta occ-orbitals]  state 37  CI coefficient
+  [0 2]                [3]                             0.261290969731
+  [0 2]                [4]                             0.135600941653
+  [0 3]                [0]                            -0.236863666549
+  [0 3]                [3]                            -0.273694885108
+  [1 3]                [0]                             0.123104357113
+  [1 3]                [3]                             0.128091904344
+  [2 3]                [0]                            -0.242111129980
+  [2 3]                [3]                            -0.120520082262
+  [0 4]                [0]                            -0.132256760148
+  [0 4]                [1]                             0.114532187356
+  [0 4]                [3]                             0.434880501570
+  [0 4]                [4]                             0.258511340190
+  [1 4]                [0]                             0.121044772922
+  [1 4]                [3]                            -0.165906044681
+  [1 4]                [4]                            -0.142850805028
+  [3 4]                [0]                             0.418741440233
+  [3 4]                [1]                            -0.146693362981
+  [3 4]                [3]                             0.153881777938
+  [3 4]                [4]                            -0.186340719528
+  [alpha occ-orbitals] [beta occ-orbitals]  state 38  CI coefficient
+  [0 2]                [3]                            -0.151913016787
+  [0 2]                [4]                            -0.100802897046
+  [0 3]                [0]                            -0.351487021357
+  [0 3]                [1]                             0.200918678420
+  [0 3]                [2]                            -0.261753008898
+  [0 3]                [3]                             0.253788109391
+  [0 3]                [4]                            -0.309849223820
+  [1 3]                [0]                             0.157473691454
+  [1 3]                [2]                             0.112569617352
+  [1 3]                [3]                            -0.101790445899
+  [1 3]                [4]                             0.110309830752
+  [2 3]                [0]                            -0.109839997144
+  [2 3]                [2]                             0.101713699045
+  [2 3]                [4]                             0.129388996681
+  [0 4]                [0]                            -0.151405218065
+  [0 4]                [2]                            -0.138849718870
+  [0 4]                [3]                            -0.211896607678
+  [0 4]                [4]                            -0.263155688121
+  [1 4]                [3]                             0.113973321644
+  [3 4]                [2]                            -0.199336240264
+  [3 4]                [3]                             0.165852857442
+  [3 4]                [4]                            -0.428162172889
+  [alpha occ-orbitals] [beta occ-orbitals]  state 39  CI coefficient
+  [1 3]                [2]                            -0.176771478615
+  [2 3]                [1]                            -0.195625276540
+  [2 3]                [2]                            -0.527582694722
+  [2 3]                [3]                            -0.117967782014
+  [2 3]                [4]                             0.433498436264
+  [1 4]                [2]                            -0.150658103248
+  [2 4]                [2]                            -0.304465365553
+  [2 4]                [4]                             0.227525023802
+  [3 4]                [2]                            -0.452551562508
+  [3 4]                [4]                             0.125409767407
+  [alpha occ-orbitals] [beta occ-orbitals]  state 40  CI coefficient
+  [0 1 2]              []                             -0.813922314417
+  [0 2 3]              []                             -0.183062936176
+  [1 2 3]              []                             -0.124666961357
+  [0 1 4]              []                              0.413373146622
+  [0 2 4]              []                              0.160722415612
+  [1 2 4]              []                              0.272651673946
+  [alpha occ-orbitals] [beta occ-orbitals]  state 41  CI coefficient
+  [0 1 2]              []                              0.390469338008
+  [0 1 3]              []                             -0.347870302756
+  [0 2 3]              []                              0.129001187685
+  [0 1 4]              []                              0.814236034511
+  [0 2 4]              []                             -0.187172358726
+  [0 3 4]              []                             -0.103953149178
+  [alpha occ-orbitals] [beta occ-orbitals]  state 42  CI coefficient
+  [0 1 2]              []                              0.370636071913
+  [1 2 3]              []                             -0.311894258660
+  [0 2 4]              []                              0.332363792880
+  [1 2 4]              []                              0.791375104460
+  [2 3 4]              []                              0.108800986267
+  [alpha occ-orbitals] [beta occ-orbitals]  state 43  CI coefficient
+  [0 1 3]              []                             -0.809047015419
+  [1 2 3]              []                             -0.178442242240
+  [0 1 4]              []                             -0.262253565490
+  [0 3 4]              []                              0.312691950154
+  [1 3 4]              []                              0.364099761479
+  [alpha occ-orbitals] [beta occ-orbitals]  state 44  CI coefficient
+  [0 2 3]              []                             -0.340767182718
+  [1 2 3]              []                             -0.771422980626
+  [0 2 4]              []                             -0.150554293503
+  [1 2 4]              []                             -0.327514480499
+  [0 3 4]              []                             -0.149964845248
+  [1 3 4]              []                             -0.346975205277
+  [alpha occ-orbitals] [beta occ-orbitals]  state 45  CI coefficient
+  [0 1 3]              []                             -0.426883824162
+  [0 2 3]              []                              0.187873625349
+  [1 2 3]              []                              0.285507739310
+  [0 1 4]              []                             -0.219502679783
+  [0 3 4]              []                             -0.254054039638
+  [1 3 4]              []                             -0.744694564238
+  [2 3 4]              []                              0.158755444398
+  [alpha occ-orbitals] [beta occ-orbitals]  state 46  CI coefficient
+  [0 1 2]              []                              0.160620858656
+  [0 2 3]              []                             -0.352660285007
+  [1 2 3]              []                              0.172586335935
+  [0 1 4]              []                              0.113986590185
+  [0 2 4]              []                              0.811032153414
+  [1 2 4]              []                             -0.363045631840
+  [alpha occ-orbitals] [beta occ-orbitals]  state 47  CI coefficient
+  [0 1 3]              []                             -0.146743787806
+  [0 2 3]              []                             -0.651809521006
+  [1 2 3]              []                              0.249133499672
+  [0 1 4]              []                             -0.113523118361
+  [0 2 4]              []                             -0.321615767178
+  [0 3 4]              []                             -0.368486732056
+  [1 3 4]              []                              0.234502681281
+  [2 3 4]              []                              0.416256931303
+  [alpha occ-orbitals] [beta occ-orbitals]  state 48  CI coefficient
+  [0 2 3]              []                             -0.392480004786
+  [1 2 3]              []                              0.161875528078
+  [0 1 4]              []                              0.119584355689
+  [0 2 4]              []                             -0.109732062685
+  [0 3 4]              []                              0.803361323556
+  [1 3 4]              []                             -0.349826091692
+  [2 3 4]              []                              0.143446797907
+  [alpha occ-orbitals] [beta occ-orbitals]  state 49  CI coefficient
+  [0 2 3]              []                             -0.296517660427
+  [1 2 3]              []                              0.245884502069
+  [0 2 4]              []                             -0.169562988072
+  [1 2 4]              []                              0.227419884162
+  [0 3 4]              []                             -0.102791768261
+  [2 3 4]              []                             -0.863529964864
+ ** Mulliken pop on meta-lowdin orthogonal AOs  **
+ ** Mulliken pop  **
+pop of  0 Co 1s           1.99994
+pop of  0 Co 2s           1.98717
+pop of  0 Co 3s           1.92798
+pop of  0 Co 4s           0.44591
+pop of  0 Co 5s           0.30104
+pop of  0 Co 2px          1.98463
+pop of  0 Co 2py          1.99668
+pop of  0 Co 2pz          1.98677
+pop of  0 Co 3px          1.42528
+pop of  0 Co 3py          1.99540
+pop of  0 Co 3pz          1.99278
+pop of  0 Co 4px          0.07509
+pop of  0 Co 4py          0.05533
+pop of  0 Co 4pz          0.20564
+pop of  0 Co 3dxy         0.67592
+pop of  0 Co 3dyz         0.85978
+pop of  0 Co 3dz^2        1.06770
+pop of  0 Co 3dxz         0.67452
+pop of  0 Co 3dx2-y2      0.65910
+pop of  0 Co 4dxy         0.06967
+pop of  0 Co 4dyz         0.02039
+pop of  0 Co 4dz^2        0.21791
+pop of  0 Co 4dxz         0.06107
+pop of  0 Co 4dx2-y2      0.01966
+pop of  0 Co 4f-3         0.47177
+pop of  0 Co 4f-2         0.00053
+pop of  0 Co 4f-1         0.17206
+pop of  0 Co 4f+0         0.00889
+pop of  0 Co 4f+1         0.18318
+pop of  0 Co 4f+2         0.32448
+pop of  0 Co 4f+3         0.13394
+pop of  1 S 1s            1.99813
+pop of  1 S 2s            1.99202
+pop of  1 S 3s            1.79186
+pop of  1 S 4s            1.31920
+pop of  1 S 2px           1.98884
+pop of  1 S 2py           1.99374
+pop of  1 S 2pz           1.97469
+pop of  1 S 3px           0.80467
+pop of  1 S 3py           0.11021
+pop of  1 S 3pz           1.03696
+pop of  1 S 4px           0.13615
+pop of  1 S 4py           0.05817
+pop of  1 S 4pz           0.54338
+pop of  1 S 3dxy          0.06023
+pop of  1 S 3dyz          0.01398
+pop of  1 S 3dz^2         0.14610
+pop of  1 S 3dxz          0.04807
+pop of  1 S 3dx2-y2       0.06125
+pop of  2 S 1s            1.99842
+pop of  2 S 2s            1.98754
+pop of  2 S 3s            1.68024
+pop of  2 S 4s            0.37036
+pop of  2 S 2px           1.92636
+pop of  2 S 2py           1.81351
+pop of  2 S 2pz           1.97590
+pop of  2 S 3px           1.00428
+pop of  2 S 3py           0.57990
+pop of  2 S 3pz           0.85721
+pop of  2 S 4px           0.17940
+pop of  2 S 4py           1.01668
+pop of  2 S 4pz           0.60526
+pop of  2 S 3dxy          0.28690
+pop of  2 S 3dyz          0.18350
+pop of  2 S 3dz^2         0.11348
+pop of  2 S 3dxz          0.20099
+pop of  2 S 3dx2-y2       0.18775
+pop of  3 S 1s            1.99652
+pop of  3 S 2s            1.98030
+pop of  3 S 3s            1.59977
+pop of  3 S 4s            0.35607
+pop of  3 S 2px           1.87481
+pop of  3 S 2py           1.95677
+pop of  3 S 2pz           1.97493
+pop of  3 S 3px           0.68470
+pop of  3 S 3py           1.42489
+pop of  3 S 3pz           0.71391
+pop of  3 S 4px           0.04801
+pop of  3 S 4py           0.14030
+pop of  3 S 4pz           0.19936
+pop of  3 S 3dxy          0.07490
+pop of  3 S 3dyz          0.14342
+pop of  3 S 3dz^2         0.05687
+pop of  3 S 3dxz          0.02275
+pop of  3 S 3dx2-y2       0.12114
+pop of  4 S 1s            1.99854
+pop of  4 S 2s            1.97939
+pop of  4 S 3s            1.69147
+pop of  4 S 4s            0.41721
+pop of  4 S 2px           1.99396
+pop of  4 S 2py           1.98843
+pop of  4 S 2pz           1.98566
+pop of  4 S 3px           0.10575
+pop of  4 S 3py           0.12779
+pop of  4 S 3pz           1.02922
+pop of  4 S 4px           1.05300
+pop of  4 S 4py           0.12100
+pop of  4 S 4pz           0.32440
+pop of  4 S 3dxy          1.10278
+pop of  4 S 3dyz          0.42030
+pop of  4 S 3dz^2         0.07902
+pop of  4 S 3dxz          0.27084
+pop of  4 S 3dx2-y2       0.04336
+pop of  5 H 1s            1.03157
+pop of  5 H 2s            0.67317
+pop of  5 H 2px           0.08668
+pop of  5 H 2py           0.03689
+pop of  5 H 2pz           0.12793
+pop of  6 H 1s            0.50998
+pop of  6 H 2s            0.32548
+pop of  6 H 2px           0.03954
+pop of  6 H 2py           0.12638
+pop of  6 H 2pz           1.12016
+pop of  7 H 1s            0.28285
+pop of  7 H 2s            0.93249
+pop of  7 H 2px           0.26609
+pop of  7 H 2py           0.06369
+pop of  7 H 2pz           0.45432
+pop of  8 H 1s            0.60518
+pop of  8 H 2s            0.56959
+pop of  8 H 2px           0.37486
+pop of  8 H 2py           0.09674
+pop of  8 H 2pz           0.12934
+ ** Mulliken atomic charges  **
+charge of    0Co =      2.99980
+charge of    1S =     -0.07765
+charge of    2S =     -0.96768
+charge of    3S =      0.63061
+charge of    4S =     -0.73214
+charge of    5H =     -0.95624
+charge of    6H =     -1.12154
+charge of    7H =     -0.99945
+charge of    8H =     -0.77572
+Mulliken spin population analysis on meta-Lowdin AOs:
+ ** Mulliken pop on meta-lowdin orthogonal AOs  **
+ ** Mulliken pop  **
+pop of  0 Co 1s           0.00000
+pop of  0 Co 2s           0.00001
+pop of  0 Co 3s           0.00061
+pop of  0 Co 4s           0.02111
+pop of  0 Co 5s           0.00311
+pop of  0 Co 2px          0.00036
+pop of  0 Co 2py          0.00001
+pop of  0 Co 2pz          0.00003
+pop of  0 Co 3px          0.00200
+pop of  0 Co 3py          0.00009
+pop of  0 Co 3pz          0.00018
+pop of  0 Co 4px          0.00021
+pop of  0 Co 4py          0.00127
+pop of  0 Co 4pz          0.00147
+pop of  0 Co 3dxy         0.23950
+pop of  0 Co 3dyz         0.20206
+pop of  0 Co 3dz^2        0.10970
+pop of  0 Co 3dxz         0.22962
+pop of  0 Co 3dx2-y2      0.23519
+pop of  0 Co 4dxy         0.00072
+pop of  0 Co 4dyz         0.00085
+pop of  0 Co 4dz^2        0.00316
+pop of  0 Co 4dxz         0.00056
+pop of  0 Co 4dx2-y2      0.00107
+pop of  0 Co 4f-3         0.00151
+pop of  0 Co 4f-2         0.00001
+pop of  0 Co 4f-1         0.00118
+pop of  0 Co 4f+0         0.00003
+pop of  0 Co 4f+1         0.00028
+pop of  0 Co 4f+2         0.00284
+pop of  0 Co 4f+3         0.00425
+pop of  1 S 1s            0.00004
+pop of  1 S 2s            0.00003
+pop of  1 S 3s            0.00316
+pop of  1 S 4s            0.01042
+pop of  1 S 2px           0.00016
+pop of  1 S 2py           0.00018
+pop of  1 S 2pz           0.00006
+pop of  1 S 3px           0.01568
+pop of  1 S 3py           0.00028
+pop of  1 S 3pz           0.01279
+pop of  1 S 4px           0.00634
+pop of  1 S 4py           0.00015
+pop of  1 S 4pz           0.00168
+pop of  1 S 3dxy          0.00003
+pop of  1 S 3dyz          0.00005
+pop of  1 S 3dz^2         0.00131
+pop of  1 S 3dxz          0.00065
+pop of  1 S 3dx2-y2       0.00078
+pop of  2 S 1s            0.00001
+pop of  2 S 2s            0.00006
+pop of  2 S 3s            0.00520
+pop of  2 S 4s            0.00710
+pop of  2 S 2px           0.00158
+pop of  2 S 2py           0.00127
+pop of  2 S 2pz           0.00014
+pop of  2 S 3px           0.01656
+pop of  2 S 3py           0.00318
+pop of  2 S 3pz           0.00629
+pop of  2 S 4px           0.00473
+pop of  2 S 4py           0.00691
+pop of  2 S 4pz           0.00155
+pop of  2 S 3dxy          0.00159
+pop of  2 S 3dyz          0.00404
+pop of  2 S 3dz^2         0.00034
+pop of  2 S 3dxz          0.00735
+pop of  2 S 3dx2-y2       0.00167
+pop of  3 S 1s            0.00004
+pop of  3 S 2s            0.00044
+pop of  3 S 3s            0.00189
+pop of  3 S 4s            0.01531
+pop of  3 S 2px           0.00130
+pop of  3 S 2py           0.00019
+pop of  3 S 2pz           0.00005
+pop of  3 S 3px           0.00464
+pop of  3 S 3py           0.01006
+pop of  3 S 3pz           0.00117
+pop of  3 S 4px           0.00095
+pop of  3 S 4py           0.00611
+pop of  3 S 4pz           0.00081
+pop of  3 S 3dxy          0.00092
+pop of  3 S 3dyz          0.00307
+pop of  3 S 3dz^2         0.00022
+pop of  3 S 3dxz          0.00029
+pop of  3 S 3dx2-y2       0.00180
+pop of  4 S 1s            0.00004
+pop of  4 S 2s            0.00002
+pop of  4 S 3s            0.00808
+pop of  4 S 4s            0.01508
+pop of  4 S 2px           0.00007
+pop of  4 S 2py           0.00031
+pop of  4 S 2pz           0.00013
+pop of  4 S 3px           0.00309
+pop of  4 S 3py           0.00285
+pop of  4 S 3pz           0.00542
+pop of  4 S 4px           0.00902
+pop of  4 S 4py           0.00541
+pop of  4 S 4pz           0.00086
+pop of  4 S 3dxy          0.00727
+pop of  4 S 3dyz          0.00853
+pop of  4 S 3dz^2         0.00264
+pop of  4 S 3dxz          0.00901
+pop of  4 S 3dx2-y2       0.00038
+pop of  5 H 1s            0.00545
+pop of  5 H 2s            0.00271
+pop of  5 H 2px           0.00012
+pop of  5 H 2py           0.00006
+pop of  5 H 2pz           0.00114
+pop of  6 H 1s            0.00112
+pop of  6 H 2s            0.00409
+pop of  6 H 2px           0.00026
+pop of  6 H 2py           0.00247
+pop of  6 H 2pz           0.00913
+pop of  7 H 1s            0.00523
+pop of  7 H 2s            0.01141
+pop of  7 H 2px           0.00114
+pop of  7 H 2py           0.00090
+pop of  7 H 2pz           0.01089
+pop of  8 H 1s            0.01627
+pop of  8 H 2s            0.00569
+pop of  8 H 2px           0.00495
+pop of  8 H 2py           0.00222
+pop of  8 H 2pz           0.00092
+ ** Mulliken atomic charges  **
+charge of    0Co =     25.93700
+charge of    1S =     15.94622
+charge of    2S =     15.93043
+charge of    3S =     15.95073
+charge of    4S =     15.92177
+charge of    5H =      0.99052
+charge of    6H =      0.98293
+charge of    7H =      0.97043
+charge of    8H =      0.96996
+spop of 0 Co 1s         0.00000
+spop of 0 Co 2s         0.00001
+spop of 0 Co 3s         0.00061
+spop of 0 Co 4s         0.02111
+spop of 0 Co 5s         0.00311
+spop of 0 Co 2px        0.00036
+spop of 0 Co 2py        0.00001
+spop of 0 Co 2pz        0.00003
+spop of 0 Co 3px        0.00200
+spop of 0 Co 3py        0.00009
+spop of 0 Co 3pz        0.00018
+spop of 0 Co 4px        0.00021
+spop of 0 Co 4py        0.00127
+spop of 0 Co 4pz        0.00147
+spop of 0 Co 3dxy       0.23950
+spop of 0 Co 3dyz       0.20206
+spop of 0 Co 3dz^2      0.10970
+spop of 0 Co 3dxz       0.22962
+spop of 0 Co 3dx2-y2    0.23519
+spop of 0 Co 4dxy       0.00072
+spop of 0 Co 4dyz       0.00085
+spop of 0 Co 4dz^2      0.00316
+spop of 0 Co 4dxz       0.00056
+spop of 0 Co 4dx2-y2    0.00107
+spop of 0 Co 4f-3       0.00151
+spop of 0 Co 4f-2       0.00001
+spop of 0 Co 4f-1       0.00118
+spop of 0 Co 4f+0       0.00003
+spop of 0 Co 4f+1       0.00028
+spop of 0 Co 4f+2       0.00284
+spop of 0 Co 4f+3       0.00425
+spop of 1 S 1s          0.00004
+spop of 1 S 2s          0.00003
+spop of 1 S 3s          0.00316
+spop of 1 S 4s          0.01042
+spop of 1 S 2px         0.00016
+spop of 1 S 2py         0.00018
+spop of 1 S 2pz         0.00006
+spop of 1 S 3px         0.01568
+spop of 1 S 3py         0.00028
+spop of 1 S 3pz         0.01279
+spop of 1 S 4px         0.00634
+spop of 1 S 4py         0.00015
+spop of 1 S 4pz         0.00168
+spop of 1 S 3dxy        0.00003
+spop of 1 S 3dyz        0.00005
+spop of 1 S 3dz^2       0.00131
+spop of 1 S 3dxz        0.00065
+spop of 1 S 3dx2-y2     0.00078
+spop of 2 S 1s          0.00001
+spop of 2 S 2s          0.00006
+spop of 2 S 3s          0.00520
+spop of 2 S 4s          0.00710
+spop of 2 S 2px         0.00158
+spop of 2 S 2py         0.00127
+spop of 2 S 2pz         0.00014
+spop of 2 S 3px         0.01656
+spop of 2 S 3py         0.00318
+spop of 2 S 3pz         0.00629
+spop of 2 S 4px         0.00473
+spop of 2 S 4py         0.00691
+spop of 2 S 4pz         0.00155
+spop of 2 S 3dxy        0.00159
+spop of 2 S 3dyz        0.00404
+spop of 2 S 3dz^2       0.00034
+spop of 2 S 3dxz        0.00735
+spop of 2 S 3dx2-y2     0.00167
+spop of 3 S 1s          0.00004
+spop of 3 S 2s          0.00044
+spop of 3 S 3s          0.00189
+spop of 3 S 4s          0.01531
+spop of 3 S 2px         0.00130
+spop of 3 S 2py         0.00019
+spop of 3 S 2pz         0.00005
+spop of 3 S 3px         0.00464
+spop of 3 S 3py         0.01006
+spop of 3 S 3pz         0.00117
+spop of 3 S 4px         0.00095
+spop of 3 S 4py         0.00611
+spop of 3 S 4pz         0.00081
+spop of 3 S 3dxy        0.00092
+spop of 3 S 3dyz        0.00307
+spop of 3 S 3dz^2       0.00022
+spop of 3 S 3dxz        0.00029
+spop of 3 S 3dx2-y2     0.00180
+spop of 4 S 1s          0.00004
+spop of 4 S 2s          0.00002
+spop of 4 S 3s          0.00808
+spop of 4 S 4s          0.01508
+spop of 4 S 2px         0.00007
+spop of 4 S 2py         0.00031
+spop of 4 S 2pz         0.00013
+spop of 4 S 3px         0.00309
+spop of 4 S 3py         0.00285
+spop of 4 S 3pz         0.00542
+spop of 4 S 4px         0.00902
+spop of 4 S 4py         0.00541
+spop of 4 S 4pz         0.00086
+spop of 4 S 3dxy        0.00727
+spop of 4 S 3dyz        0.00853
+spop of 4 S 3dz^2       0.00264
+spop of 4 S 3dxz        0.00901
+spop of 4 S 3dx2-y2     0.00038
+spop of 5 H 1s          0.00545
+spop of 5 H 2s          0.00271
+spop of 5 H 2px         0.00012
+spop of 5 H 2py         0.00006
+spop of 5 H 2pz         0.00114
+spop of 6 H 1s          0.00112
+spop of 6 H 2s          0.00409
+spop of 6 H 2px         0.00026
+spop of 6 H 2py         0.00247
+spop of 6 H 2pz         0.00913
+spop of 7 H 1s          0.00523
+spop of 7 H 2s          0.01141
+spop of 7 H 2px         0.00114
+spop of 7 H 2py         0.00090
+spop of 7 H 2pz         0.01089
+spop of 8 H 1s          0.01627
+spop of 8 H 2s          0.00569
+spop of 8 H 2px         0.00495
+spop of 8 H 2py         0.00222
+spop of 8 H 2pz         0.00092
+Mulliken atomic spins:
+spin of  0Co =      1.06300
+spin of  1S =      0.05378
+spin of  2S =      0.06957
+spin of  3S =      0.04927
+spin of  4S =      0.07823
+spin of  5H =      0.00948
+spin of  6H =      0.01707
+spin of  7H =      0.02957
+spin of  8H =      0.03004
+SISO with density fitting
+size of aux basis 1299
+    CPU time for 2c2e      0.19 sec, wall time      0.01 sec
+    CPU time for Cholesky 2c2e      0.74 sec, wall time      0.05 sec
+erifile 79.249392 MB, IO buf size 237.74818 MB
+int3c2e [1/1], AO [0:24], nrow = 7626
+    CPU time for gen CD eri [1/1]     11.61 sec, wall time      0.73 sec
+    CPU time for int3c2e_pvxp1     12.56 sec, wall time      0.80 sec
+    CPU time for 2e SOC J/K1/K2 integrals [1/82]      0.30 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [2/82]      0.36 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [3/82]      0.36 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [4/82]      0.32 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [5/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [6/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [7/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [8/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [9/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [10/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [11/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [12/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [13/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [14/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [15/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [16/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [17/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [18/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [19/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [20/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [21/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [22/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [23/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [24/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [25/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [26/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [27/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [28/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [29/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [30/82]      0.28 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [31/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [32/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [33/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [34/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [35/82]      0.26 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [36/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [37/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [38/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [39/82]      0.29 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [40/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [41/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [42/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [43/82]      0.21 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [44/82]      0.35 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [45/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [46/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [47/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [48/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [49/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [50/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [51/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [52/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [53/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [54/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [55/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [56/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [57/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [58/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [59/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [60/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [61/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [62/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [63/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [64/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [65/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [66/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [67/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [68/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [69/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [70/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [71/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [72/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [73/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [74/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [75/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [76/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [77/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [78/82]      0.37 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [79/82]      0.19 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [80/82]      0.30 sec, wall time      0.02 sec
+    CPU time for 2e SOC J/K1/K2 integrals [81/82]      0.20 sec, wall time      0.01 sec
+    CPU time for 2e SOC J/K1/K2 integrals [82/82]      0.06 sec, wall time      0.00 sec
+    CPU time for 2e SOC J/K1/K2 integrals     29.37 sec, wall time      1.85 sec
+state 0 energy 0.0
+(S, MS, I), [ 1 -1 14]	 coeff	 0.359-0.817j	 |coeff| ** 2	 0.797
+(S, MS, I), [ 1  1 14]	 coeff	 -0.056-0.448j	 |coeff| ** 2	 0.203
+(S, MS, I), [ 1 -1 18]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 4]	 coeff	 0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  4]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1  1 22]	 coeff	 0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1 22]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 3 -3  7]	 coeff	 0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1  1 20]	 coeff	 -0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1  1 16]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+state 1 energy 1.1976660789514426e-06
+(S, MS, I), [ 1  1 14]	 coeff	 0.457+0.767j	 |coeff| ** 2	 0.797
+(S, MS, I), [ 1 -1 14]	 coeff	 -0.000-0.451j	 |coeff| ** 2	 0.203
+(S, MS, I), [ 1  1 18]	 coeff	 -0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  4]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 4]	 coeff	 -0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1 22]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1  1 22]	 coeff	 -0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [3 3 7]	 coeff	 0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1 20]	 coeff	 0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1 16]	 coeff	 0.000-0.000j	 |coeff| ** 2	 0.000
+state 2 energy 191083057.61867014
+(S, MS, I), [1 1 1]	 coeff	 0.681-0.437j	 |coeff| ** 2	 0.654
+(S, MS, I), [ 1 -1  1]	 coeff	 0.346-0.475j	 |coeff| ** 2	 0.346
+(S, MS, I), [1 1 2]	 coeff	 0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 0]	 coeff	 0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  2]	 coeff	 0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1  1 19]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  9]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [3 1 0]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1 21]	 coeff	 -0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 3 -1  0]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+state 3 energy 191083057.61867014
+(S, MS, I), [ 1 -1  1]	 coeff	 0.000+0.809j	 |coeff| ** 2	 0.654
+(S, MS, I), [1 1 1]	 coeff	 0.213-0.548j	 |coeff| ** 2	 0.346
+(S, MS, I), [ 1 -1  2]	 coeff	 0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  0]	 coeff	 0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 2]	 coeff	 0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1 19]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 9]	 coeff	 0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 3 -1  0]	 coeff	 0.000-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1  1 21]	 coeff	 -0.000+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [3 1 0]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+mag energy [0.00000000e+00 1.19766608e-06 1.91083058e+08 1.91083058e+08
+ 5.24982302e+08 5.24982302e+08 5.24982302e+08 5.24982302e+08
+ 6.53571667e+08 6.53571667e+08 6.56164144e+08 6.56164144e+08
+ 6.57291952e+08 6.57291952e+08 6.61344858e+08 6.61344858e+08
+ 6.79048471e+08 6.79048471e+08 6.98052728e+08 6.98052728e+08]
+
+==================================================
+程序总运行时间: 0小时 5分钟 6.85秒
+总秒数: 306.85秒
+==================================================
+end time: 2025-11-22 22:16:29

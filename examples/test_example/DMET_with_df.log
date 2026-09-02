@@ -1,0 +1,184 @@
+#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/test_example/DMET_with_df.py ****
+import sys
+sys.path.append('/data/home/cuihx/pyscf_learn/LAMP_emb/')
+import os
+import numpy as np
+from pyscf import gto, scf, df
+from embed_sim import ssdmet, sacasscf_mixer, siso, rdiis
+
+title = 'CoSH4'
+
+def get_mol(dihedral):
+     mol = gto.M(atom = '''
+                Co             
+                S                  1            2.30186590
+                S                  1            2.30186590    2            109.47122060
+                S                  1            2.30186590    3            109.47122065    2            -120.00000001                  0
+                S                  1            2.30186590    4            109.47122060    3            120.00000001                   0
+                H                  2            1.30714645    1            109.47121982    4            '''+str(-60-dihedral)+'''      0
+                H                  4            1.30714645    1            109.47121982    3            '''+str(60+dihedral)+'''       0
+                H                  5            1.30714645    1            109.47121982    4            '''+str(-180+dihedral)+'''     0
+                H                  3            1.30714645    1            109.47121982    4            '''+str(60-dihedral)+'''       0
+     ''',
+     basis={'Co':'def2tzvp','S':'6-31G*','H':'6-31G*'}, symmetry=0 ,spin = 3,charge = -2,verbose= 4)
+
+     return mol
+
+mol = get_mol(0)
+
+'''
+Density fitting and scalar relativistic effects can be applied together,
+regardless to the order you apply the decoration.
+'''
+mf = scf.rohf.ROHF(mol).density_fit().x2c()
+
+'''
+Sometimes it is useful to save it to disk for re-use in later calculations.
+This can be achieved by specifying a HDF5 file by setting _cderi_to_save.
+The saved DF tensor can be used later by setting _cderi to the HDF5 file.
+If I/O free treatment is needed, just skip the following part.
+'''
+cderi_fname = title + '_cderi.h5'
+if not os.path.exists(cderi_fname):
+    mydf = df.df.DF(mol)
+    mydf.auxbasis = mf.with_df.auxbasis
+    mydf._cderi_to_save = cderi_fname
+    mydf.build()
+    mf.with_df = mydf
+else:
+    mf.with_df._cderi = cderi_fname
+    mf.with_df.auxmol = df.addons.make_auxmol(mol)
+
+chk_fname = title + '_rohf.chk'
+mf.diis = rdiis.RDIIS(rdiis_prop='dS',imp_idx=mol.search_ao_label(['Co.*d']),power=0.2)
+mf.chkfile = chk_fname
+mf.init_guess = 'chk'
+mf.level_shift = .1
+mf.max_cycle = 1000
+mf.max_memory = 100000
+mf.kernel()
+
+'''
+Switch to DF-DMET with density_fit decoration
+'''
+mydmet = ssdmet.SSDMET(mf, title=title, imp_idx='Co.*d', bath_option={'MP2':1e-3}).density_fit()
+# if impurity is not assigned, the orbitals on the first atom is chosen as impurity
+mydmet.build()
+
+ncas, nelec, es_mo = mydmet.avas('Co 3d', minao='def2tzvp', threshold=0.5, openshell_option=3)
+
+es_cas = sacasscf_mixer.sacasscf_mixer(mydmet.es_mf, ncas, nelec)
+es_cas.kernel(es_mo)
+
+es_ecorr = sacasscf_mixer.sacasscf_nevpt2(es_cas)
+es_cas.fcisolver.e_states = es_cas.fcisolver.e_states + es_ecorr
+total_cas = mydmet.total_cas(es_cas)
+Ha2cm = 219474.63
+np.savetxt(mydmet.title+'_opt.txt',(es_cas.fcisolver.e_states-np.min(es_cas.fcisolver.e_states))*Ha2cm,fmt='%.6f')
+'''
+Density fitting can be used to accelerate the calculation of SOC 2e integrals
+by setting a DF object to the with_df attribute.
+'''
+mysiso = siso.SISO(title, total_cas, verbose=5).density_fit()
+'''
+Set verbose greater than 5 will output detailed information for 2e SOC J/K1/K2 contraction.
+'''
+mysiso = siso.SISO(title, total_cas, verbose=6).density_fit()
+mysiso.verbose = 9
+
+mysiso.kernel()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Darwin', node='Mate-Mini-Workstation.local', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
+Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
+numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
+Date: Thu Aug 27 11:00:29 2026
+PySCF version 2.11.0
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+
+[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[INPUT] verbose = 4
+[INPUT] num. atoms = 9
+[INPUT] num. electrons = 97
+[INPUT] charge = -2
+[INPUT] spin (= nelec alpha-beta = 2S) = 3
+[INPUT] symmetry 0 subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 Co     0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 S      2.301865900000   0.000000000000   0.000000000000 AA    4.349896126475   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  3 S     -0.767288632027   0.000000000000   2.170219983491 AA   -1.449965373023   0.000000000000   4.101121398857 Bohr   0.0
+[INPUT]  4 S     -0.767288634002   1.879465636735  -1.085109991681 AA   -1.449965376756   3.551675313960  -2.050560699307 Bohr   0.0
+[INPUT]  5 S     -0.767288634021  -1.879465636673  -1.085109991774 AA   -1.449965376792  -3.551675313844  -2.050560699483 Bohr   0.0
+[INPUT]  6 H      2.737581365814  -0.000000000187  -1.232389497926 AA    5.173279025102  -0.000000000353  -2.328878629870 Bohr   0.0
+[INPUT]  7 H     -0.331573141714   2.946746233413  -0.468915233929 AA   -0.626582428101   5.568543339745  -0.886121367762 Bohr   0.0
+[INPUT]  8 H     -0.331573141920  -2.946746233387  -0.468915233951 AA   -0.626582428489  -5.568543339694  -0.886121367803 Bohr   0.0
+[INPUT]  9 H     -2.074435082027  -0.000000000215   2.170219965696 AA   -3.920114168221  -0.000000000406   4.101121365229 Bohr   0.0
+
+nuclear repulsion = 683.055032921424
+number of shells = 55
+number of NR pGTOs = 312
+number of NR cGTOs = 125
+basis = {'Co': 'def2tzvp', 'S': '6-31G*', 'H': '6-31G*'}
+ecp = {}
+CPU time:         0.50
+******** <class 'pyscf.df.df.DF'> ********
+auxbasis = None
+max_memory = 4000
+Default auxbasis def2-tzvp-jkfit is used for Co def2tzvp
+Default auxbasis cc-pvdz-jkfit is used for S 6-31G*
+Default auxbasis cc-pvdz-jkfit is used for H 6-31G*
+_cderi_to_save = CoSH4_cderi.h5
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eDFROHF'> ********
+method = sfX2C1eDFROHF
+initial guess = chk
+damping factor = 0
+level_shift factor = 0.1
+DIIS = <embed_sim.rdiis.RDIIS object at 0x11e6d6660>
+diis_start_cycle = 1
+diis_space = 8
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 1000
+direct_scf = False
+chkfile to save SCF result = CoSH4_rohf.chk
+max_memory 100000 MB (current use 0 MB)
+num. doubly occ = 47  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -2986.28827686349
+  HOMO = 0.218221918189404  LUMO = 0.507706976294009
+cycle= 1 E= -2986.28827690988  delta_E= -4.64e-08  |g|= 0.000214  |ddm|= 0.00038
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218327372692794  LUMO = 0.507704942400217
+cycle= 2 E= -2986.28827690831  delta_E= 1.56e-09  |g|= 0.00024  |ddm|= 0.000204
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218269872173859  LUMO = 0.5077036316056
+cycle= 3 E= -2986.28827691769  delta_E= -9.37e-09  |g|= 2.02e-05  |ddm|= 0.000104
+----------RDIIS-Entropy 0.008
+  HOMO = 0.218274094944419  LUMO = 0.507703941614939
+cycle= 4 E= -2986.28827691832  delta_E= -6.38e-10  |g|= 1.26e-05  |ddm|= 3.63e-05
+  HOMO = 0.16827164250272  LUMO = 0.407703668079123
+Extra cycle  E= -2986.28827691875  delta_E= -4.23e-10  |g|= 1.56e-05  |ddm|= 2.78e-05
+converged SCF energy = -2986.28827691875
+
+******** <class 'embed_sim.df.DFSSDMET'> ********
+DMET from ROHF
+number of impurity orbitals = 20
+number of bath orbitals = 22
+number of embedded cluster orbitals = 42
+number of frozen occupied orbitals = 28
+number of frozen virtual orbitals = 55
+number of frozen orbitals = 83
+percentage of embedded cluster orbitals = 33.60%
+percentage of frozen orbitals = 66.40%
+
+end time: 2026-08-27 11:00:30
+elapsed: 00:00:02

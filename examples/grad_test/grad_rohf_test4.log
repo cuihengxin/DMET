@@ -1,0 +1,251 @@
+============================================================================
+ROHF-in-ROHF 单次 DMET 解析梯度验证
+============================================================================
+
+--- CH3 自由基 (C impurity, full bath) ---
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+  [full-bath] E_dev=7.11e-15  grad_dev=1.33e-12  sum(grad)=2.9e-14
+--- CH3 自由基 (C impurity, bath_norb=1) ---
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+  [Z-RHS] dL/dtheta: analytic vs numeric max|err|=6.516e-12  rel=1.814e-11
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+  [truncated] h=1e-3: 3.609e-03  h=5e-4: 3.609e-03  Richardson: 3.609e-03  sum(grad)=5.4e-15
+
+--- NO (N impurity, full bath) ---
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+  [full-bath] E_dev=1.42e-14  grad_dev=1.61e-11  sum(grad)=5.0e-14
+--- NO (N impurity, bath_norb=1) ---
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+  [truncated] h=1e-3: 6.679e-03  h=5e-4: 6.679e-03  Richardson: 6.678e-03  sum(grad)=5.3e-15
+
+判断标准：
+  full-bath grad_dev -> ~1e-9 (收敛精度，收紧 conv_tol_grad 可到 1e-13)
+  truncated Richardson -> ~3e-7 量级（FD 截断误差，非公式误差）
+  Z-RHS rel -> < 1e-5（确认 RHS 因子正确）
+  sum(grad) -> < 1e-12（平移不变性）

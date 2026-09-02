@@ -1,0 +1,129 @@
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+--- CH3 (C imp, bath=1) ---
+  current (1,1)      : max|ana-FD| = 1.7157e-02
+  best-fit coef      : zeta=1.0726  vhf=-0.0254
+  residual after fit : 4.4655e-03
+  grad at best fit   : 4.4655e-03
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+--- NO (N imp, bath=1) ---
+  current (1,1)      : max|ana-FD| = 1.8250e-02
+  best-fit coef      : zeta=-3733.6316  vhf=18770.1079
+  residual after fit : 3.0158e-12
+  grad at best fit   : 1.4637e-11
+
+若两个体系拟合出相同的干净系数且残差~0 -> 只是因子问题；
+若残差远大于 0 -> 还缺项（结构问题）。
+end time: 2026-08-24 11:05:14
+elapsed: 00:00:02

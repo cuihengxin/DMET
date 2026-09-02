@@ -1,0 +1,140 @@
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+--- CH3 (C imp, bath=1) ---
+  cond(A) = 5.94e+03
+    zdens      =  0.98102
+    oo_occocc  = -0.68661
+    oo_occall  = -0.19898
+    T1         = -0.83197
+    T2         = -0.15854
+    vhf        = -0.47520
+  residual after fit = 1.0339e-05
+  grad at best fit   = 1.0339e-05
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+--- OH (O imp, bath=1) ---
+  cond(A) = 3.91e+16
+    zdens      = -1673543.13117
+    oo_occocc  = -1129234.61880
+    oo_occall  =  793259.05276
+    T1         =  384939.05988
+    T2         = -990035.62676
+    vhf        = -990337.09537
+  residual after fit = 7.3686e-08
+  grad at best fit   = 7.3644e-08
+
+交叉验证：把 CH3 拟合出的系数用到 OH 上
+  max|ana-FD| with CH3 coefs = 1.3864e-04
+
+若两组系数一致且交叉验证也小 -> 就是正确公式；
+若系数不一致 -> 基函数仍不完备，还缺项。
