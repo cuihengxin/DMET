@@ -1,0 +1,481 @@
+#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/iao_test/iao_test.py ****
+import sys
+sys.path.insert(0,'/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/')
+import numpy as np
+from pyscf import gto, scf
+from embed_sim import ssdmet, sacasscf_mixer, siso
+
+title = 'CoSH4'
+
+def get_mol(dihedral):
+     mol = gto.M(atom = '''
+                Co             
+                S                  1            2.30186590
+                S                  1            2.30186590    2            109.47122060
+                S                  1            2.30186590    3            109.47122065    2            -120.00000001                  0
+                S                  1            2.30186590    4            109.47122060    3            120.00000001                   0
+                H                  2            1.30714645    1            109.47121982    4            '''+str(-60-dihedral)+'''      0
+                H                  4            1.30714645    1            109.47121982    3            '''+str(60+dihedral)+'''       0
+                H                  5            1.30714645    1            109.47121982    4            '''+str(-180+dihedral)+'''     0
+                H                  3            1.30714645    1            109.47121982    4            '''+str(60-dihedral)+'''       0
+     ''',
+     basis={'default':'def2tzvp','s':'6-31G*','H':'6-31G*'}, symmetry=0 ,spin = 3,charge = -2,verbose= 4)
+
+     return mol
+
+mol = get_mol(0)
+
+mf = scf.rohf.ROHF(mol).x2c()
+
+chk_fname = title + '_rohf.chk'
+
+mf.chkfile = chk_fname
+mf.init_guess = 'chk'
+mf.level_shift = .1
+mf.max_cycle = 1000
+mf.max_memory = 100000
+mf.kernel()
+imp = mol.search_ao_label('Co 3d')
+print("impurity orbitals: ", imp)
+mydmet = ssdmet.SSDMET(mf, title=title, imp_idx=imp)
+# if impurity is not assigned, the orbitals on the first atom is chosen as impurity
+mydmet.build(iaopao='IAO',save_chk=False)
+
+ncas, nelec, es_mo = mydmet.avas('Co 3d', minao='def2tzvp', threshold=0.5)
+
+es_cas = sacasscf_mixer.sacasscf_mixer(mydmet.es_mf, ncas, nelec)
+es_cas.kernel(es_mo)
+
+es_ecorr = sacasscf_mixer.sacasscf_nevpt2(es_cas)
+es_cas.fcisolver.e_states = es_cas.fcisolver.e_states + es_ecorr
+total_cas = mydmet.total_cas(es_cas)
+mysiso = siso.SISO(title, total_cas)
+mysiso.kernel()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
+Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
+numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
+Date: Wed Sep  2 16:51:42 2026
+PySCF version 2.11.0
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+
+[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[INPUT] verbose = 4
+[INPUT] num. atoms = 9
+[INPUT] num. electrons = 97
+[INPUT] charge = -2
+[INPUT] spin (= nelec alpha-beta = 2S) = 3
+[INPUT] symmetry 0 subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 Co     0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 S      2.301865900000   0.000000000000   0.000000000000 AA    4.349896126475   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  3 S     -0.767288632027   0.000000000000   2.170219983491 AA   -1.449965373023   0.000000000000   4.101121398857 Bohr   0.0
+[INPUT]  4 S     -0.767288634002   1.879465636735  -1.085109991681 AA   -1.449965376756   3.551675313960  -2.050560699307 Bohr   0.0
+[INPUT]  5 S     -0.767288634021  -1.879465636673  -1.085109991774 AA   -1.449965376792  -3.551675313844  -2.050560699483 Bohr   0.0
+[INPUT]  6 H      2.737581365814  -0.000000000187  -1.232389497926 AA    5.173279025102  -0.000000000353  -2.328878629870 Bohr   0.0
+[INPUT]  7 H     -0.331573141714   2.946746233413  -0.468915233929 AA   -0.626582428101   5.568543339745  -0.886121367762 Bohr   0.0
+[INPUT]  8 H     -0.331573141920  -2.946746233387  -0.468915233951 AA   -0.626582428489  -5.568543339694  -0.886121367803 Bohr   0.0
+[INPUT]  9 H     -2.074435082027  -0.000000000215   2.170219965696 AA   -3.920114168221  -0.000000000406   4.101121365229 Bohr   0.0
+
+nuclear repulsion = 683.055032921424
+number of shells = 55
+number of NR pGTOs = 312
+number of NR cGTOs = 125
+basis = {'default': 'def2tzvp', 's': '6-31G*', 'H': '6-31G*'}
+ecp = {}
+CPU time:         0.39
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = chk
+damping factor = 0
+level_shift factor = 0.1
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 1000
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = CoSH4_rohf.chk
+max_memory 100000 MB (current use 0 MB)
+num. doubly occ = 47  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -2986.29688184653
+  HOMO = 0.225956623744474  LUMO = 0.507694740333144
+cycle= 1 E= -2986.29688184653  delta_E= -4.55e-13  |g|= 3.48e-06  |ddm|= 6.54e-06
+  HOMO = 0.175958362633631  LUMO = 0.407694797508118
+Extra cycle  E= -2986.29688184652  delta_E= 1e-11  |g|= 6e-06  |ddm|= 8.82e-06
+converged SCF energy = -2986.29688184652
+impurity orbitals:  [18 19 20 21 22]
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+This is imp_inds_comp []
+========== Check the orth and norm of IAO ==========
+A_normalized True
+A_orthogonal True
+
+A deviation from identity matrix: 2.848e-14
+Number of electrons:  97
+Number of closed orbitals:  47
+Number of open orbitals:  3
+========== Check the most important property of IAO: lo2mo in lo2iao ==========
+subset? True  | cosines: [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1.]  | rA,rB: 50 55
+Using IAO with IAO as occupied orbitals ONLY NO virtual orbitals
+QC-DMET :: iao_helper :: num_orb pmol = 55
+QC-DMET :: iao_helper :: num_orb mol  = 125
+QC-DMET :: iao_helper :: norm( I - C_full.T * S * C_full ) = 4.583422033738775e-13
+****Restore imp: False
+****IAOPAO: IAO
+number of impurity orbitals = 5
+number of bath orbitals = 7
+number of embedded cluster orbitals = 12
+number of frozen occupied orbitals = 42
+number of frozen virtual orbitals = 1
+number of frozen orbitals = 43
+percentage of embedded cluster orbitals = 9.60%
+percentage of frozen orbitals = 34.40%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0.1
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 1000
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpg3wdlnua
+max_memory 100000 MB (current use 0 MB)
+num. doubly occ = 5  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -94.4349191683621
+  HOMO = 0.22595530077285  LUMO = 0.694178398733321
+cycle= 1 E= -94.4349191683631  delta_E= -9.95e-13  |g|= 1.22e-06  |ddm|= 7.13e-06
+converged SCF energy = -94.4349191683631
+
+energy from frozen occupied orbitals = -2891.8619626781683
+deviation from DMET exact condition = -1.546140993013978e-11
+energy from embedded cluster with low level calculation = -94.43491916836314
+total energy with low level calculation = -2986.296881846516
+
+******** AVAS flags ********
+aolabels = Co 3d
+ncore = 42
+nunocc = 1
+minao = def2tzvp
+threshold = 0.5
+with_iao = False
+openshell_option = 2
+canonicalize = False
+
+** AVAS **
+  Total number of HF MOs  is equal to    55
+  Number of occupied HF MOs is equal to  50
+reference AO indices for def2tzvp Co 3d:
+ [18 19 20 21 22]
+Option 2: threshold 0.5
+Active from occupied = 3 , eig [0.72773141 0.73169612 0.73772129]
+Inactive from occupied = 5
+Active from unoccupied = 0 , eig []
+Inactive from unoccupied = 5
+Dimensions of active 3
+# of alpha electrons 3
+# of beta electrons 0
+statelis is None
+generate statelis [0 8 0 1]
+Attempting SA-CASSCF with
+fix_spin parameter 0.5 on spin multiplicity 2
+8 states with spin multiplicity 2
+fix_spin parameter 0.5 on spin multiplicity 4
+1 states with spin multiplicity 4
+
+******** <class 'pyscf.mcscf.addons.StateAverageCASSCF'> ********
+CAS (3e+0e, 3o), ncore = 5, nvir = 4
+max_cycle_macro = 50
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+orbital rotation threshold for CI restart = 0.01
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 1e-08
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpg3wdlnua
+max_memory 100000 MB (current use 0 MB)
+internal_rotation = False
+******** <class 'pyscf.mcscf.addons.StateAverageMixSpinPenaltyFCISolver'> ********
+max. cycles = 100
+conv_tol = 1e-10
+davidson only = True
+linear dependence = 1e-14
+level shift = 0.001
+max iter space = 12
+max_memory 100000 MB
+nroots = 9
+pspace_size = 400
+spin = 1
+State-average over 9 states with weights [0.11111111 0.11111111 0.11111111 0.11111111 0.11111111 0.11111111
+ 0.11111111 0.11111111 0.11111111]
+CASCI E = -94.3051970017303  S^2 = 1.0833333
+Set conv_tol_grad to 0.000316228
+macro iter   1 ( 13 JK    4 micro), CASSCF E = -94.3130657092766  dE = -7.86870755e-03  S^2 = 1.0833333
+               |grad[o]|=0.0594  |ddm|=3.88e-16  |maxRot[o]|= 0.12
+macro iter   2 (  3 JK    1 micro), CASSCF E = -94.3130658982758  dE = -1.88999195e-07  S^2 = 1.0833333
+               |grad[o]|=0.000312  |ddm|=5.64e-16  |maxRot[o]|=0.000504
+macro iter   3 (  1 JK    1 micro), CASSCF E = -94.3130658982758  dE =  0.00000000e+00  S^2 = 1.0833333
+               |grad[o]|=5.25e-06  |ddm|=6.15e-16  |maxRot[o]|=    0
+1-step CASSCF converged in   3 macro ( 17 JK   6 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1. 1. 1.]
+CASSCF energy = -94.3130658982758
+CASCI E = -94.3130658982758  E(CI) = -3.38125839933622  S^2 = 1.0833333
+CASCI state-averaged energy = -94.3130658982758
+CASCI energy for each state
+  State 0 weight 0.111111  E = -94.3262291134709 S^2 = 0.7500000
+  State 1 weight 0.111111  E = -94.3261739029029 S^2 = 0.7500000
+  State 2 weight 0.111111  E = -94.3256255118556 S^2 = 0.7500000
+  State 3 weight 0.111111  E = -94.3242528989318 S^2 = 0.7500000
+  State 4 weight 0.111111  E = -94.3240346684093 S^2 = 0.7500000
+  State 5 weight 0.111111  E = -94.2525357914573 S^2 = 0.7500000
+  State 6 weight 0.111111  E = -94.2524007772957 S^2 = 0.7500000
+  State 7 weight 0.111111  E = -94.2516528131664 S^2 = 0.7500000
+  State 8 weight 0.111111  E = -94.4346876069921 S^2 = 3.7500000
+sacasscf_nevpt2_casci_ver
+CASCI
+
+******** <class 'pyscf.mcscf.casci.CASCI'> ********
+CAS (2e+1e, 3o), ncore = 5, nvir = 4
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 100000 MB (current use 0 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 8
+pspace_size = 400
+spin = 1
+
+WARN: Mulitple states found in CASCI solver. First state is used to compute the Fock matrix and natural orbitals in active space.
+
+Density matrix diagonal elements [0.94867438 1.07075725 0.98056837]
+CASCI converged
+CASCI state   0  E = -94.3262291134708  E(CI) = -3.39442161453132  S^2 = 0.7500000
+CASCI state   1  E = -94.3261739029028  E(CI) = -3.39436640396332  S^2 = 0.7500000
+CASCI state   2  E = -94.3256255118556  E(CI) = -3.39381801291607  S^2 = 0.7500000
+CASCI state   3  E = -94.3242528989317  E(CI) = -3.39244539999221  S^2 = 0.7500000
+CASCI state   4  E = -94.3240346684093  E(CI) = -3.39222716946978  S^2 = 0.7500000
+CASCI state   5  E = -94.2525357914572  E(CI) = -3.32072829251773  S^2 = 0.7500000
+CASCI state   6  E = -94.2524007772957  E(CI) = -3.32059327835620  S^2 = 0.7500000
+CASCI state   7  E = -94.2516528131664  E(CI) = -3.31984531422684  S^2 = 0.7500000
+spin 1 iroot 0
+Sr    (-1)',   E = -0.00000745615100
+Si    (+1)',   E = -0.00007735346510
+Sijrs (0)  ,   E = -0.00078394759570
+Sijr  (+1) ,   E = -0.00013291378503
+Srsi  (-1) ,   E = -0.00001948014196
+Srs   (-2) ,   E = -0.00000040350308
+Sij   (+2) ,   E = -0.00003503072844
+Sir   (0)' ,   E = -0.00004562004448
+Nevpt2 Energy = -0.001102205414775
+spin 1 iroot 1
+Sr    (-1)',   E = -0.00000738656671
+Si    (+1)',   E = -0.00002578653466
+Sijrs (0)  ,   E = -0.00078402439250
+Sijr  (+1) ,   E = -0.00013195586644
+Srsi  (-1) ,   E = -0.00002066111751
+Srs   (-2) ,   E = -0.00000032824102
+Sij   (+2) ,   E = -0.00001631134042
+Sir   (0)' ,   E = -0.00005488269734
+Nevpt2 Energy = -0.001041336756597
+spin 1 iroot 2
+Sr    (-1)',   E = -0.00000849091072
+Si    (+1)',   E = -0.00005564384886
+Sijrs (0)  ,   E = -0.00078399786978
+Sijr  (+1) ,   E = -0.00013217838794
+Srsi  (-1) ,   E = -0.00002001670650
+Srs   (-2) ,   E = -0.00000024547042
+Sij   (+2) ,   E = -0.00003180302042
+Sir   (0)' ,   E = -0.00004856555037
+Nevpt2 Energy = -0.001080941765017
+spin 1 iroot 3
+Sr    (-1)',   E = -0.00000660119066
+Si    (+1)',   E = -0.00005502363190
+Sijrs (0)  ,   E = -0.00078398422450
+Sijr  (+1) ,   E = -0.00013275485025
+Srsi  (-1) ,   E = -0.00001978646320
+Srs   (-2) ,   E = -0.00000020412491
+Sij   (+2) ,   E = -0.00004317418256
+Sir   (0)' ,   E = -0.00004489859401
+Nevpt2 Energy = -0.001086427261990
+spin 1 iroot 4
+Sr    (-1)',   E = -0.00001258749476
+Si    (+1)',   E = -0.00005036898858
+Sijrs (0)  ,   E = -0.00078399817717
+Sijr  (+1) ,   E = -0.00013192624906
+Srsi  (-1) ,   E = -0.00001994790991
+Srs   (-2) ,   E = -0.00000061620296
+Sij   (+2) ,   E = -0.00003373238312
+Sir   (0)' ,   E = -0.00004053479707
+Nevpt2 Energy = -0.001073712202631
+spin 1 iroot 5
+Sr    (-1)',   E = -0.00001693044932
+Si    (+1)',   E = -0.00022573619959
+Sijrs (0)  ,   E = -0.00078399621020
+Sijr  (+1) ,   E = -0.00013649801022
+Srsi  (-1) ,   E = -0.00002061962528
+Srs   (-2) ,   E = -0.00003970206793
+Sij   (+2) ,   E = -0.00009338941577
+Sir   (0)' ,   E = -0.00005238811035
+Nevpt2 Energy = -0.001369260088661
+spin 1 iroot 6
+Sr    (-1)',   E = -0.00003432482573
+Si    (+1)',   E = -0.00020899379295
+Sijrs (0)  ,   E = -0.00078406707891
+Sijr  (+1) ,   E = -0.00013752557292
+Srsi  (-1) ,   E = -0.00002080844587
+Srs   (-2) ,   E = -0.00003905369714
+Sij   (+2) ,   E = -0.00006602114387
+Sir   (0)' ,   E = -0.00004660140326
+Nevpt2 Energy = -0.001337395960650
+spin 1 iroot 7
+Sr    (-1)',   E = -0.00002588797122
+Si    (+1)',   E = -0.00012995398653
+Sijrs (0)  ,   E = -0.00078398986842
+Sijr  (+1) ,   E = -0.00013496567931
+Srsi  (-1) ,   E = -0.00002035510066
+Srs   (-2) ,   E = -0.00003717192807
+Sij   (+2) ,   E = -0.00003335368430
+Sir   (0)' ,   E = -0.00004495133693
+Nevpt2 Energy = -0.001210629555429
+CASCI
+
+******** <class 'pyscf.mcscf.casci.CASCI'> ********
+CAS (3e+0e, 3o), ncore = 5, nvir = 4
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 100000 MB (current use 0 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 1
+pspace_size = 400
+spin = 3
+Density matrix diagonal elements [1. 1. 1.]
+CASCI converged
+CASCI E = -94.4346876069920  E(CI) = -3.50288010805251  S^2 = 3.7500000
+spin 3 iroot 0
+Sr    (-1)',   E = -0.00001621694576
+Si    (+1)',   E = -0.00014152417716
+Sijrs (0)  ,   E = -0.00078400067215
+Sijr  (+1) ,   E = -0.00012588154307
+Srsi  (-1) ,   E = -0.00001905012118
+Srs   (-2) ,   E = -0.00000024174621
+Sij   (+2) ,   E = -0.00001455655110
+Sir   (0)' ,   E = -0.00005190782560
+Nevpt2 Energy = -0.001153379582227
+Attempting SA-CASSCF with
+fix_spin parameter 0.5 on spin multiplicity 2
+8 states with spin multiplicity 2
+fix_spin parameter 0.5 on spin multiplicity 4
+1 states with spin multiplicity 4
+    CPU time for 2e SOC J/K1/K2 integrals     74.97 sec, wall time     75.41 sec
+state 0 energy 0.0
+(S, MS, I), [ 3 -3  0]	 coeff	 -0.000+0.789j	 |coeff| ** 2	 0.622
+(S, MS, I), [3 3 0]	 coeff	 0.000+0.531j	 |coeff| ** 2	 0.282
+(S, MS, I), [3 1 0]	 coeff	 0.000-0.295j	 |coeff| ** 2	 0.087
+(S, MS, I), [ 3 -1  0]	 coeff	 -0.000-0.089j	 |coeff| ** 2	 0.008
+(S, MS, I), [ 1 -1  7]	 coeff	 0.007+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 7]	 coeff	 -0.006+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  5]	 coeff	 0.000-0.005j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  6]	 coeff	 0.005-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 5]	 coeff	 -0.000-0.004j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  0]	 coeff	 -0.000+0.000j	 |coeff| ** 2	 0.000
+state 1 energy 1.5594610403013574e-08
+(S, MS, I), [3 3 0]	 coeff	 0.102-0.782j	 |coeff| ** 2	 0.622
+(S, MS, I), [ 3 -3  0]	 coeff	 -0.069+0.527j	 |coeff| ** 2	 0.282
+(S, MS, I), [ 3 -1  0]	 coeff	 -0.038+0.293j	 |coeff| ** 2	 0.087
+(S, MS, I), [3 1 0]	 coeff	 0.012-0.088j	 |coeff| ** 2	 0.008
+(S, MS, I), [1 1 7]	 coeff	 0.007+0.001j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  7]	 coeff	 0.006+0.001j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 5]	 coeff	 -0.001+0.005j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 6]	 coeff	 0.005+0.001j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  5]	 coeff	 0.001-0.004j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 0]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+state 2 energy 0.01188902219797157
+(S, MS, I), [3 1 0]	 coeff	 0.036+0.827j	 |coeff| ** 2	 0.685
+(S, MS, I), [ 3 -1  0]	 coeff	 -0.023+0.468j	 |coeff| ** 2	 0.219
+(S, MS, I), [3 3 0]	 coeff	 -0.004+0.224j	 |coeff| ** 2	 0.050
+(S, MS, I), [ 3 -3  0]	 coeff	 0.013+0.211j	 |coeff| ** 2	 0.045
+(S, MS, I), [1 1 6]	 coeff	 -0.007+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  5]	 coeff	 -0.000-0.006j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  6]	 coeff	 -0.005-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 7]	 coeff	 0.005-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 5]	 coeff	 0.000-0.004j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  1]	 coeff	 -0.000-0.000j	 |coeff| ** 2	 0.000
+state 3 energy 0.011889025316893651
+(S, MS, I), [ 3 -1  0]	 coeff	 -0.042-0.827j	 |coeff| ** 2	 0.685
+(S, MS, I), [3 1 0]	 coeff	 0.067+0.464j	 |coeff| ** 2	 0.219
+(S, MS, I), [ 3 -3  0]	 coeff	 0.025+0.222j	 |coeff| ** 2	 0.050
+(S, MS, I), [3 3 0]	 coeff	 -0.007-0.212j	 |coeff| ** 2	 0.045
+(S, MS, I), [ 1 -1  6]	 coeff	 0.007-0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 5]	 coeff	 0.000+0.006j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 6]	 coeff	 -0.005+0.001j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  7]	 coeff	 -0.005+0.000j	 |coeff| ** 2	 0.000
+(S, MS, I), [ 1 -1  5]	 coeff	 -0.001-0.004j	 |coeff| ** 2	 0.000
+(S, MS, I), [1 1 1]	 coeff	 0.000+0.000j	 |coeff| ** 2	 0.000
+mag energy [0.00000000e+00 1.55946104e-08 1.18890222e-02 1.18890253e-02
+ 2.38013217e+04 2.38013217e+04 2.38503849e+04 2.38503849e+04
+ 2.39509915e+04 2.39509915e+04 2.42513066e+04 2.42513066e+04
+ 2.43015653e+04 2.43015653e+04 3.99509017e+04 3.99509017e+04
+ 3.99908031e+04 3.99908031e+04 4.01852075e+04 4.01852075e+04]

@@ -154,7 +154,8 @@ def orthogonalize_iao( coeff, ovlp ):
 def resort_orbitals( mol, ao2loc ):
 
     # Sort the orbitals according to the atom list
-    Norbs  = mol.nao_nr()
+    #Norbs  = mol.nao_nr()
+    Norbs = ao2loc.shape[1]
     coords = np.zeros( [ Norbs, 3 ], dtype=float )
     rvec   = mol.intor( 'cint1e_r_sph', 3 )
     for cart in range(3):
@@ -212,7 +213,7 @@ def construct_iao( mol, mf ):
     return ( ao2iao , S1, pmol )
 
 #and PAO are constructed from this def
-def localize_iao( mol, mf , lo2ao):
+def localize_iao( mol, mf , lo2ao, iaopao = 'IAO'):
 
     Norbs = mol.nao_nr()
     ao2iao, S1, pmol = construct_iao( mol, mf )
@@ -256,7 +257,22 @@ def localize_iao( mol, mf , lo2ao):
     DM3    = np.dot( Cp, Cp.T )
     A      = 2 * np.dot( DM1, np.dot( S1, np.dot( DM3, S31.T ) ) ) + P13 - np.dot( DM1 + DM3, S31.T )
     ao2com = orthogonalize_iao( A, S1 )
-    ao2loc = np.hstack( ( ao2iao, ao2com ) )
+    if iaopao == 'IAOPAO':
+        print("Using IAOPAO with PAO as virtual orbitals")
+        ao2loc = np.hstack( ( ao2iao, ao2com ) )
+    elif iaopao == 'IAO':
+        print("Using IAO + PAO: project virtual MOs onto complement of IAO space")
+        p_pao = np.eye(Norbs) - np.dot(np.dot(ao2iao, ao2iao.conj().T), S1)
+        C_virt = C[:, n_mo:]
+        pao_coeff = np.dot(p_pao, C_virt)
+        m = np.dot(pao_coeff.conj().T, np.dot(S1, pao_coeff))
+        e, v = scipy.linalg.eigh(m)
+        keep = e > 1e-8
+        print("PAO: kept %d of %d projected virtual orbitals" % (int(keep.sum()), m.shape[0]))
+        pao_coeff = np.dot(pao_coeff, v[:, keep] / np.sqrt(e[keep]))
+        ao2loc = np.hstack((ao2iao, pao_coeff))
+    else:
+        raise ValueError("Invalid iaopao option. Choose 'IAO' or 'IAOPAO'.")
     ao2loc = resort_orbitals( mol, ao2loc )
     ao2loc = orthogonalize_iao( ao2loc, S1 )
     
