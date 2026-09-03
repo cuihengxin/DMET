@@ -328,31 +328,14 @@ class SSDMET(lib.StreamObject):
             fh5['es_dm'] = self.es_dm
         return 
     
-    def lowdin_orth(self, restore_imp = False, iaopao = None):
+    def lowdin_orth(self, restore_imp = False, iaopao = None, ip_iao=None, imp4ip=None):
         # lowdin orthonormalize
         caolo, cloao = lowdin_orth(self.mol)
         lo2ao = cloao
-        '''if restore_imp:
-            imp_idx = self.imp_idx
-            mask_env = np.ones(len(caolo), dtype=bool)
-            mask_env[imp_idx] = False
-
-            Q1 = cloao[:, imp_idx]
-            Q1, _ = np.linalg.qr(Q1) # orthonormalize
-            P = np.eye(*cloao.shape) - Q1 @ Q1.T.conj()
-            B = P @ cloao[:, mask_env]
-            from scipy.linalg import svd
-            U, S, Vh = svd(B, full_matrices=False)
-
-            Q = np.zeros(cloao.shape)
-            Q[:, imp_idx] = Q1
-            Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
-            cloao = Q.T.conj() @ cloao
-            caolo = caolo @ Q'''
         if iaopao == 'IAO':
             caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, lo2ao, iaopao='IAO')
             print("caolo shape: ", caolo.shape)
-            cloao = caolo.conj().T @ self.mol.intor_symmetric('int1e_ovlp')
+            #cloao = caolo.conj().T @ self.mol.intor_symmetric('int1e_ovlp')
             cloao = np.linalg.inv(caolo)
             print("cloao shape: ", cloao.shape)
             #cloao = np.linalg.inv(caolo)
@@ -360,7 +343,8 @@ class SSDMET(lib.StreamObject):
             caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, lo2ao, iaopao='IAOPAO')
             cloao = np.linalg.inv(caolo)
         else:
-            raise ValueError("Invalid iaopao option. Choose 'IAO' or 'IAOPAO'.")
+            self.log.info("Invalid iaopao option. Choose 'IAO' or 'IAOPAO'. and the IAO is not used")
+            pass
         if restore_imp:
             imp_idx = self.imp_idx
             mask_env = np.ones(len(caolo), dtype=bool)
@@ -378,12 +362,38 @@ class SSDMET(lib.StreamObject):
             Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
             cloao = Q.T.conj() @ cloao
             caolo = caolo @ Q
+        if ip_iao is not None:
+            if imp4ip is None:
+                imp4ip = self.imp_idx
+                self.log.info(f"***imp4ip is not assigned, we use the same impurity orbitals as imp_idx for IPLO, which not recommended and lost the pros for IPLO with large impurity orbitals")
+            self.log.info(f"***We use large impurity orbitals for LOIP while for IAO we use valence IAO only")
+            #imp1 = self.mol.search_ao_label('Co.*')
+            #imp_idx = self.imp_idx
+            imp_idx = imp4ip
+            mask_env = np.ones(len(caolo), dtype=bool)
+            mask_env[imp_idx] = False
 
-        
+            Q1 = cloao[:, imp_idx]
+            Q1, _ = np.linalg.qr(Q1) # orthonormalize
+            P = np.eye(*cloao.shape) - Q1 @ Q1.T.conj()
+            B = P @ cloao[:, mask_env]
+            from scipy.linalg import svd
+            U, S, Vh = svd(B, full_matrices=False)
+
+            Q = np.zeros(cloao.shape)
+            Q[:, imp_idx] = Q1
+            Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
+            cloao = Q.T.conj() @ cloao
+            caolo = caolo @ Q
+            if ip_iao == 'IAO':
+                ### here thown the cloao from IPLO to IAO+PAO
+                caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, cloao, iaopao='IAOPAO')
+                cloao = np.linalg.inv(caolo)
+
         ldm = reduce(lib.dot, (cloao, self.dm, cloao.conj().T))
         return ldm, caolo, cloao
         
-    def build(self, restore_imp = False, iaopao = None, chk_fname_load='', save_chk=True, xc = None, mp2method='full'):
+    def build(self, restore_imp = False, iaopao = None, ip_iao=None, imp4ip=None, chk_fname_load='', save_chk=True, xc = None, mp2method='full'):
         self.dump_flags()
         dm = mf_or_cas_make_rdm1s(self.mf_or_cas)
         if dm.ndim == 3: # ROHF density matrix have dimension (2, nao, nao)
@@ -397,7 +407,7 @@ class SSDMET(lib.StreamObject):
         loaded = self.load_chk(chk_fname_load)
         
         if not loaded:
-            ldm, caolo, cloao = self.lowdin_orth(restore_imp, iaopao)
+            ldm, caolo, cloao = self.lowdin_orth(restore_imp, iaopao, ip_iao, imp4ip)
 
             bath_norb = self.bath_norb
             if isinstance(bath_norb, str):

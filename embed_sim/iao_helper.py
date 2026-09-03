@@ -213,7 +213,7 @@ def construct_iao( mol, mf ):
     return ( ao2iao , S1, pmol )
 
 #and PAO are constructed from this def
-def localize_iao( mol, mf , lo2ao, iaopao = 'IAO'):
+def localize_iao( mol, mf , lo2ao, iaopao = 'IAOPAO'):
 
     Norbs = mol.nao_nr()
     ao2iao, S1, pmol = construct_iao( mol, mf )
