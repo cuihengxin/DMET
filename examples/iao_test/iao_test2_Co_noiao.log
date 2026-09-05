@@ -1,0 +1,1216 @@
+#INFO: **** input file is /Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/examples/iao_test/iao_test2.py ****
+import sys
+sys.path.insert(0,'/Users/cuihengxin/Desktop/2025-2030phd/8dmet4reac/DMET/')
+import numpy as np
+from pyscf import gto, scf
+from embed_sim import ssdmet, sacasscf_mixer, siso
+
+title = 'CoSH4'
+
+def get_mol(dihedral):
+     mol = gto.M(atom = '''
+                Co             
+                S                  1            2.30186590
+                S                  1            2.30186590    2            109.47122060
+                S                  1            2.30186590    3            109.47122065    2            -120.00000001                  0
+                S                  1            2.30186590    4            109.47122060    3            120.00000001                   0
+                H                  2            1.30714645    1            109.47121982    4            '''+str(-60-dihedral)+'''      0
+                H                  4            1.30714645    1            109.47121982    3            '''+str(60+dihedral)+'''       0
+                H                  5            1.30714645    1            109.47121982    4            '''+str(-180+dihedral)+'''     0
+                H                  3            1.30714645    1            109.47121982    4            '''+str(60-dihedral)+'''       0
+     ''',
+     basis={'default':'def2tzvp','s':'6-31G*','H':'6-31G*'}, symmetry=0 ,spin = 3,charge = -2,verbose= 4)
+
+     return mol
+
+mol = get_mol(0)
+
+mf = scf.rohf.ROHF(mol).x2c().density_fit()
+
+chk_fname = title + '_rohf.chk'
+
+mf.chkfile = chk_fname
+mf.init_guess = 'chk'
+mf.level_shift = .1
+mf.max_cycle = 1000
+mf.max_memory = 100000
+mf.kernel()
+imp = mol.search_ao_label('Co 3d')
+print("impurity orbitals: ", imp)
+imp2 = mol.search_ao_label('Co.*')
+print("impurity orbitals: ", imp2)
+mydmet = ssdmet.SSDMET(mf, title=title, imp_idx=imp, bath_option={'ROMP2':43},es_natorb=False).density_fit()
+# if impurity is not assigned, the orbitals on the first atom is chosen as impurity
+mydmet.build(iaopao=None,restore_imp =False, save_chk=False, ip_iao='IP', imp4ip=imp2)
+
+ncas, nelec, es_mo = mydmet.avas('Co 3d', minao='def2tzvp', threshold=0.5)
+
+es_cas = sacasscf_mixer.sacasscf_mixer(mydmet.es_mf, ncas, nelec)
+es_cas.kernel(es_mo)
+
+es_ecorr = sacasscf_mixer.sacasscf_nevpt2(es_cas)
+es_cas.fcisolver.e_states = es_cas.fcisolver.e_states + es_ecorr
+total_cas = mydmet.total_cas(es_cas)
+from pyscf import tools
+tools.molden.from_mcscf(total_cas, title + '_cas.molden', cas_natorb =True)
+mysiso = siso.SISO(title, total_cas)
+mysiso.kernel()
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Darwin', node='MateMinkstation', release='24.6.0', version='Darwin Kernel Version 24.6.0: Wed Oct 15 21:12:39 PDT 2025; root:xnu-11417.140.69.703.14~1/RELEASE_ARM64_T8132', machine='arm64')  Threads 1
+Python 3.13.9 | packaged by Anaconda, Inc. | (main, Oct 21 2025, 19:11:29) [Clang 20.1.8 ]
+numpy 2.3.5  scipy 1.16.3  h5py 3.15.1
+Date: Thu Sep  3 23:31:55 2026
+PySCF version 2.11.0
+PySCF path  /Users/cuihengxin/miniconda3/lib/python3.13/site-packages/pyscf
+
+[CONFIG] conf_file /Users/cuihengxin/.pyscf_conf.py
+[INPUT] verbose = 4
+[INPUT] num. atoms = 9
+[INPUT] num. electrons = 97
+[INPUT] charge = -2
+[INPUT] spin (= nelec alpha-beta = 2S) = 3
+[INPUT] symmetry 0 subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 Co     0.000000000000   0.000000000000   0.000000000000 AA    0.000000000000   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  2 S      2.301865900000   0.000000000000   0.000000000000 AA    4.349896126475   0.000000000000   0.000000000000 Bohr   0.0
+[INPUT]  3 S     -0.767288632027   0.000000000000   2.170219983491 AA   -1.449965373023   0.000000000000   4.101121398857 Bohr   0.0
+[INPUT]  4 S     -0.767288634002   1.879465636735  -1.085109991681 AA   -1.449965376756   3.551675313960  -2.050560699307 Bohr   0.0
+[INPUT]  5 S     -0.767288634021  -1.879465636673  -1.085109991774 AA   -1.449965376792  -3.551675313844  -2.050560699483 Bohr   0.0
+[INPUT]  6 H      2.737581365814  -0.000000000187  -1.232389497926 AA    5.173279025102  -0.000000000353  -2.328878629870 Bohr   0.0
+[INPUT]  7 H     -0.331573141714   2.946746233413  -0.468915233929 AA   -0.626582428101   5.568543339745  -0.886121367762 Bohr   0.0
+[INPUT]  8 H     -0.331573141920  -2.946746233387  -0.468915233951 AA   -0.626582428489  -5.568543339694  -0.886121367803 Bohr   0.0
+[INPUT]  9 H     -2.074435082027  -0.000000000215   2.170219965696 AA   -3.920114168221  -0.000000000406   4.101121365229 Bohr   0.0
+
+nuclear repulsion = 683.055032921424
+number of shells = 55
+number of NR pGTOs = 312
+number of NR cGTOs = 125
+basis = {'default': 'def2tzvp', 's': '6-31G*', 'H': '6-31G*'}
+ecp = {}
+CPU time:         0.48
+
+
+******** <class 'pyscf.df.df_jk.DFsfX2C1eROHF'> ********
+method = DFsfX2C1eROHF
+initial guess = chk
+damping factor = 0
+level_shift factor = 0.1
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 1000
+direct_scf = False
+chkfile to save SCF result = CoSH4_rohf.chk
+max_memory 100000 MB (current use 0 MB)
+num. doubly occ = 47  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+******** <class 'pyscf.df.df.DF'> ********
+auxbasis = None
+max_memory = 4000
+Default auxbasis def2-tzvp-jkfit is used for Co def2tzvp
+Default auxbasis def2-tzvp-jkfit is used for S def2tzvp
+Default auxbasis cc-pvdz-jkfit is used for H 6-31G*
+Default auxbasis cc-pvdz-jkfit is used for s 6-31G*
+init E= -2986.29664109072
+  HOMO = 0.226004949834284  LUMO = 0.507741105241355
+cycle= 1 E= -2986.29664108987  delta_E= 8.54e-10  |g|= 8.78e-05  |ddm|= 8.02e-05
+  HOMO = 0.226054738134784  LUMO = 0.507742655625824
+cycle= 2 E= -2986.29664108793  delta_E= 1.93e-09  |g|= 0.000135  |ddm|= 0.000118
+  HOMO = 0.226024695904342  LUMO = 0.507741753115422
+cycle= 3 E= -2986.29664109133  delta_E= -3.4e-09  |g|= 1.22e-05  |ddm|= 5.96e-05
+  HOMO = 0.22602440528222  LUMO = 0.507741729032345
+cycle= 4 E= -2986.29664109141  delta_E= -7.78e-11  |g|= 1.37e-06  |ddm|= 1.05e-05
+  HOMO = 0.176023975770243  LUMO = 0.407741707228396
+Extra cycle  E= -2986.29664109141  delta_E= 4.55e-12  |g|= 3.48e-06  |ddm|= 4.87e-06
+converged SCF energy = -2986.29664109141
+impurity orbitals:  [18 19 20 21 22]
+impurity orbitals:  [ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
+ 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44]
+
+******** <class 'embed_sim.df.DFSSDMET'> ********
+DMET from ROHF
+Invalid iaopao option. Choose 'IAO' or 'IAOPAO'. and the IAO is not used
+***We use large impurity orbitals for LOIP while for IAO we use valence IAO only
+****Restore imp: False
+****IAOPAO: None
+number of impurity orbitals = 5
+number of bath orbitals = 8
+number of embedded cluster orbitals = 13
+number of frozen occupied orbitals = 42
+number of frozen virtual orbitals = 70
+number of frozen orbitals = 112
+percentage of embedded cluster orbitals = 10.40%
+percentage of frozen orbitals = 89.60%
+
+
+
+******** <class 'pyscf.df.df_jk.DFsfX2C1eROHF'> ********
+method = DFsfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0.1
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 1000
+direct_scf = False
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpkshmm1_n
+max_memory 100000 MB (current use 0 MB)
+num. doubly occ = 5  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -36.4125548148522
+  HOMO = 0.226025797998665  LUMO = 2.80876782715113
+cycle= 1 E= -36.4125548148529  delta_E= -7.18e-13  |g|= 2.64e-06  |ddm|= 5.01e-06
+converged SCF energy = -36.4125548148529
+========== NOT Read from MP2.TXT files ===========
+
+========== eta >= 1 ===========
+constructing my ROMP2 bath
+MEM  semi-canonicalize RSS        0.0 MB   VMS        0.0 MB   peakRSS      359.8 MB
+Occupied BNO histogram
+                                          12
+                                         ____
+                                        |::::|
+                      8    8            |::::|
+                     ___  ___           |::::|
+                    |:::||:::|          |::::|
+                    |:::||:::|          |::::|  5
+                    |:::||:::|          |::::| ___
+            3       |:::||:::|          |::::||:::|
+           ___   1  |:::||:::|  1       |::::||:::|
++-------------------------------------------------+
+E-0 E-1  E-2  E-3  E-4  E-5  E-6  E-7  E-8   E-9  E-10
+
+Virtual BNO histogram
+                  26
+                 ____
+            22  |::::|
+           ____ |::::|  18
+          |::::||::::| ____
+          |::::||::::||::::|
+          |::::||::::||::::|
+          |::::||::::||::::|
+          |::::||::::||::::|  4
+          |::::||::::||::::| ___
++---------------------------------------------------+
+E-0 E-1  E-2   E-3   E-4   E-5  E-6  E-7  E-8  E-9  E-10
+
+================This is new eta================
+0.00014887948804413688
+Number of newly added bath orbitals = 43 (4 from core, 39 from virtual)
+
+Time for constructing ROMP2 bath: 0.09 sec (0.05 sec for ERIs, 0.02 sec for t1/t2, 0.01 sec for DM1, 0.01 sec for DM1->AO->BNO)
+MEM  end              RSS        0.0 MB   VMS        0.0 MB   peakRSS      390.2 MB
+ROMP2 bath expansion is used for open-shell systems__ SOS 
+number of impurity orbitals = 5
+number of bath orbitals = 51
+number of embedded cluster orbitals = 56
+number of frozen occupied orbitals = 38
+number of frozen virtual orbitals = 31
+number of frozen orbitals = 69
+percentage of embedded cluster orbitals = 44.80%
+percentage of frozen orbitals = 55.20%
+
+
+******** <class 'pyscf.df.df_jk.DFsfX2C1eROHF'> ********
+method = DFsfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0.1
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 1000
+direct_scf = False
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp_0kr1x2q
+max_memory 100000 MB (current use 0 MB)
+num. doubly occ = 9  num. singly occ = 3
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -162.499415699596
+  HOMO = 0.22602579799847  LUMO = 0.72576455804715
+cycle= 1 E= -162.499415699594  delta_E= 1.22e-12  |g|= 4.67e-06  |ddm|= 5.33e-06
+converged SCF energy = -162.499415699594
+
+energy from frozen occupied orbitals = -2823.797225391814
+deviation from DMET exact condition = -3.183231456205249e-12
+
+******** AVAS flags ********
+aolabels = Co 3d
+ncore = 38
+nunocc = 31
+minao = def2tzvp
+threshold = 0.5
+with_iao = False
+openshell_option = 2
+canonicalize = False
+
+** AVAS **
+  Total number of HF MOs  is equal to    125
+  Number of occupied HF MOs is equal to  50
+reference AO indices for def2tzvp Co 3d:
+ [18 19 20 21 22]
+Option 2: threshold 0.5
+Active from occupied = 5 , eig [0.70719674 0.72082401 0.74006781 0.74341902 0.74341902]
+Inactive from occupied = 7
+Active from unoccupied = 0 , eig []
+Inactive from unoccupied = 44
+Dimensions of active 5
+# of alpha electrons 5
+# of beta electrons 2
+statelis is None
+generate statelis [ 0 40  0 10]
+Attempting SA-CASSCF with
+fix_spin parameter 0.5 on spin multiplicity 2
+40 states with spin multiplicity 2
+fix_spin parameter 0.5 on spin multiplicity 4
+10 states with spin multiplicity 4
+
+******** <class 'pyscf.mcscf.addons.StateAverageDFCASSCF'> ********
+CAS (5e+2e, 5o), ncore = 7, nvir = 44
+max_cycle_macro = 50
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+orbital rotation threshold for CI restart = 0.01
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 1e-08
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp_0kr1x2q
+max_memory 100000 MB (current use 0 MB)
+internal_rotation = False
+******** <class 'pyscf.mcscf.addons.StateAverageMixSpinPenaltyFCISolver'> ********
+max. cycles = 100
+conv_tol = 1e-10
+davidson only = True
+linear dependence = 1e-14
+level shift = 0.001
+max iter space = 12
+max_memory 100000 MB
+nroots = 50
+pspace_size = 400
+spin = 1
+State-average over 50 states with weights [0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
+ 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02]
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+CASCI E = -162.335246761641  S^2 = 1.3500000
+Set conv_tol_grad to 0.000316228
+macro iter   1 ( 13 JK    4 micro), CASSCF E = -162.359395781707  dE = -2.41490201e-02  S^2 = 1.3500000
+               |grad[o]|=0.193  |ddm|=4.64e-15  |maxRot[o]|=0.118
+macro iter   2 ( 13 JK    4 micro), CASSCF E = -162.359740853278  dE = -3.45071570e-04  S^2 = 1.3500000
+               |grad[o]|=0.0123  |ddm|=1.35e-15  |maxRot[o]|=0.0166
+macro iter   3 (  6 JK    2 micro), CASSCF E = -162.359741065202  dE = -2.11924885e-07  S^2 = 1.3500000
+               |grad[o]|=0.000318  |ddm|=1.85e-15  |maxRot[o]|=0.000414
+macro iter   4 (  1 JK    1 micro), CASSCF E = -162.359741065202  dE =  0.00000000e+00  S^2 = 1.3500000
+               |grad[o]|=2.11e-05  |ddm|=1.81e-15  |maxRot[o]|=    0
+1-step CASSCF converged in   4 macro ( 33 JK  11 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1.4 1.4 1.4 1.4 1.4]
+CASSCF energy = -162.359741065202
+CASCI E = -162.359741065202  E(CI) = -19.8271766338933  S^2 = 1.3500000
+CASCI state-averaged energy = -162.359741065202
+CASCI energy for each state
+  State 0 weight 0.02  E = -162.406228520543 S^2 = 0.7500000
+  State 1 weight 0.02  E = -162.405516758962 S^2 = 0.7500000
+  State 2 weight 0.02  E = -162.40529923469 S^2 = 0.7500000
+  State 3 weight 0.02  E = -162.404568696192 S^2 = 0.7500000
+  State 4 weight 0.02  E = -162.40456858443 S^2 = 0.7500000
+  State 5 weight 0.02  E = -162.400946564689 S^2 = 0.7500000
+  State 6 weight 0.02  E = -162.395124046957 S^2 = 0.7500000
+  State 7 weight 0.02  E = -162.393312965657 S^2 = 0.7500000
+  State 8 weight 0.02  E = -162.393312928804 S^2 = 0.7500000
+  State 9 weight 0.02  E = -162.380826089638 S^2 = 0.7500000
+  State 10 weight 0.02  E = -162.380826067116 S^2 = 0.7500000
+  State 11 weight 0.02  E = -162.378790565047 S^2 = 0.7500000
+  State 12 weight 0.02  E = -162.375041083515 S^2 = 0.7500000
+  State 13 weight 0.02  E = -162.373820421813 S^2 = 0.7500000
+  State 14 weight 0.02  E = -162.373820407388 S^2 = 0.7500000
+  State 15 weight 0.02  E = -162.370532709164 S^2 = 0.7500000
+  State 16 weight 0.02  E = -162.370370917685 S^2 = 0.7500000
+  State 17 weight 0.02  E = -162.365179787473 S^2 = 0.7500000
+  State 18 weight 0.02  E = -162.365179728048 S^2 = 0.7500000
+  State 19 weight 0.02  E = -162.363210185916 S^2 = 0.7500000
+  State 20 weight 0.02  E = -162.361130071576 S^2 = 0.7500000
+  State 21 weight 0.02  E = -162.361129979329 S^2 = 0.7500000
+  State 22 weight 0.02  E = -162.360299329782 S^2 = 0.7500000
+  State 23 weight 0.02  E = -162.353273222372 S^2 = 0.7500000
+  State 24 weight 0.02  E = -162.353273189882 S^2 = 0.7500000
+  State 25 weight 0.02  E = -162.347937207513 S^2 = 0.7500000
+  State 26 weight 0.02  E = -162.346866014923 S^2 = 0.7500000
+  State 27 weight 0.02  E = -162.341347483039 S^2 = 0.7500000
+  State 28 weight 0.02  E = -162.295334915441 S^2 = 0.7500000
+  State 29 weight 0.02  E = -162.291650804679 S^2 = 0.7500000
+  State 30 weight 0.02  E = -162.291650769835 S^2 = 0.7500000
+  State 31 weight 0.02  E = -162.290653678887 S^2 = 0.7500000
+  State 32 weight 0.02  E = -162.286901354721 S^2 = 0.7500000
+  State 33 weight 0.02  E = -162.286901335536 S^2 = 0.7500000
+  State 34 weight 0.02  E = -162.28549393601 S^2 = 0.7500000
+  State 35 weight 0.02  E = -162.190850278861 S^2 = 0.7500000
+  State 36 weight 0.02  E = -162.183720757803 S^2 = 0.7500000
+  State 37 weight 0.02  E = -162.18263238199 S^2 = 0.7500000
+  State 38 weight 0.02  E = -162.176690814112 S^2 = 0.7500000
+  State 39 weight 0.02  E = -162.176690602361 S^2 = 0.7500000
+  State 40 weight 0.02  E = -162.494575530411 S^2 = 3.7500000
+  State 41 weight 0.02  E = -162.482569480385 S^2 = 3.7500000
+  State 42 weight 0.02  E = -162.477099197986 S^2 = 3.7500000
+  State 43 weight 0.02  E = -162.477098921367 S^2 = 3.7500000
+  State 44 weight 0.02  E = -162.466059198961 S^2 = 3.7500000
+  State 45 weight 0.02  E = -162.466059128988 S^2 = 3.7500000
+  State 46 weight 0.02  E = -162.465392506282 S^2 = 3.7500000
+  State 47 weight 0.02  E = -162.397847416228 S^2 = 3.7500000
+  State 48 weight 0.02  E = -162.397847296731 S^2 = 3.7500000
+  State 49 weight 0.02  E = -162.391600190406 S^2 = 3.7500000
+sacasscf_nevpt2_casci_ver
+CASCI
+
+******** <class 'pyscf.mcscf.df.DFCASCI'> ********
+CAS (4e+3e, 5o), ncore = 7, nvir = 44
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 100000 MB (current use 0 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 40
+pspace_size = 400
+spin = 1
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+
+WARN: Mulitple states found in CASCI solver. First state is used to compute the Fock matrix and natural orbitals in active space.
+
+Density matrix diagonal elements [1.89790405 1.86464752 1.00365381 1.1169042  1.11689042]
+CASCI converged
+CASCI state   0  E = -162.406228520543  E(CI) = -19.8736640892339  S^2 = 0.7500000
+CASCI state   1  E = -162.405516758962  E(CI) = -19.8729523276524  S^2 = 0.7500000
+CASCI state   2  E = -162.405299234690  E(CI) = -19.8727348033812  S^2 = 0.7500000
+CASCI state   3  E = -162.404568696192  E(CI) = -19.8720042648824  S^2 = 0.7500000
+CASCI state   4  E = -162.404568584430  E(CI) = -19.8720041531208  S^2 = 0.7500000
+CASCI state   5  E = -162.400946564689  E(CI) = -19.8683821333796  S^2 = 0.7500000
+CASCI state   6  E = -162.395124046957  E(CI) = -19.8625596156476  S^2 = 0.7500000
+CASCI state   7  E = -162.393312965657  E(CI) = -19.8607485343479  S^2 = 0.7500000
+CASCI state   8  E = -162.393312928804  E(CI) = -19.8607484974947  S^2 = 0.7500000
+CASCI state   9  E = -162.380826089638  E(CI) = -19.8482616583288  S^2 = 0.7500000
+CASCI state  10  E = -162.380826067116  E(CI) = -19.8482616358069  S^2 = 0.7500000
+CASCI state  11  E = -162.378790565047  E(CI) = -19.8462261337375  S^2 = 0.7500000
+CASCI state  12  E = -162.375041083515  E(CI) = -19.8424766522061  S^2 = 0.7500000
+CASCI state  13  E = -162.373820421813  E(CI) = -19.8412559905044  S^2 = 0.7500000
+CASCI state  14  E = -162.373820407388  E(CI) = -19.8412559760791  S^2 = 0.7500000
+CASCI state  15  E = -162.370532709164  E(CI) = -19.8379682778548  S^2 = 0.7500000
+CASCI state  16  E = -162.370370917685  E(CI) = -19.8378064863761  S^2 = 0.7500000
+CASCI state  17  E = -162.365179787473  E(CI) = -19.8326153561635  S^2 = 0.7500000
+CASCI state  18  E = -162.365179728048  E(CI) = -19.8326152967386  S^2 = 0.7500000
+CASCI state  19  E = -162.363210185916  E(CI) = -19.8306457546073  S^2 = 0.7500000
+CASCI state  20  E = -162.361130071576  E(CI) = -19.8285656402665  S^2 = 0.7500000
+CASCI state  21  E = -162.361129979329  E(CI) = -19.8285655480202  S^2 = 0.7500000
+CASCI state  22  E = -162.360299329782  E(CI) = -19.8277348984729  S^2 = 0.7500000
+CASCI state  23  E = -162.353273222372  E(CI) = -19.8207087910632  S^2 = 0.7500000
+CASCI state  24  E = -162.353273189882  E(CI) = -19.8207087585731  S^2 = 0.7500000
+CASCI state  25  E = -162.347937207513  E(CI) = -19.8153727762035  S^2 = 0.7500000
+CASCI state  26  E = -162.346866014923  E(CI) = -19.8143015836136  S^2 = 0.7500000
+CASCI state  27  E = -162.341347483039  E(CI) = -19.8087830517299  S^2 = 0.7500000
+CASCI state  28  E = -162.295334915441  E(CI) = -19.7627704841319  S^2 = 0.7500000
+CASCI state  29  E = -162.291650804679  E(CI) = -19.7590863733696  S^2 = 0.7500000
+CASCI state  30  E = -162.291650769835  E(CI) = -19.7590863385255  S^2 = 0.7500000
+CASCI state  31  E = -162.290653678887  E(CI) = -19.7580892475783  S^2 = 0.7500000
+CASCI state  32  E = -162.286901354721  E(CI) = -19.7543369234115  S^2 = 0.7500000
+CASCI state  33  E = -162.286901335536  E(CI) = -19.7543369042272  S^2 = 0.7500000
+CASCI state  34  E = -162.285493936010  E(CI) = -19.7529295047010  S^2 = 0.7500000
+CASCI state  35  E = -162.190850278861  E(CI) = -19.6582858475519  S^2 = 0.7500000
+CASCI state  36  E = -162.183720757803  E(CI) = -19.6511563264941  S^2 = 0.7500000
+CASCI state  37  E = -162.182632381990  E(CI) = -19.6500679506811  S^2 = 0.7500000
+CASCI state  38  E = -162.176690814112  E(CI) = -19.6441263828032  S^2 = 0.7500000
+CASCI state  39  E = -162.176690602361  E(CI) = -19.6441261710514  S^2 = 0.7500000
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 0
+Sr    (-1)',   E = -0.00118459860802
+Si    (+1)',   E = -0.00141636056942
+Sijrs (0)  ,   E = -0.07420033221525
+Sijr  (+1) ,   E = -0.02270610787686
+Srsi  (-1) ,   E = -0.12695483526165
+Srs   (-2) ,   E = -0.13597892084374
+Sij   (+2) ,   E = -0.00403271550519
+Sir   (0)' ,   E = -0.07412806248369
+Nevpt2 Energy = -0.440601933363812
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 1
+Sr    (-1)',   E = -0.00119736558926
+Si    (+1)',   E = -0.00137183426464
+Sijrs (0)  ,   E = -0.07419227861584
+Sijr  (+1) ,   E = -0.02263396274835
+Srsi  (-1) ,   E = -0.12692972448499
+Srs   (-2) ,   E = -0.13574787729049
+Sij   (+2) ,   E = -0.00381593479080
+Sir   (0)' ,   E = -0.07383162039494
+Nevpt2 Energy = -0.439720598179320
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 2
+Sr    (-1)',   E = -0.00118708224996
+Si    (+1)',   E = -0.00147588549920
+Sijrs (0)  ,   E = -0.07417651219770
+Sijr  (+1) ,   E = -0.02247503085840
+Srsi  (-1) ,   E = -0.12689869089629
+Srs   (-2) ,   E = -0.13533238027386
+Sij   (+2) ,   E = -0.00350262691298
+Sir   (0)' ,   E = -0.07347104281981
+Nevpt2 Energy = -0.438519251708193
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 3
+Sr    (-1)',   E = -0.00123661160788
+Si    (+1)',   E = -0.00160945769237
+Sijrs (0)  ,   E = -0.07418898185847
+Sijr  (+1) ,   E = -0.02256012219082
+Srsi  (-1) ,   E = -0.12687918656665
+Srs   (-2) ,   E = -0.13540992590460
+Sij   (+2) ,   E = -0.00362720045272
+Sir   (0)' ,   E = -0.07390977393901
+Nevpt2 Energy = -0.439421260212528
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 4
+Sr    (-1)',   E = -0.00123662799345
+Si    (+1)',   E = -0.00160949236524
+Sijrs (0)  ,   E = -0.07418898103327
+Sijr  (+1) ,   E = -0.02256011666945
+Srsi  (-1) ,   E = -0.12687918390706
+Srs   (-2) ,   E = -0.13540992377390
+Sij   (+2) ,   E = -0.00362719346489
+Sir   (0)' ,   E = -0.07390974251083
+Nevpt2 Energy = -0.439421261718096
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 5
+Sr    (-1)',   E = -0.00095766020569
+Si    (+1)',   E = -0.00128773775708
+Sijrs (0)  ,   E = -0.07412631205209
+Sijr  (+1) ,   E = -0.02187015331061
+Srsi  (-1) ,   E = -0.12666305058147
+Srs   (-2) ,   E = -0.13448036468198
+Sij   (+2) ,   E = -0.00366115109213
+Sir   (0)' ,   E = -0.06948872900480
+Nevpt2 Energy = -0.432535158685862
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 6
+Sr    (-1)',   E = -0.00100981573585
+Si    (+1)',   E = -0.00141166306570
+Sijrs (0)  ,   E = -0.07410288916715
+Sijr  (+1) ,   E = -0.02168490999315
+Srsi  (-1) ,   E = -0.12677968202097
+Srs   (-2) ,   E = -0.13522255564116
+Sij   (+2) ,   E = -0.00416958939322
+Sir   (0)' ,   E = -0.06803762422134
+Nevpt2 Energy = -0.432418729238526
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 7
+Sr    (-1)',   E = -0.00103773836323
+Si    (+1)',   E = -0.00141413307932
+Sijrs (0)  ,   E = -0.07411156189380
+Sijr  (+1) ,   E = -0.02163791967427
+Srsi  (-1) ,   E = -0.12664310915109
+Srs   (-2) ,   E = -0.13473446632502
+Sij   (+2) ,   E = -0.00400007362252
+Sir   (0)' ,   E = -0.06791166318241
+Nevpt2 Energy = -0.431490665291650
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 8
+Sr    (-1)',   E = -0.00103775225519
+Si    (+1)',   E = -0.00141413640370
+Sijrs (0)  ,   E = -0.07411156445080
+Sijr  (+1) ,   E = -0.02163793776799
+Srsi  (-1) ,   E = -0.12664311217153
+Srs   (-2) ,   E = -0.13473447806634
+Sij   (+2) ,   E = -0.00400008263005
+Sir   (0)' ,   E = -0.06791179504455
+Nevpt2 Energy = -0.431490858790152
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 9
+Sr    (-1)',   E = -0.00229600625074
+Si    (+1)',   E = -0.00130463804014
+Sijrs (0)  ,   E = -0.07414203158567
+Sijr  (+1) ,   E = -0.02210292517751
+Srsi  (-1) ,   E = -0.12697277417809
+Srs   (-2) ,   E = -0.13566833249398
+Sij   (+2) ,   E = -0.00287633776774
+Sir   (0)' ,   E = -0.07313637318880
+Nevpt2 Energy = -0.438499418682668
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 10
+Sr    (-1)',   E = -0.00229599753640
+Si    (+1)',   E = -0.00130462734301
+Sijrs (0)  ,   E = -0.07414203284597
+Sijr  (+1) ,   E = -0.02210293108964
+Srsi  (-1) ,   E = -0.12697277649879
+Srs   (-2) ,   E = -0.13566832999143
+Sij   (+2) ,   E = -0.00287633206442
+Sir   (0)' ,   E = -0.07313643739055
+Nevpt2 Energy = -0.438499464760204
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 11
+Sr    (-1)',   E = -0.00199137451969
+Si    (+1)',   E = -0.00388560732887
+Sijrs (0)  ,   E = -0.07413144215948
+Sijr  (+1) ,   E = -0.02205830057510
+Srsi  (-1) ,   E = -0.12692009561968
+Srs   (-2) ,   E = -0.13687192385730
+Sij   (+2) ,   E = -0.00568419274765
+Sir   (0)' ,   E = -0.06911074255239
+Nevpt2 Energy = -0.440653679360155
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 12
+Sr    (-1)',   E = -0.00237604817885
+Si    (+1)',   E = -0.00087181728838
+Sijrs (0)  ,   E = -0.07416853902580
+Sijr  (+1) ,   E = -0.02238080612548
+Srsi  (-1) ,   E = -0.12689192440577
+Srs   (-2) ,   E = -0.13634018752213
+Sij   (+2) ,   E = -0.00375859753160
+Sir   (0)' ,   E = -0.07327863692503
+Nevpt2 Energy = -0.440066557003031
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 13
+Sr    (-1)',   E = -0.00208798857039
+Si    (+1)',   E = -0.00207944721209
+Sijrs (0)  ,   E = -0.07414999675168
+Sijr  (+1) ,   E = -0.02207093986823
+Srsi  (-1) ,   E = -0.12670611355541
+Srs   (-2) ,   E = -0.13562716484007
+Sij   (+2) ,   E = -0.00388007473433
+Sir   (0)' ,   E = -0.07114571641844
+Nevpt2 Energy = -0.437747441950640
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 14
+Sr    (-1)',   E = -0.00208799527936
+Si    (+1)',   E = -0.00207943944680
+Sijrs (0)  ,   E = -0.07415000063219
+Sijr  (+1) ,   E = -0.02207097447239
+Srsi  (-1) ,   E = -0.12670611487412
+Srs   (-2) ,   E = -0.13562719140154
+Sij   (+2) ,   E = -0.00388009659384
+Sir   (0)' ,   E = -0.07114593233787
+Nevpt2 Energy = -0.437747745038106
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 15
+Sr    (-1)',   E = -0.00221134549984
+Si    (+1)',   E = -0.00102528976799
+Sijrs (0)  ,   E = -0.07411304259642
+Sijr  (+1) ,   E = -0.02184197566298
+Srsi  (-1) ,   E = -0.12684049112465
+Srs   (-2) ,   E = -0.13654069434851
+Sij   (+2) ,   E = -0.00505006720723
+Sir   (0)' ,   E = -0.06875811829868
+Nevpt2 Energy = -0.436381024506305
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 16
+Sr    (-1)',   E = -0.00218657650493
+Si    (+1)',   E = -0.00092188127760
+Sijrs (0)  ,   E = -0.07412707884701
+Sijr  (+1) ,   E = -0.02178553697522
+Srsi  (-1) ,   E = -0.12679313494415
+Srs   (-2) ,   E = -0.13600193202706
+Sij   (+2) ,   E = -0.00464722939131
+Sir   (0)' ,   E = -0.06912454817142
+Nevpt2 Energy = -0.435587918138695
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 17
+Sr    (-1)',   E = -0.00200484133412
+Si    (+1)',   E = -0.00384378050175
+Sijrs (0)  ,   E = -0.07406913176892
+Sijr  (+1) ,   E = -0.02127834901274
+Srsi  (-1) ,   E = -0.12677733117430
+Srs   (-2) ,   E = -0.13667095598952
+Sij   (+2) ,   E = -0.00633871923067
+Sir   (0)' ,   E = -0.06434739895107
+Nevpt2 Energy = -0.435330507963096
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 18
+Sr    (-1)',   E = -0.00200487460506
+Si    (+1)',   E = -0.00384378845295
+Sijrs (0)  ,   E = -0.07406913079980
+Sijr  (+1) ,   E = -0.02127834568725
+Srsi  (-1) ,   E = -0.12677733203419
+Srs   (-2) ,   E = -0.13667097072195
+Sij   (+2) ,   E = -0.00633873202374
+Sir   (0)' ,   E = -0.06434736498746
+Nevpt2 Energy = -0.435330539312416
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 19
+Sr    (-1)',   E = -0.00230055415941
+Si    (+1)',   E = -0.00065438573058
+Sijrs (0)  ,   E = -0.07405383526272
+Sijr  (+1) ,   E = -0.02096806610010
+Srsi  (-1) ,   E = -0.12661117310375
+Srs   (-2) ,   E = -0.13335260547874
+Sij   (+2) ,   E = -0.00086887834407
+Sir   (0)' ,   E = -0.06871460398116
+Nevpt2 Energy = -0.427524102160514
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 20
+Sr    (-1)',   E = -0.00235484198452
+Si    (+1)',   E = -0.00070558443042
+Sijrs (0)  ,   E = -0.07403969034840
+Sijr  (+1) ,   E = -0.02092143201329
+Srsi  (-1) ,   E = -0.12666174377398
+Srs   (-2) ,   E = -0.13408062044471
+Sij   (+2) ,   E = -0.00178078428918
+Sir   (0)' ,   E = -0.06726853585908
+Nevpt2 Energy = -0.427813233143587
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 21
+Sr    (-1)',   E = -0.00235485185299
+Si    (+1)',   E = -0.00070558845743
+Sijrs (0)  ,   E = -0.07403969316910
+Sijr  (+1) ,   E = -0.02092146070055
+Srsi  (-1) ,   E = -0.12666174609245
+Srs   (-2) ,   E = -0.13408065886996
+Sij   (+2) ,   E = -0.00178080986755
+Sir   (0)' ,   E = -0.06726869392201
+Nevpt2 Energy = -0.427813502932031
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 22
+Sr    (-1)',   E = -0.00205410475322
+Si    (+1)',   E = -0.00308812097819
+Sijrs (0)  ,   E = -0.07407188099297
+Sijr  (+1) ,   E = -0.02115665476072
+Srsi  (-1) ,   E = -0.12658766685960
+Srs   (-2) ,   E = -0.13527204381298
+Sij   (+2) ,   E = -0.00440697646112
+Sir   (0)' ,   E = -0.06569217438491
+Nevpt2 Energy = -0.432329623003711
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 23
+Sr    (-1)',   E = -0.00196047706419
+Si    (+1)',   E = -0.00205244686411
+Sijrs (0)  ,   E = -0.07406072007212
+Sijr  (+1) ,   E = -0.02105677969588
+Srsi  (-1) ,   E = -0.12663649722607
+Srs   (-2) ,   E = -0.13740634793393
+Sij   (+2) ,   E = -0.00793634704488
+Sir   (0)' ,   E = -0.06092235725489
+Nevpt2 Energy = -0.432031973156082
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 24
+Sr    (-1)',   E = -0.00196043689946
+Si    (+1)',   E = -0.00205246925806
+Sijrs (0)  ,   E = -0.07406072269417
+Sijr  (+1) ,   E = -0.02105678494833
+Srsi  (-1) ,   E = -0.12663650886090
+Srs   (-2) ,   E = -0.13740634857851
+Sij   (+2) ,   E = -0.00793635331314
+Sir   (0)' ,   E = -0.06092244578573
+Nevpt2 Energy = -0.432032070338310
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 25
+Sr    (-1)',   E = -0.00177800495661
+Si    (+1)',   E = -0.00168007247402
+Sijrs (0)  ,   E = -0.07406486238610
+Sijr  (+1) ,   E = -0.02088751262872
+Srsi  (-1) ,   E = -0.12649700668550
+Srs   (-2) ,   E = -0.13701386457055
+Sij   (+2) ,   E = -0.00781066248227
+Sir   (0)' ,   E = -0.06016545066988
+Nevpt2 Energy = -0.429897436853649
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 26
+Sr    (-1)',   E = -0.00224932879813
+Si    (+1)',   E = -0.00132592153383
+Sijrs (0)  ,   E = -0.07396268522422
+Sijr  (+1) ,   E = -0.02002743510661
+Srsi  (-1) ,   E = -0.12668867229074
+Srs   (-2) ,   E = -0.13622347149667
+Sij   (+2) ,   E = -0.00672200804256
+Sir   (0)' ,   E = -0.05695041358818
+Nevpt2 Energy = -0.424149936080953
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 27
+Sr    (-1)',   E = -0.00211079329722
+Si    (+1)',   E = -0.00125366361429
+Sijrs (0)  ,   E = -0.07398579911774
+Sijr  (+1) ,   E = -0.02005768532722
+Srsi  (-1) ,   E = -0.12643243517177
+Srs   (-2) ,   E = -0.13554025531658
+Sij   (+2) ,   E = -0.00615671873771
+Sir   (0)' ,   E = -0.05767153911330
+Nevpt2 Energy = -0.423208889695834
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 28
+Sr    (-1)',   E = -0.00498403756618
+Si    (+1)',   E = -0.00264939881121
+Sijrs (0)  ,   E = -0.07412447722396
+Sijr  (+1) ,   E = -0.02199239006123
+Srsi  (-1) ,   E = -0.12711431064274
+Srs   (-2) ,   E = -0.14034542611050
+Sij   (+2) ,   E = -0.00782690556881
+Sir   (0)' ,   E = -0.06978735722298
+Nevpt2 Energy = -0.448824303207613
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 29
+Sr    (-1)',   E = -0.00508202911783
+Si    (+1)',   E = -0.00245913443363
+Sijrs (0)  ,   E = -0.07411863215608
+Sijr  (+1) ,   E = -0.02192424620507
+Srsi  (-1) ,   E = -0.12714117797272
+Srs   (-2) ,   E = -0.14060137808149
+Sij   (+2) ,   E = -0.00802932165215
+Sir   (0)' ,   E = -0.06912534215858
+Nevpt2 Energy = -0.448481261777548
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 30
+Sr    (-1)',   E = -0.00508205222621
+Si    (+1)',   E = -0.00245913318683
+Sijrs (0)  ,   E = -0.07411863347427
+Sijr  (+1) ,   E = -0.02192425878809
+Srsi  (-1) ,   E = -0.12714117817322
+Srs   (-2) ,   E = -0.14060138726211
+Sij   (+2) ,   E = -0.00802932060799
+Sir   (0)' ,   E = -0.06912543479563
+Nevpt2 Energy = -0.448481398514350
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 31
+Sr    (-1)',   E = -0.00511456120728
+Si    (+1)',   E = -0.00247641825633
+Sijrs (0)  ,   E = -0.07411086018587
+Sijr  (+1) ,   E = -0.02185631515895
+Srsi  (-1) ,   E = -0.12708984070988
+Srs   (-2) ,   E = -0.14040237588103
+Sij   (+2) ,   E = -0.00783560436321
+Sir   (0)' ,   E = -0.06875343289973
+Nevpt2 Energy = -0.447639408662280
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 32
+Sr    (-1)',   E = -0.00481538684857
+Si    (+1)',   E = -0.00255937064506
+Sijrs (0)  ,   E = -0.07407431935848
+Sijr  (+1) ,   E = -0.02142639535346
+Srsi  (-1) ,   E = -0.12704135756980
+Srs   (-2) ,   E = -0.14005580475530
+Sij   (+2) ,   E = -0.00785601151335
+Sir   (0)' ,   E = -0.06635576346116
+Nevpt2 Energy = -0.444184409505182
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 33
+Sr    (-1)',   E = -0.00481538486690
+Si    (+1)',   E = -0.00255938484368
+Sijrs (0)  ,   E = -0.07407431944726
+Sijr  (+1) ,   E = -0.02142639367945
+Srsi  (-1) ,   E = -0.12704135672817
+Srs   (-2) ,   E = -0.14005580104682
+Sij   (+2) ,   E = -0.00785600707593
+Sir   (0)' ,   E = -0.06635575439110
+Nevpt2 Energy = -0.444184402079317
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 34
+Sr    (-1)',   E = -0.00487076011533
+Si    (+1)',   E = -0.00250765128400
+Sijrs (0)  ,   E = -0.07408382085634
+Sijr  (+1) ,   E = -0.02146143478254
+Srsi  (-1) ,   E = -0.12698112451951
+Srs   (-2) ,   E = -0.13993199453184
+Sij   (+2) ,   E = -0.00781359906573
+Sir   (0)' ,   E = -0.06654358308132
+Nevpt2 Energy = -0.444193968236596
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 35
+Sr    (-1)',   E = -0.00669992416752
+Si    (+1)',   E = -0.00277040857535
+Sijrs (0)  ,   E = -0.07409529216629
+Sijr  (+1) ,   E = -0.02192676778784
+Srsi  (-1) ,   E = -0.12769996194062
+Srs   (-2) ,   E = -0.15169708788064
+Sij   (+2) ,   E = -0.02138576508518
+Sir   (0)' ,   E = -0.05758136571849
+Nevpt2 Energy = -0.463856573321923
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 36
+Sr    (-1)',   E = -0.00654663695025
+Si    (+1)',   E = -0.00154858992231
+Sijrs (0)  ,   E = -0.07407125091485
+Sijr  (+1) ,   E = -0.02162606787487
+Srsi  (-1) ,   E = -0.12771247468090
+Srs   (-2) ,   E = -0.15147697866728
+Sij   (+2) ,   E = -0.02097104785175
+Sir   (0)' ,   E = -0.05670375097447
+Nevpt2 Energy = -0.460656797836669
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 37
+Sr    (-1)',   E = -0.00700479192615
+Si    (+1)',   E = -0.00256429191796
+Sijrs (0)  ,   E = -0.07411105018626
+Sijr  (+1) ,   E = -0.02201844472710
+Srsi  (-1) ,   E = -0.12746256320240
+Srs   (-2) ,   E = -0.15139300010232
+Sij   (+2) ,   E = -0.02147382667355
+Sir   (0)' ,   E = -0.05738102924850
+Nevpt2 Energy = -0.463408997984226
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 38
+Sr    (-1)',   E = -0.00672615860454
+Si    (+1)',   E = -0.00150352315024
+Sijrs (0)  ,   E = -0.07408159234174
+Sijr  (+1) ,   E = -0.02156669920445
+Srsi  (-1) ,   E = -0.12738531462110
+Srs   (-2) ,   E = -0.15068713552410
+Sij   (+2) ,   E = -0.02042769244201
+Sir   (0)' ,   E = -0.05615842212244
+Nevpt2 Energy = -0.458536538010616
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (4e+3e, 5o), ncore = 7, nvir = 44
+spin = 1  root = 39
+Sr    (-1)',   E = -0.00672627060144
+Si    (+1)',   E = -0.00150352287388
+Sijrs (0)  ,   E = -0.07408159524011
+Sijr  (+1) ,   E = -0.02156673842365
+Srsi  (-1) ,   E = -0.12738531168528
+Srs   (-2) ,   E = -0.15068718127129
+Sij   (+2) ,   E = -0.02042770488359
+Sir   (0)' ,   E = -0.05615863831696
+Nevpt2 Energy = -0.458536963296205
+CASCI
+
+******** <class 'pyscf.mcscf.df.DFCASCI'> ********
+CAS (5e+2e, 5o), ncore = 7, nvir = 44
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+max_memory 100000 MB (current use 0 MB)
+******** <class 'pyscf.fci.addons.SpinPenaltyFCISolver'> ********
+max. cycles = 200
+conv_tol = 1e-08
+davidson only = True
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 4000 MB
+nroots = 10
+pspace_size = 400
+spin = 3
+DFCASCI/DFCASSCF: density fitting for JK matrix and 2e integral transformation
+
+WARN: Mulitple states found in CASCI solver. First state is used to compute the Fock matrix and natural orbitals in active space.
+
+Density matrix diagonal elements [2. 2. 1. 1. 1.]
+CASCI converged
+CASCI state   0  E = -162.494575530411  E(CI) = -19.9620110991021  S^2 = 3.7500000
+CASCI state   1  E = -162.482569480385  E(CI) = -19.9500050490761  S^2 = 3.7500000
+CASCI state   2  E = -162.477099197986  E(CI) = -19.9445347666767  S^2 = 3.7500000
+CASCI state   3  E = -162.477098921367  E(CI) = -19.9445344900578  S^2 = 3.7500000
+CASCI state   4  E = -162.466059198961  E(CI) = -19.9334947676520  S^2 = 3.7500000
+CASCI state   5  E = -162.466059128988  E(CI) = -19.9334946976784  S^2 = 3.7500000
+CASCI state   6  E = -162.465392506282  E(CI) = -19.9328280749729  S^2 = 3.7500000
+CASCI state   7  E = -162.397847416228  E(CI) = -19.8652829849188  S^2 = 3.7500000
+CASCI state   8  E = -162.397847296731  E(CI) = -19.8652828654220  S^2 = 3.7500000
+CASCI state   9  E = -162.391600190406  E(CI) = -19.8590357590965  S^2 = 3.7500000
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 0
+
+WARN: Active orbitals [0 1] (occs = [2. 2.]) are canonicalized with core orbitals
+
+Sr    (-1)',   E = -0.00823404887102
+Si    (+1)',   E = -0.00056034674154
+Sijrs (0)  ,   E = -0.16358881620891
+Sijr  (+1) ,   E = -0.04399336207849
+Srsi  (-1) ,   E = -0.15385387889683
+Srs   (-2) ,   E = -0.03125635623775
+Sij   (+2) ,   E = -0.00268306457190
+Sir   (0)' ,   E = -0.04141032322080
+Nevpt2 Energy = -0.445580196827250
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 1
+
+WARN: Active orbitals [0 1] (occs = [2. 2.]) are canonicalized with core orbitals
+
+Sr    (-1)',   E = -0.00571905005435
+Si    (+1)',   E = -0.00032795048617
+Sijrs (0)  ,   E = -0.15481865507625
+Sijr  (+1) ,   E = -0.04290786384734
+Srsi  (-1) ,   E = -0.15729968893539
+Srs   (-2) ,   E = -0.03533421211391
+Sij   (+2) ,   E = -0.00275554856627
+Sir   (0)' ,   E = -0.03896407377776
+Nevpt2 Energy = -0.438127042857445
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 2
+Sr    (-1)',   E = -0.00283370916692
+Si    (+1)',   E = -0.00053549380994
+Sijrs (0)  ,   E = -0.07412605383599
+Sijr  (+1) ,   E = -0.02160949138751
+Srsi  (-1) ,   E = -0.12635513416670
+Srs   (-2) ,   E = -0.13144929332185
+Sij   (+2) ,   E = -0.00286510759844
+Sir   (0)' ,   E = -0.06744480499121
+Nevpt2 Energy = -0.427219088278550
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 3
+Sr    (-1)',   E = -0.00283371341368
+Si    (+1)',   E = -0.00053557483086
+Sijrs (0)  ,   E = -0.07412606010735
+Sijr  (+1) ,   E = -0.02160952857325
+Srsi  (-1) ,   E = -0.12635514355628
+Srs   (-2) ,   E = -0.13144930229922
+Sij   (+2) ,   E = -0.00286510835876
+Sir   (0)' ,   E = -0.06744512794850
+Nevpt2 Energy = -0.427219559087908
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 4
+Sr    (-1)',   E = -0.00330328968771
+Si    (+1)',   E = -0.00029081514945
+Sijrs (0)  ,   E = -0.07405556486697
+Sijr  (+1) ,   E = -0.02085347444151
+Srsi  (-1) ,   E = -0.12611295760568
+Srs   (-2) ,   E = -0.13064262861025
+Sij   (+2) ,   E = -0.00283037611029
+Sir   (0)' ,   E = -0.06296110509761
+Nevpt2 Energy = -0.421050211569486
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 5
+Sr    (-1)',   E = -0.00330326373275
+Si    (+1)',   E = -0.00029082356411
+Sijrs (0)  ,   E = -0.07405556764420
+Sijr  (+1) ,   E = -0.02085349685443
+Srsi  (-1) ,   E = -0.12611296723492
+Srs   (-2) ,   E = -0.13064264901134
+Sij   (+2) ,   E = -0.00283037535948
+Sir   (0)' ,   E = -0.06296128166525
+Nevpt2 Energy = -0.421050425066468
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 6
+Sr    (-1)',   E = -0.00318645674799
+Si    (+1)',   E = -0.00024981030718
+Sijrs (0)  ,   E = -0.07405280443358
+Sijr  (+1) ,   E = -0.02074699136671
+Srsi  (-1) ,   E = -0.12609317793271
+Srs   (-2) ,   E = -0.13040709286465
+Sij   (+2) ,   E = -0.00278198632389
+Sir   (0)' ,   E = -0.06267671493188
+Nevpt2 Energy = -0.420195034908605
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 7
+Sr    (-1)',   E = -0.00691940635114
+Si    (+1)',   E = -0.00013921964674
+Sijrs (0)  ,   E = -0.07409149667778
+Sijr  (+1) ,   E = -0.02143959705413
+Srsi  (-1) ,   E = -0.12661302465093
+Srs   (-2) ,   E = -0.13621030313497
+Sij   (+2) ,   E = -0.00738839972284
+Sir   (0)' ,   E = -0.06428110614546
+Nevpt2 Energy = -0.437082553383988
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 8
+Sr    (-1)',   E = -0.00691945831276
+Si    (+1)',   E = -0.00013923045716
+Sijrs (0)  ,   E = -0.07409149904909
+Sijr  (+1) ,   E = -0.02143962874086
+Srsi  (-1) ,   E = -0.12661302559292
+Srs   (-2) ,   E = -0.13621034835998
+Sij   (+2) ,   E = -0.00738840357539
+Sir   (0)' ,   E = -0.06428131529929
+Nevpt2 Energy = -0.437082909387441
+
+******** <class 'embed_sim.df.DFNEVPT'> ********
+DFNEVPT2 (5e+2e, 5o), ncore = 7, nvir = 44
+spin = 3  root = 9
+Sr    (-1)',   E = -0.00688972523253
+Si    (+1)',   E = -0.00015447816994
+Sijrs (0)  ,   E = -0.07410879708229
+Sijr  (+1) ,   E = -0.02153481519110
+Srsi  (-1) ,   E = -0.12640991000582
+Srs   (-2) ,   E = -0.13600847538370
+Sij   (+2) ,   E = -0.00745077535613
+Sir   (0)' ,   E = -0.06432873524551
+Nevpt2 Energy = -0.436885711667026
+Attempting SA-CASSCF with
+fix_spin parameter 0.5 on spin multiplicity 2
+40 states with spin multiplicity 2
+fix_spin parameter 0.5 on spin multiplicity 4
+10 states with spin multiplicity 4
+    CPU time for 2e SOC J/K1/K2 integrals     74.14 sec, wall time     74.19 sec
+state 0 energy 0.0
+(S, MS, I), [ 3 -3  0]	 coeff	 -0.407-0.531j	 |coeff| ** 2	 0.447
+(S, MS, I), [3 3 0]	 coeff	 -0.228-0.488j	 |coeff| ** 2	 0.291
+(S, MS, I), [3 1 0]	 coeff	 -0.203-0.368j	 |coeff| ** 2	 0.176
+(S, MS, I), [ 3 -1  0]	 coeff	 0.177+0.195j	 |coeff| ** 2	 0.069
+(S, MS, I), [ 3 -3  1]	 coeff	 -0.058+0.045j	 |coeff| ** 2	 0.005
+(S, MS, I), [3 3 1]	 coeff	 0.061-0.030j	 |coeff| ** 2	 0.005
+(S, MS, I), [ 3 -1  1]	 coeff	 0.043-0.030j	 |coeff| ** 2	 0.003
+(S, MS, I), [ 3 -1  2]	 coeff	 -0.021+0.009j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 1 1]	 coeff	 0.022-0.007j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 1 3]	 coeff	 0.013+0.018j	 |coeff| ** 2	 0.000
+state 1 energy 1.871353248361629e-08
+(S, MS, I), [3 3 0]	 coeff	 -0.667+0.043j	 |coeff| ** 2	 0.447
+(S, MS, I), [ 3 -3  0]	 coeff	 0.518-0.149j	 |coeff| ** 2	 0.291
+(S, MS, I), [ 3 -1  0]	 coeff	 -0.410+0.090j	 |coeff| ** 2	 0.176
+(S, MS, I), [3 1 0]	 coeff	 -0.263-0.005j	 |coeff| ** 2	 0.069
+(S, MS, I), [3 3 1]	 coeff	 -0.004-0.073j	 |coeff| ** 2	 0.005
+(S, MS, I), [ 3 -3  1]	 coeff	 -0.018-0.065j	 |coeff| ** 2	 0.005
+(S, MS, I), [3 1 1]	 coeff	 -0.006-0.052j	 |coeff| ** 2	 0.003
+(S, MS, I), [3 1 2]	 coeff	 0.008+0.022j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -1  1]	 coeff	 0.009+0.021j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -1  3]	 coeff	 0.022-0.003j	 |coeff| ** 2	 0.000
+state 2 energy 22.76739250289425
+(S, MS, I), [ 3 -1  0]	 coeff	 -0.684+0.165j	 |coeff| ** 2	 0.496
+(S, MS, I), [3 1 0]	 coeff	 -0.484+0.117j	 |coeff| ** 2	 0.248
+(S, MS, I), [3 3 0]	 coeff	 0.395-0.095j	 |coeff| ** 2	 0.165
+(S, MS, I), [ 3 -3  0]	 coeff	 -0.279+0.067j	 |coeff| ** 2	 0.083
+(S, MS, I), [3 1 1]	 coeff	 -0.007-0.031j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 1 2]	 coeff	 -0.029+0.012j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 1 3]	 coeff	 -0.031+0.003j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -3  3]	 coeff	 0.012-0.026j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -3  2]	 coeff	 0.023+0.017j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 3 3]	 coeff	 -0.018-0.018j	 |coeff| ** 2	 0.001
+state 3 energy 22.767392515369938
+(S, MS, I), [3 1 0]	 coeff	 -0.704+0.000j	 |coeff| ** 2	 0.496
+(S, MS, I), [ 3 -1  0]	 coeff	 0.498-0.000j	 |coeff| ** 2	 0.248
+(S, MS, I), [ 3 -3  0]	 coeff	 0.406-0.000j	 |coeff| ** 2	 0.165
+(S, MS, I), [3 3 0]	 coeff	 0.287-0.000j	 |coeff| ** 2	 0.083
+(S, MS, I), [ 3 -1  1]	 coeff	 -0.000-0.032j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -1  2]	 coeff	 0.031+0.005j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -1  3]	 coeff	 0.031-0.005j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 3 3]	 coeff	 -0.018-0.022j	 |coeff| ** 2	 0.001
+(S, MS, I), [3 3 2]	 coeff	 -0.018+0.022j	 |coeff| ** 2	 0.001
+(S, MS, I), [ 3 -3  3]	 coeff	 -0.013+0.021j	 |coeff| ** 2	 0.001
+mag energy [0.00000000e+00 1.87135325e-08 2.27673925e+01 2.27673925e+01
+ 4.28420981e+03 4.28420981e+03 4.37643632e+03 4.37643632e+03
+ 7.85324014e+03 7.85324014e+03 7.86753054e+03 7.86753054e+03
+ 7.89752687e+03 7.89752687e+03 7.97950297e+03 7.97950297e+03
+ 1.10981160e+04 1.10981160e+04 1.14722831e+04 1.14722831e+04]

@@ -362,7 +362,11 @@ class SSDMET(lib.StreamObject):
             Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
             cloao = Q.T.conj() @ cloao
             caolo = caolo @ Q
+        
         if ip_iao is not None:
+            caolo1 = iao_helper.localize_iao(self.mol, self.mf_or_cas, lo2ao, iaopao='IAOPAO')
+            cloao1 = np.linalg.inv(caolo)
+
             if imp4ip is None:
                 imp4ip = self.imp_idx
                 self.log.info(f"***imp4ip is not assigned, we use the same impurity orbitals as imp_idx for IPLO, which not recommended and lost the pros for IPLO with large impurity orbitals")
@@ -385,9 +389,21 @@ class SSDMET(lib.StreamObject):
             Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
             cloao = Q.T.conj() @ cloao
             caolo = caolo @ Q
+            caolo_ip = caolo
+
             if ip_iao == 'IAO':
                 ### here thown the cloao from IPLO to IAO+PAO
+                ### but nothing happened
+                
                 caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, cloao, iaopao='IAOPAO')
+                matrix = np.random.rand(*caolo.shape)
+                print(f"Caolo,{caolo}")
+                print(f"matrix,{matrix}")
+                caolo_prime = iao_helper.localize_iao(self.mol, self.mf_or_cas, matrix, iaopao='IAOPAO')
+                print(f"compare the two caolo_prime and caolo, the difference is {np.linalg.norm(caolo_prime-caolo)}")
+                print(f"compare the two caolo_prime and caolo_ip, the difference is {np.linalg.norm(caolo_prime-caolo_ip)}")
+                print(f"compare the two caolo and caolo_ip, the difference is {np.linalg.norm(caolo-caolo_ip)}")
+                print(f"compare the two caolo_prime and caolo1, the difference is {np.linalg.norm(caolo_prime-caolo1)}")
                 cloao = np.linalg.inv(caolo)
 
         ldm = reduce(lib.dot, (cloao, self.dm, cloao.conj().T))
