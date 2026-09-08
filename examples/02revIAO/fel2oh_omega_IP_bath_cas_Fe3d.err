@@ -1,0 +1,10 @@
+Overwritten attributes  get_hcore get_ovlp  of <class 'pyscf.df.df_jk.DFsfX2C1eCAHF'>
+<class 'pyscf.df.df_jk.DFsfX2C1eCAHF'> does not have attributes  nelecas coulomb_a beta ncas exchange_b frac spin alpha
+Traceback (most recent call last):
+  File "/lustre/home/2501110357/03dmet/iao_dmet/DMET/examples/02revIAO/fel2oh_omega_IP_bath_cas_Fe3d.py", line 56, in <module>
+    mycas.kernel(mo)
+  File "/lustre/home/2501110357/.conda/envs/mokit-py39/lib/python3.9/site-packages/pyscf/mcscf/mc1step.py", line 870, in kernel
+    self.check_sanity()
+  File "/lustre/home/2501110357/.conda/envs/mokit-py39/lib/python3.9/site-packages/pyscf/mcscf/casci.py", line 881, in check_sanity
+    assert 0 <= self.nelecas[1] <= self.ncas
+AssertionError

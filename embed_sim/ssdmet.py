@@ -328,72 +328,115 @@ class SSDMET(lib.StreamObject):
             fh5['es_dm'] = self.es_dm
         return 
     
-    def lowdin_orth(self, restore_imp = False, iaopao = None, ip_iao=None, imp4ip=None):
-        # lowdin orthonormalize
-        caolo, cloao = lowdin_orth(self.mol)
-        lo2ao = cloao
-        if iaopao == 'IAO':
-            caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, lo2ao, iaopao='IAO')
-            print("caolo shape: ", caolo.shape)
-            #cloao = caolo.conj().T @ self.mol.intor_symmetric('int1e_ovlp')
-            cloao = np.linalg.inv(caolo)
-            print("cloao shape: ", cloao.shape)
-            #cloao = np.linalg.inv(caolo)
-        elif iaopao == 'IAOPAO':
-            caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, lo2ao, iaopao='IAOPAO')
-            cloao = np.linalg.inv(caolo)
+    def lowdin_orth(self, restore_imp = False, iaopao = None, ip_iao=None, imp4ip=None, basis_rot=None):
+        if basis_rot is not None:
+            if iaopao is not None or ip_iao is not None:
+                raise ValueError("basis_rot cannot be used with iaopao or ip_iao")
+            self.log.info(f"*****Basis rotation is applied to the original AO basis*****")
+            self.log.info(f"*****We use not the original AO basis but the corrected basis*****")
+            s_org = self.mol.intor_symmetric('int1e_ovlp')
+            s = basis_rot.T.conj() @ s_org @ basis_rot
+
+            caolo, cloao = lowdin(s), lowdin(s) @ s # caolo=lowdin(s)=s^-1/2, cloao=lowdin(s)@s=s^1/2
+            if restore_imp:
+                imp_idx = self.imp_idx
+                mask_env = np.ones(len(caolo), dtype=bool)
+                mask_env[imp_idx] = False
+
+                Q1 = cloao[:, imp_idx]
+                Q1, _ = np.linalg.qr(Q1) # orthonormalize
+                P = np.eye(*cloao.shape) - Q1 @ Q1.T.conj()
+                B = P @ cloao[:, mask_env]
+                from scipy.linalg import svd
+                U, S, Vh = svd(B, full_matrices=False)
+
+                Q = np.zeros(cloao.shape)
+                Q[:, imp_idx] = Q1
+                Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
+                cloao = Q.T.conj() @ cloao
+                caolo = caolo @ Q
+
+            caolo_org = basis_rot @ caolo
+            cloao_org = cloao @ basis_rot.T.conj() @ np.linalg.inv(basis_rot @ basis_rot.T.conj())
+            caolo = caolo_org
+            cloao = cloao_org
+
         else:
-            self.log.info("Invalid iaopao option. Choose 'IAO' or 'IAOPAO'. and the IAO is not used")
-            pass
-        if restore_imp:
-            imp_idx = self.imp_idx
-            mask_env = np.ones(len(caolo), dtype=bool)
-            mask_env[imp_idx] = False
-
-            Q1 = cloao[:, imp_idx]
-            Q1, _ = np.linalg.qr(Q1) # orthonormalize
-            P = np.eye(*cloao.shape) - Q1 @ Q1.T.conj()
-            B = P @ cloao[:, mask_env]
-            from scipy.linalg import svd
-            U, S, Vh = svd(B, full_matrices=False)
-
-            Q = np.zeros(cloao.shape)
-            Q[:, imp_idx] = Q1
-            Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
-            cloao = Q.T.conj() @ cloao
-            caolo = caolo @ Q
-        if ip_iao is not None:
-            if imp4ip is None:
-                imp4ip = self.imp_idx
-                self.log.info(f"***imp4ip is not assigned, we use the same impurity orbitals as imp_idx for IPLO, which not recommended and lost the pros for IPLO with large impurity orbitals")
-            self.log.info(f"***We use large impurity orbitals for LOIP while for IAO we use valence IAO only")
-            #imp1 = self.mol.search_ao_label('Co.*')
-            #imp_idx = self.imp_idx
-            imp_idx = imp4ip
-            mask_env = np.ones(len(caolo), dtype=bool)
-            mask_env[imp_idx] = False
-
-            Q1 = cloao[:, imp_idx]
-            Q1, _ = np.linalg.qr(Q1) # orthonormalize
-            P = np.eye(*cloao.shape) - Q1 @ Q1.T.conj()
-            B = P @ cloao[:, mask_env]
-            from scipy.linalg import svd
-            U, S, Vh = svd(B, full_matrices=False)
-
-            Q = np.zeros(cloao.shape)
-            Q[:, imp_idx] = Q1
-            Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
-            cloao = Q.T.conj() @ cloao
-            caolo = caolo @ Q
-            if ip_iao == 'IAO':
-                ### here thown the cloao from IPLO to IAO+PAO
-                caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, cloao, iaopao='IAOPAO')
+            # lowdin orthonormalize
+            caolo, cloao = lowdin_orth(self.mol)
+            lo2ao = cloao
+            if iaopao == 'IAO':
+                caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, lo2ao, iaopao='IAO')
+                print("caolo shape: ", caolo.shape)
+                #cloao = caolo.conj().T @ self.mol.intor_symmetric('int1e_ovlp')
                 cloao = np.linalg.inv(caolo)
+                print("cloao shape: ", cloao.shape)
+                #cloao = np.linalg.inv(caolo)
+            elif iaopao == 'IAOPAO':
+                caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, lo2ao, iaopao='IAOPAO')
+                cloao = np.linalg.inv(caolo)
+            else:
+                self.log.info("Invalid iaopao option. Choose 'IAO' or 'IAOPAO'. and the IAO is not used")
+                pass
+            if restore_imp:
+                self.log.info(f"*****Restore impurity orbitals to the original AO space*****")
+                imp_idx = self.imp_idx
+                mask_env = np.ones(len(caolo), dtype=bool)
+                mask_env[imp_idx] = False
+
+                Q1 = cloao[:, imp_idx]
+                Q1, _ = np.linalg.qr(Q1) # orthonormalize
+                P = np.eye(*cloao.shape) - Q1 @ Q1.T.conj()
+                B = P @ cloao[:, mask_env]
+                from scipy.linalg import svd
+                U, S, Vh = svd(B, full_matrices=False)
+
+                Q = np.zeros(cloao.shape)
+                Q[:, imp_idx] = Q1
+                Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
+                cloao = Q.T.conj() @ cloao
+                caolo = caolo @ Q
+            if ip_iao is not None:
+                self.log.info(f"*****Orbital localization information******")
+                self.log.info(f"*****Using LOIP for large IMP and small imp used for bath expansion*****")
+                self.log.info(f"Settings is like we first define imp1 and imp2 whici is for LOIP and for bath expansion initial setting")
+                # mydmet  = ssdmet.SSDMET(mf, title = f'{title}_dmet',  imp_idx =imp, bath_option={'ROMP2':number}, threshold = 1e-12, es_natorb = False).density_fit()
+                # mydmet.build(save_chk = False, restore_imp=False, iaopao=None, ip_iao='LO', imp4ip = imp2, mp2method = 'full')
+
+                self.log.info(f"NOTE *****IPLO and NOT IAO*****")
+                if imp4ip is None:
+                    imp4ip = self.imp_idx
+                    self.log.info(f"***imp4ip is not assigned, we use the same impurity orbitals as imp_idx for IPLO, which not recommended and lost the pros for IPLO with large impurity orbitals")
+                self.log.info(f"***Use large impurity orbitals for LOIP while for IAO we use valence IAO only")
+                self.log.info(f"***Use imp4ip for LOIP, which is {imp4ip}")
+                #imp1 = self.mol.search_ao_label('Co.*')
+                #imp_idx = self.imp_idx
+                imp_idx = imp4ip
+                mask_env = np.ones(len(caolo), dtype=bool)
+                mask_env[imp_idx] = False
+
+                Q1 = cloao[:, imp_idx]
+                Q1, _ = np.linalg.qr(Q1) # orthonormalize
+                P = np.eye(*cloao.shape) - Q1 @ Q1.T.conj()
+                B = P @ cloao[:, mask_env]
+                from scipy.linalg import svd
+                U, S, Vh = svd(B, full_matrices=False)
+
+                Q = np.zeros(cloao.shape)
+                Q[:, imp_idx] = Q1
+                Q[:, mask_env] = U[:, 0: cloao.shape[0] - len(imp_idx)]
+                cloao = Q.T.conj() @ cloao
+                caolo = caolo @ Q
+                if ip_iao == 'IAO':
+                    ### here throw the cloao from IPLO to IAO+PAO
+                    self.log.info(f"NOTE *****IPLO and the IAOPAO*****")
+                    caolo = iao_helper.localize_iao(self.mol, self.mf_or_cas, cloao, iaopao='IAOPAO')
+                    cloao = np.linalg.inv(caolo)
 
         ldm = reduce(lib.dot, (cloao, self.dm, cloao.conj().T))
         return ldm, caolo, cloao
         
-    def build(self, restore_imp = False, iaopao = None, ip_iao=None, imp4ip=None, chk_fname_load='', save_chk=True, xc = None, mp2method='full'):
+    def build(self, restore_imp = False, iaopao = None, ip_iao=None, imp4ip=None, chk_fname_load='', save_chk=True, xc = None, mp2method='full',basis_rot=None):
         self.dump_flags()
         dm = mf_or_cas_make_rdm1s(self.mf_or_cas)
         if dm.ndim == 3: # ROHF density matrix have dimension (2, nao, nao)
@@ -407,7 +450,7 @@ class SSDMET(lib.StreamObject):
         loaded = self.load_chk(chk_fname_load)
         
         if not loaded:
-            ldm, caolo, cloao = self.lowdin_orth(restore_imp, iaopao, ip_iao, imp4ip)
+            ldm, caolo, cloao = self.lowdin_orth(restore_imp, iaopao, ip_iao, imp4ip, basis_rot)
 
             bath_norb = self.bath_norb
             if isinstance(bath_norb, str):
@@ -437,6 +480,7 @@ class SSDMET(lib.StreamObject):
             self.nes = nimp + nbath
             self.log.info(f"****Restore imp: {restore_imp}")
             self.log.info(f"****IAOPAO: {iaopao}")
+            self.log.info(f"****IP_IAO: {ip_iao}")
             self.log.info(f'number of impurity orbitals = {nimp}')
             self.log.info(f'number of bath orbitals = {nbath}')
             self.log.info(f'number of embedded cluster orbitals = {nimp+nbath}')
