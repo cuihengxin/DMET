@@ -645,13 +645,11 @@ def localize_environment_spaces(dmet, method='boys'):
     return dmet
 
 def eo_density(dmet):
-    if dmet.lo_cloes is None:
+    if dmet.es_orb is None:
         raise RuntimeError("Run build() first before calculating density.")
-    nimp = len(dmet.imp_idx)
-    nbath = dmet.nes - nimp
-    # Entangled space are selected
-    c_es_lo = dmet.lo_cloes[:, :dmet.nes]
-    c_es_ao = dmet.caolo @ c_es_lo
+    # Use the final AO-basis embedded orbitals.  ``lo_cloes`` describes the
+    # pre-expansion mean-field partition and therefore misses MP2-added BNOs.
+    c_es_ao = dmet.es_orb
     dm_es = 2.0 * (c_es_ao @ c_es_ao.T.conj())
     from pyscf.tools import cubegen
     cube_name = f"{dmet.title}_es_density.cube"

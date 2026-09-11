@@ -41,7 +41,8 @@ class DFSSDMET(ssdmet.SSDMET):
     Density fitting single-shot DMET class
     """
     def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, with_df=None, es_natorb=True,
-                 bath_option=None, bath_norb=None, bath_core_cutoff=0.5, verbose=logger.INFO):
+                 bath_option=None, bath_norb=None, bath_core_cutoff=0.5,
+                 verbose=logger.INFO, imp_orb=None):
         self.mf_or_cas = mf_or_cas
         self.mol = self.mf_or_cas.mol
         self.title = title
@@ -54,7 +55,16 @@ class DFSSDMET(ssdmet.SSDMET):
         self.dm = None
         self.dm_pair = None
         self._imp_idx = []
-        if imp_idx is not None:
+        self.imp_orb = None
+        self.impurity_projector_info = None
+        if imp_orb is not None and imp_idx is not None:
+            raise ValueError('Specify either imp_idx or imp_orb, not both')
+        if imp_orb is not None:
+            self.imp_orb, self.impurity_projector_info = \
+                ssdmet.orthonormalize_impurity_orbitals(
+                    imp_orb, self.mol.intor_symmetric('int1e_ovlp'))
+            self._imp_idx = np.arange(self.imp_orb.shape[1], dtype=int)
+        elif imp_idx is not None:
             self.imp_idx = imp_idx
         else:
             print('impurity index not assigned, use the first atom as impurity')
@@ -79,6 +89,11 @@ class DFSSDMET(ssdmet.SSDMET):
         self.es_cderi = None
 
         self.es_mf = None
+
+        self.caolo = None
+        self.cloao = None
+        self.lo_cloes = None
+        self.open_shell = None
     
     def make_es_cderi(self):
         return make_es_cderi(self.title, self.es_orb, self.with_df)
@@ -96,12 +111,16 @@ class DFSSDMET(ssdmet.SSDMET):
         with h5py.File(chk_fname, 'r') as fh5:
             dm_check = np.allclose(self.dm, fh5['dm'][:], atol=1e-5)
             imp_idx_check = ssdmet.compare_imp_idx(self.imp_idx, fh5['imp_idx'][:])
+            chk_imp_orb = fh5['imp_orb'][:] if 'imp_orb' in fh5 else None
+            imp_orb_check = ssdmet.compare_imp_orb(
+                self.imp_orb, chk_imp_orb, self.mol)
             threshold_check = self.threshold == fh5['threshold'][()]
             if 'bath_norb' in fh5:
                 bath_norb_check = str(self.bath_norb) == str(fh5['bath_norb'][()])
             else:
                 bath_norb_check = self.bath_norb is None
-            if dm_check & imp_idx_check & threshold_check & bath_norb_check:
+            if (dm_check & imp_idx_check & imp_orb_check
+                    & threshold_check & bath_norb_check):
                 self.fo_orb = fh5['fo_orb'][:]
                 self.fv_orb = fh5['fv_orb'][:]
                 self.es_orb = fh5['es_orb'][:]
@@ -117,6 +136,7 @@ class DFSSDMET(ssdmet.SSDMET):
             else:
                 self.log.info(f'density matrix check {dm_check}')
                 self.log.info(f'impurity index check {imp_idx_check}')
+                self.log.info(f'impurity projector check {imp_orb_check}')
                 self.log.info(f'threshold check {threshold_check}')
                 self.log.info(f'bath_norb check {bath_norb_check}')
                 self.log.info(f'build dmet subspace with imp idx {self.imp_idx} threshold {self.threshold}')
@@ -126,6 +146,8 @@ class DFSSDMET(ssdmet.SSDMET):
         with h5py.File(chk_fname, 'w') as fh5:
             fh5['dm'] = self.dm
             fh5['imp_idx'] = self.imp_idx
+            if self.imp_orb is not None:
+                fh5['imp_orb'] = self.imp_orb
             fh5['threshold'] = self.threshold
             fh5['bath_norb'] = str(self.bath_norb)
 
@@ -156,6 +178,11 @@ class DFSSDMET(ssdmet.SSDMET):
             bath_norb = self.bath_norb
             if isinstance(bath_norb, str):
                 if bath_norb.lower() in ('per_bond', 'perbond', 'one_per_bond'):
+                    if self.imp_orb is not None:
+                        raise ValueError(
+                            'bath_norb="per_bond" needs atom-index ownership, '
+                            'which is not defined for imp_orb; use an integer '
+                            'or threshold bath selection')
                     bath_norb = ssdmet.count_imp_env_bonds(self.mol, self.imp_idx)
                     self.log.info(f'one bath orbital per bond: {bath_norb} impurity-environment bond(s) detected')
                 else:

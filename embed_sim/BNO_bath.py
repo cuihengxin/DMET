@@ -1373,6 +1373,10 @@ def get_ROMP2_bath(mf, es_mf, ao2eo, ao2core, ao2vir, lo2core, lo2vir, ao = Fals
                 cput1 = (logger.process_clock(), logger.perf_counter())
             
                 for s in [0,1]:
+                    # AVAS impurities can have an empty spin virtual/occupied block.
+                    # Its amplitudes are already zero; never pass it to C BLAS.
+                    if nocc[s] == 0 or nvir[s] == 0:
+                        continue
                     s_t2 = 0 if s == 0 else 2
                     moevv = lib.asarray(vir_energy[s][:,None] + vir_energy[s], order='C')
                     for ibatch,(i0,i1) in enumerate(lib.prange(0,nocc[s],occ_blksize[s])):
@@ -1411,6 +1415,9 @@ def get_ROMP2_bath(mf, es_mf, ao2eo, ao2core, ao2vir, lo2core, lo2vir, ao = Fals
                         cput1 = log.timer_debug1('(sa,sb) = (%d,%d)  i-block [%d:%d]/%d' % (s,s,i0,i1,nocc[s]),
                                                  *cput1)
                         
+                # Opposite-spin amplitudes vanish if either channel is empty.
+                if min(nocc) == 0 or min(nvir) == 0:
+                    return t2
                 # opposite spin
                 sa, sb = 0, 1
                 drv = libmp.MP2_OS_contract_d
@@ -1719,6 +1726,10 @@ def get_ROMP2_bath(mf, es_mf, ao2eo, ao2core, ao2vir, lo2core, lo2vir, ao = Fals
                 cput1 = (logger.process_clock(), logger.perf_counter())
 
                 for s in [0,1]:
+                    # AVAS impurities can have an empty spin virtual/occupied block.
+                    # Its amplitudes are already zero; never pass it to C BLAS.
+                    if nocc[s] == 0 or nvir[s] == 0:
+                        continue
                     s_t2 = 0 if s == 0 else 2
                     moevv = lib.asarray(vir_energy[s][:,None] + vir_energy[s], order='C')
                     for ibatch,(i0,i1) in enumerate(lib.prange(0,nocc[s],occ_blksize[s])):
@@ -1757,6 +1768,9 @@ def get_ROMP2_bath(mf, es_mf, ao2eo, ao2core, ao2vir, lo2core, lo2vir, ao = Fals
                         cput1 = log.timer_debug1('(sa,sb) = (%d,%d)  i-block [%d:%d]/%d' % (s,s,i0,i1,nocc[s]),
                                                  *cput1)
 
+                # Opposite-spin amplitudes vanish if either channel is empty.
+                if min(nocc) == 0 or min(nvir) == 0:
+                    return t2
                 # opposite spin
                 sa, sb = 0, 1
                 drv = libmp.MP2_OS_contract_d

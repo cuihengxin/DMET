@@ -8,6 +8,11 @@ from pyscf import gto, scf, ao2mo
 
 from embed_sim.BNO_bath import get_RMP2_bath, get_UMP2_bath, get_ROMP2_bath, get_RMP2_bath_sos, get_UMP2_bath_sos, get_ROMP2_bath_sos
 from embed_sim.bath_selection import count_imp_env_bonds, partition_env_by_bath_count
+from embed_sim.impurity_projector import (
+    complete_impurity_basis,
+    orthonormalize_impurity_orbitals,
+    same_subspace,
+)
 from embed_sim import iao_helper
 from embed_sim import ic_helper
 
@@ -20,6 +25,12 @@ def compare_imp_idx(imp_idx1, imp_idx2):
         return np.all(imp_idx1 == imp_idx2)
     except ValueError:
         return False
+
+
+def compare_imp_orb(imp_orb1, imp_orb2, mol, atol=1e-7):
+    """Compare impurity projectors, allowing rotations inside the subspace."""
+    return same_subspace(
+        imp_orb1, imp_orb2, mol.intor_symmetric('int1e_ovlp'), atol=atol)
 
 def mf_or_cas_make_rdm1s(mf_or_cas):
     from pyscf.scf.hf import RHF
@@ -205,7 +216,8 @@ class SSDMET(lib.StreamObject):
     single-shot DMET with impurity-environment partition
     """
     def __init__(self,mf_or_cas,title='untitled',imp_idx=None, threshold=1e-12, es_natorb=True,
-                 bath_option=None, bath_norb=None, readmp2=False, bath_core_cutoff=0.5, verbose=logger.INFO):
+                 bath_option=None, bath_norb=None, readmp2=False, bath_core_cutoff=0.5,
+                 verbose=logger.INFO, imp_orb=None):
         self.mf_or_cas = mf_or_cas
         self.mol = self.mf_or_cas.mol
         self.title = title
@@ -218,7 +230,17 @@ class SSDMET(lib.StreamObject):
         self.dm = None
         self.dm_pair = None
         self._imp_idx = []
-        if imp_idx is not None:
+        self.imp_orb = None
+        self.impurity_projector_info = None
+        if imp_orb is not None and imp_idx is not None:
+            raise ValueError('Specify either imp_idx or imp_orb, not both')
+        if imp_orb is not None:
+            self.imp_orb, self.impurity_projector_info = \
+                orthonormalize_impurity_orbitals(
+                    imp_orb, self.mol.intor_symmetric('int1e_ovlp'))
+            # The completed projector basis always places impurity columns first.
+            self._imp_idx = np.arange(self.imp_orb.shape[1], dtype=int)
+        elif imp_idx is not None:
             self.imp_idx = imp_idx
         else:
             self.log.info('impurity index not assigned, use the first atom as impurity')
@@ -286,12 +308,16 @@ class SSDMET(lib.StreamObject):
         with h5py.File(chk_fname, 'r') as fh5:
             dm_check = np.allclose(self.dm, fh5['dm'][:], atol=1e-5)
             imp_idx_check = compare_imp_idx(self.imp_idx, fh5['imp_idx'][:])
+            chk_imp_orb = fh5['imp_orb'][:] if 'imp_orb' in fh5 else None
+            imp_orb_check = compare_imp_orb(
+                self.imp_orb, chk_imp_orb, self.mol)
             threshold_check = self.threshold == fh5['threshold'][()]
             if 'bath_norb' in fh5:
                 bath_norb_check = str(self.bath_norb) == str(fh5['bath_norb'][()])
             else:
                 bath_norb_check = self.bath_norb is None
-            if dm_check & imp_idx_check & threshold_check & bath_norb_check:
+            if (dm_check & imp_idx_check & imp_orb_check
+                    & threshold_check & bath_norb_check):
                 self.fo_orb = fh5['fo_orb'][:]
                 self.fv_orb = fh5['fv_orb'][:]
                 self.es_orb = fh5['es_orb'][:]
@@ -307,6 +333,7 @@ class SSDMET(lib.StreamObject):
             else:
                 self.log.info(f'density matrix check {dm_check}')
                 self.log.info(f'impurity index check {imp_idx_check}')
+                self.log.info(f'impurity projector check {imp_orb_check}')
                 self.log.info(f'threshold check {threshold_check}')
                 self.log.info(f'bath_norb check {bath_norb_check}')
                 self.log.info(f'build dmet subspace with imp idx {self.imp_idx} threshold {self.threshold}')
@@ -316,6 +343,8 @@ class SSDMET(lib.StreamObject):
         with h5py.File(chk_fname, 'w') as fh5:
             fh5['dm'] = self.dm
             fh5['imp_idx'] = self.imp_idx
+            if self.imp_orb is not None:
+                fh5['imp_orb'] = self.imp_orb
             fh5['threshold'] = self.threshold
             fh5['bath_norb'] = str(self.bath_norb)
 
@@ -329,14 +358,27 @@ class SSDMET(lib.StreamObject):
         return 
     
     def lowdin_orth(self, restore_imp = False, iaopao = None, ip_iao=None, imp4ip=None, basis_rot=None):
-        if basis_rot is not None:
+        if self.imp_orb is not None:
+            if basis_rot is not None or iaopao is not None or ip_iao is not None:
+                raise ValueError(
+                    'imp_orb directly defines the DMET basis and cannot be '
+                    'combined with basis_rot, iaopao, or ip_iao')
+            if restore_imp:
+                self.log.info('restore_imp is unnecessary for imp_orb; the projector is preserved exactly')
+            s_org = self.mol.intor_symmetric('int1e_ovlp')
+            caolo, cloao, info = complete_impurity_basis(
+                self.imp_orb, s_org)
+            self.impurity_projector_info.update(info)
+            self.log.info('*****Use AO-basis impurity projector (%d orbitals)*****',
+                          self.imp_orb.shape[1])
+        elif basis_rot is not None:
             if iaopao is not None or ip_iao is not None:
                 raise ValueError("basis_rot cannot be used with iaopao or ip_iao")
             self.log.info(f"*****Basis rotation is applied to the original AO basis*****")
             self.log.info(f"*****We use not the original AO basis but the corrected basis*****")
             s_org = self.mol.intor_symmetric('int1e_ovlp')
             s = basis_rot.T.conj() @ s_org @ basis_rot
-
+            print(f"S prime", s)
             caolo, cloao = lowdin(s), lowdin(s) @ s # caolo=lowdin(s)=s^-1/2, cloao=lowdin(s)@s=s^1/2
             if restore_imp:
                 imp_idx = self.imp_idx
@@ -455,6 +497,11 @@ class SSDMET(lib.StreamObject):
             bath_norb = self.bath_norb
             if isinstance(bath_norb, str):
                 if bath_norb.lower() in ('per_bond', 'perbond', 'one_per_bond'):
+                    if self.imp_orb is not None:
+                        raise ValueError(
+                            'bath_norb="per_bond" needs atom-index ownership, '
+                            'which is not defined for imp_orb; use an integer '
+                            'or threshold bath selection')
                     bath_norb = count_imp_env_bonds(self.mol, self.imp_idx)
                     self.log.info(f'one bath orbital per bond: {bath_norb} impurity-environment bond(s) detected')
                 else:
@@ -1082,6 +1129,8 @@ class SSDMET(lib.StreamObject):
                 raise NotImplementedError
             else:
                 with_df = self.mf_or_cas.with_df
-        return DFSSDMET(self.mf_or_cas, self.title, imp_idx=self.imp_idx, threshold=self.threshold,
+        imp_idx = None if self.imp_orb is not None else self.imp_idx
+        return DFSSDMET(self.mf_or_cas, self.title, imp_idx=imp_idx, threshold=self.threshold,
                         with_df=with_df, es_natorb=self.es_natorb, bath_option=self.bath_option,
-                        bath_norb=self.bath_norb, bath_core_cutoff=self.bath_core_cutoff, verbose=self.verbose)
+                        bath_norb=self.bath_norb, bath_core_cutoff=self.bath_core_cutoff,
+                        verbose=self.verbose, imp_orb=self.imp_orb)
