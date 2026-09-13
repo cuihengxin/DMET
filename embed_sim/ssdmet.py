@@ -363,14 +363,21 @@ class SSDMET(lib.StreamObject):
                 raise ValueError(
                     'imp_orb directly defines the DMET basis and cannot be '
                     'combined with basis_rot, iaopao, or ip_iao')
-            if restore_imp:
-                self.log.info('restore_imp is unnecessary for imp_orb; the projector is preserved exactly')
             s_org = self.mol.intor_symmetric('int1e_ovlp')
             caolo, cloao, info = complete_impurity_basis(
                 self.imp_orb, s_org)
             self.impurity_projector_info.update(info)
             self.log.info('*****Use AO-basis impurity projector (%d orbitals)*****',
                           self.imp_orb.shape[1])
+            # restore_imp must stay a no-op here: complete_impurity_basis already
+            # places the projector exactly in the first working-basis columns.
+            # The AO-branch restore block cannot be reused because imp_idx are
+            # working-basis positions while cloao columns are AO indices, so
+            # cloao[:, imp_idx] would replace the impurity with the
+            # orthonormalized span of the first AO columns (Co s core).
+            if restore_imp:
+                self.log.info('restore_imp is unnecessary for imp_orb; the projector is preserved exactly')
+
         elif basis_rot is not None:
             if iaopao is not None or ip_iao is not None:
                 raise ValueError("basis_rot cannot be used with iaopao or ip_iao")
@@ -1089,7 +1096,7 @@ class SSDMET(lib.StreamObject):
             self.log.info('Total CCSD(T) Energy (Corr)   = %.12f', e_tot_corr_t)
             return mycc, e_tot_ccsd_t, et + mycc.e_corr
             
-        return final_e_tot
+        return mycc, final_e_tot, mycc.e_corr
     def mp2_solver(self):
         from pyscf import mp
         if self.es_mf is None:

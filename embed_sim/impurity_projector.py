@@ -97,12 +97,16 @@ def complete_impurity_basis(imp_orb, ovlp, lindep=1e-10):
     if nimp > nao:
         raise ValueError(f'nimp={nimp} exceeds nao={nao}')
 
-    # X is AO <- symmetric-Lowdin-OAO.  X^H S C gives coefficients of C
-    # in that Euclidean orthonormal coordinate system.
     x = lowdin(ovlp)
     imp_oao = x.conj().T @ ovlp @ imp_orth
-    q_full, _ = scipy.linalg.qr(imp_oao, mode='full')
-    env_orb = x @ q_full[:, nimp:]
+    # Project out only the impurity columns; a full square Q projects out everything.
+    q_imp, _ = scipy.linalg.qr(imp_oao, mode='economic')
+    P = np.eye(nao, dtype=q_imp.dtype) - q_imp @ q_imp.conj().T
+    B = P @ x.conj().T @ ovlp
+    U,s,Vh = scipy.linalg.svd(B, full_matrices=True)
+    env_oao = U[:, :nao-nimp]
+    env_orb = x @ env_oao
+    #env_orb = x @ q_full[:, nimp:] ## note we choose the colomns of the env because the imp is arraged in the first columns
     caolo = np.hstack((imp_orth, env_orb))
     cloao = caolo.conj().T @ ovlp
 
