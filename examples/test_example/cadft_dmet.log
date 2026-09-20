@@ -1,0 +1,385 @@
+##############################################################################
+# System 1: stretched H2O, impurity O (closed shell)
+##############################################################################
+full-system RHF  = -75.72185489
+full-system MP2  = -75.91867007
+CADFT(pbe 4+2,2) = -75.99926853
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from RHF
+Invalid iaopao option. Choose 'IAO' or 'IAOPAO'. and the IAO is not used
+****Restore imp: False
+****IAOPAO: None
+****IP_IAO: None
+number of impurity orbitals = 9
+number of bath orbitals = 2
+number of embedded cluster orbitals = 11
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 2
+number of frozen orbitals = 2
+percentage of embedded cluster orbitals = 84.62%
+percentage of frozen orbitals = 15.38%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
+method = sfX2C1eRHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpwzvc7qgb
+max_memory 4000 MB (current use 0 MB)
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Overwritten attributes  get_hcore get_ovlp  of <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'>
+Set gradient conv threshold to 3.16228e-05
+init E= -49.2628635761962
+  HOMO = -4.00509384778151  LUMO = -1.83971540516715
+cycle= 1 E= -76.4932477628939  delta_E= -27.2  |g|= 3.56  |ddm|= 3.11
+  HOMO = 0.716338651801455  LUMO = 0.742318367255264
+cycle= 2 E= -78.0722369095006  delta_E= -1.58  |g|=  2.9  |ddm|= 4.64
+  HOMO = -0.362598816494418  LUMO = -0.119297740879924
+cycle= 3 E= -81.1823726342297  delta_E= -3.11  |g|= 0.409  |ddm|= 3.28
+  HOMO = -0.460329982110432  LUMO = 0.0415243309054088
+cycle= 4 E= -81.2254137102833  delta_E= -0.043  |g|= 0.0653  |ddm|= 0.323
+  HOMO = -0.451517585530657  LUMO = 0.0426544777069548
+cycle= 5 E= -81.2265031893415  delta_E= -0.00109  |g|= 0.0718  |ddm|= 0.104
+  HOMO = -0.461077390001198  LUMO = 0.0382762540993264
+cycle= 6 E= -81.227501085424  delta_E= -0.000998  |g|= 0.0188  |ddm|= 0.0328
+  HOMO = -0.462786301388045  LUMO = 0.0348608301406174
+cycle= 7 E= -81.2275821638744  delta_E= -8.11e-05  |g|= 0.00439  |ddm|= 0.0168
+  HOMO = -0.462236605059081  LUMO = 0.0350651060793565
+cycle= 8 E= -81.2275870977862  delta_E= -4.93e-06  |g|= 0.000643  |ddm|= 0.00361
+  HOMO = -0.462553730091293  LUMO = 0.0349226214910521
+cycle= 9 E= -81.2275881807679  delta_E= -1.08e-06  |g|= 0.000241  |ddm|= 0.0043
+  HOMO = -0.462650523077537  LUMO = 0.0348029750594802
+cycle= 10 E= -81.2275882514251  delta_E= -7.07e-08  |g|= 8.5e-05  |ddm|= 0.0013
+  HOMO = -0.462648933532035  LUMO = 0.0348144328189124
+cycle= 11 E= -81.2275882530576  delta_E= -1.63e-09  |g|= 1.87e-06  |ddm|= 7.44e-05
+  HOMO = -0.462648943602074  LUMO = 0.034814123149736
+cycle= 12 E= -81.2275882530597  delta_E= -2.02e-12  |g|= 4.32e-07  |ddm|= 3.17e-06
+converged SCF energy = -81.2275882530597
+
+energy from frozen occupied orbitals = 5.523808013351159
+deviation from DMET exact condition = 0.018074648833831475
+energy from embedded cluster with low level calculation = -81.22758825305966
+total energy with low level calculation = -75.72185488854234
+
+--- DMET from RHF reference ---
+nimp = 9  nbath = 2  nfo = 0  nfv = 2
+reference e_tot          = -75.72185489
+embedded (R)HF e_tot     = -81.22758825
+frozen env + nuc energy  = 5.52380801
+deviation (exact cond.)  = 1.81e-02
+Running MP2 for EO space
+============================================================
+RMP2 is used 
+
+******** <class 'pyscf.mp.mp2.RMP2'> ********
+nocc = 5, nmo = 11
+max_memory 4000 MB (current use 0 MB)
+E(RMP2) = -81.4172421347166  E_corr = -0.189653881656953
+E(SCS-RMP2) = -81.4183443946469  E_corr = -0.190756141587257
+E_corr(same-spin) = -0.0424944420012537
+E_corr(oppo-spin) = -0.147159439655699
+MP2 correlation energy = -0.189653881657
+Total MP2 energy = -75.893434121365
+MP2-in-DMET total        = -75.89343412   err vs full MP2 = +2.52e-02
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from CADFT-RKS (configuration-averaged DFT)
+Invalid iaopao option. Choose 'IAO' or 'IAOPAO'. and the IAO is not used
+****Restore imp: False
+****IAOPAO: None
+****IP_IAO: None
+number of impurity orbitals = 9
+number of bath orbitals = 2
+number of embedded cluster orbitals = 11
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 2
+number of frozen orbitals = 2
+percentage of embedded cluster orbitals = 84.62%
+percentage of frozen orbitals = 15.38%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eRHF'> ********
+method = sfX2C1eRHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0.5
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 300
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmp89z1hszi
+max_memory 4000 MB (current use 0 MB)
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -51.7476172497443
+  HOMO = -3.11860841271378  LUMO = -1.24232228033833
+cycle= 1 E= -77.1957674711229  delta_E= -25.4  |g|= 3.49  |ddm|= 2.87
+  HOMO = 0.839928719163206  LUMO = 0.867560405669668
+cycle= 2 E= -79.3991196900092  delta_E= -2.2  |g|= 2.34  |ddm|=  4.2
+  HOMO = -0.275940857046317  LUMO = 0.308431058156212
+cycle= 3 E= -80.7522344803262  delta_E= -1.35  |g|= 1.14  |ddm|= 1.19
+  HOMO = -0.409977123832009  LUMO = 0.463920353648516
+cycle= 4 E= -81.1292184622228  delta_E= -0.377  |g|= 0.422  |ddm|= 0.734
+  HOMO = -0.45412766728801  LUMO = 0.521581112040602
+cycle= 5 E= -81.2053780683731  delta_E= -0.0762  |g|= 0.139  |ddm|= 0.411
+  HOMO = -0.446582977989443  LUMO = 0.549176265905327
+cycle= 6 E= -81.2186843328864  delta_E= -0.0133  |g|= 0.0751  |ddm|= 0.19
+  HOMO = -0.444972618612942  LUMO = 0.550635872312299
+cycle= 7 E= -81.2223948680986  delta_E= -0.00371  |g|= 0.0538  |ddm|= 0.102
+  HOMO = -0.452342747646574  LUMO = 0.545414708038131
+cycle= 8 E= -81.2245070684716  delta_E= -0.00211  |g|= 0.0328  |ddm|= 0.0917
+  HOMO = -0.458042763684658  LUMO = 0.541512741672515
+cycle= 9 E= -81.2255660481032  delta_E= -0.00106  |g|= 0.0175  |ddm|= 0.0765
+  HOMO = -0.457966020283049  LUMO = 0.541356864988506
+cycle= 10 E= -81.2259563165225  delta_E= -0.00039  |g|= 0.0144  |ddm|= 0.0508
+  HOMO = -0.461176345521698  LUMO = 0.539269959641176
+cycle= 11 E= -81.2261501315546  delta_E= -0.000194  |g|= 0.00676  |ddm|= 0.0393
+  HOMO = -0.460679227809502  LUMO = 0.539194197746738
+cycle= 12 E= -81.2261995431509  delta_E= -4.94e-05  |g|= 0.0038  |ddm|= 0.02
+  HOMO = -0.460758049664603  LUMO = 0.539268255902471
+cycle= 13 E= -81.2262124735539  delta_E= -1.29e-05  |g|= 0.00215  |ddm|= 0.0101
+  HOMO = -0.460733519957204  LUMO = 0.53925315553166
+cycle= 14 E= -81.2262158347917  delta_E= -3.36e-06  |g|= 0.00117  |ddm|= 0.00498
+  HOMO = -0.460739481067122  LUMO = 0.539258331780333
+cycle= 15 E= -81.2262167025535  delta_E= -8.68e-07  |g|= 0.000623  |ddm|= 0.00245
+  HOMO = -0.460726488372217  LUMO = 0.539246853783068
+cycle= 16 E= -81.2262169262302  delta_E= -2.24e-07  |g|= 0.000328  |ddm|= 0.00121
+  HOMO = -0.460727034706853  LUMO = 0.539249445649253
+cycle= 17 E= -81.2262169830583  delta_E= -5.68e-08  |g|= 0.000172  |ddm|= 0.000592
+  HOMO = -0.460726472600677  LUMO = 0.539249676733201
+cycle= 18 E= -81.2262169976051  delta_E= -1.45e-08  |g|= 8.82e-05  |ddm|= 0.000289
+  HOMO = -0.460726136092731  LUMO = 0.539250120577672
+cycle= 19 E= -81.2262170013165  delta_E= -3.71e-09  |g|= 4.5e-05  |ddm|= 0.000141
+  HOMO = -0.460726097269876  LUMO = 0.53924999533761
+cycle= 20 E= -81.2262170022861  delta_E= -9.7e-10  |g|= 2.35e-05  |ddm|= 7.13e-05
+converged SCF energy = -81.2262170022861
+
+energy from frozen occupied orbitals = 5.523808013351159
+deviation from DMET exact condition = 0.29685954008961346
+energy from embedded cluster with low level calculation = -81.22621700228609
+total energy with low level calculation = -75.99926852902455
+
+--- DMET from CADFT-RKS(pbe 4+2,2) reference ---
+nimp = 9  nbath = 2  nfo = 0  nfv = 2
+reference e_tot          = -75.99926853
+embedded (R)HF e_tot     = -81.22621700
+frozen env + nuc energy  = 5.52380801
+deviation (exact cond.)  = 2.97e-01
+Running MP2 for EO space
+============================================================
+RMP2 is used 
+
+******** <class 'pyscf.mp.mp2.RMP2'> ********
+nocc = 5, nmo = 11
+max_memory 4000 MB (current use 0 MB)
+E(RMP2) = -81.3529064135045  E_corr = -0.126689411218358
+E(SCS-RMP2) = -81.352278767086  E_corr = -0.126061764799942
+E_corr(same-spin) = -0.029960225379332
+E_corr(oppo-spin) = -0.0967291858390263
+MP2 correlation energy = -0.126689411218
+Total MP2 energy = -75.829098400153
+MP2-in-DMET total        = -75.82909840   err vs full MP2 = +8.96e-02
+
+##############################################################################
+# System 2: stretched OH radical, impurity O (open shell, doublet)
+##############################################################################
+full-system ROHF = -75.26168033
+full-system ROHF-MP2 = -75.37410782
+CADFT-UKS(pbe 4,5,1) = -75.25149556
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from ROHF
+Invalid iaopao option. Choose 'IAO' or 'IAOPAO'. and the IAO is not used
+****Restore imp: False
+****IAOPAO: None
+****IP_IAO: None
+number of impurity orbitals = 9
+number of bath orbitals = 2
+number of embedded cluster orbitals = 11
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 0
+number of frozen orbitals = 0
+percentage of embedded cluster orbitals = 100.00%
+percentage of frozen orbitals = 0.00%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 50
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpttltwuwp
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 1
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Overwritten attributes  get_hcore get_ovlp  of <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'>
+Set gradient conv threshold to 3.16228e-05
+init E= -78.0839587866959
+  HOMO = -0.23060843702002  LUMO = 0.062726839895524
+cycle= 1 E= -78.083958786696  delta_E= -1.14e-13  |g|= 3.71e-07  |ddm|= 7.07e-07
+converged SCF energy = -78.083958786696
+
+energy from frozen occupied orbitals = 2.82227845824
+deviation from DMET exact condition = -1.2789769243681803e-13
+energy from embedded cluster with low level calculation = -78.08395878669603
+total energy with low level calculation = -75.2616803284559
+
+--- DMET from ROHF reference ---
+nimp = 9  nbath = 2  nfo = 0  nfv = 0
+reference e_tot          = -75.26168033
+embedded (R)HF e_tot     = -78.08395879
+frozen env + nuc energy  = 2.82227846
+deviation (exact cond.)  = -1.28e-13
+Running MP2 for EO space
+============================================================
+ROMP2 is used for ROHF reference
+
+******** <class 'pyscf.mp.ump2.UMP2'> ********
+nocc = (np.int64(5), np.int64(4)), nmo = (11, 11)
+max_memory 4000 MB (current use 0 MB)
+E(UMP2) = -78.1963862765153  E_corr = -0.112427489819293
+E(SCS-UMP2) = -78.1980546610399  E_corr = -0.114095874343894
+E_corr(same-spin) = -0.0240197462760665
+E_corr(oppo-spin) = -0.0884077435432261
+MP2 correlation energy = -0.112427489819
+Total MP2 energy = -75.374107818275
+MP2-in-DMET total        = -75.37410782   err vs full MP2 = +3.00e-09
+
+******** <class 'embed_sim.ssdmet.SSDMET'> ********
+DMET from CADFT-UKS (configuration-averaged DFT)
+Invalid iaopao option. Choose 'IAO' or 'IAOPAO'. and the IAO is not used
+****Restore imp: False
+****IAOPAO: None
+****IP_IAO: None
+number of impurity orbitals = 9
+number of bath orbitals = 2
+number of embedded cluster orbitals = 11
+number of frozen occupied orbitals = 0
+number of frozen virtual orbitals = 0
+number of frozen orbitals = 0
+percentage of embedded cluster orbitals = 100.00%
+percentage of frozen orbitals = 0.00%
+
+
+******** <class 'pyscf.x2c.sfx2c1e.sfX2C1eROHF'> ********
+method = sfX2C1eROHF
+initial guess = minao
+damping factor = 0
+level_shift factor = 0.5
+DIIS = <class 'pyscf.scf.diis.CDIIS'>
+diis_start_cycle = 1
+diis_space = 8
+diis_damp = 0
+SCF conv_tol = 1e-09
+SCF conv_tol_grad = None
+SCF max_cycles = 300
+direct_scf = True
+direct_scf_tol = 1e-13
+chkfile to save SCF result = /var/folders/y0/zr3tjjsx1jj2jc1xxkj_c1j00000gn/T/tmpyfmx7vb3
+max_memory 4000 MB (current use 0 MB)
+num. doubly occ = 4  num. singly occ = 1
+
+
+******** <class 'pyscf.x2c.sfx2c1e.SpinFreeX2CHelper'> ********
+approx = 1e
+xuncontract = 1
+Set gradient conv threshold to 3.16228e-05
+init E= -77.500728952848
+  HOMO = -0.74365335557658  LUMO = -0.204837003099174
+cycle= 1 E= -77.512669593029  delta_E= -0.0119  |g|= 1.41  |ddm|= 1.75
+
+WARN: HOMO 0.537462390864536 >= LUMO 0.519793339589374
+
+cycle= 2 E= -78.0253693590862  delta_E= -0.513  |g|= 0.418  |ddm|= 0.897
+  HOMO = 0.0910629104553098  LUMO = 0.521330211029046
+cycle= 3 E= -78.0705707858419  delta_E= -0.0452  |g|= 0.151  |ddm|= 0.166
+  HOMO = 0.0352457934972647  LUMO = 0.553733533092405
+cycle= 4 E= -78.0812399895234  delta_E= -0.0107  |g|= 0.0519  |ddm|= 0.11
+  HOMO = 0.0294992195123081  LUMO = 0.561717393100848
+cycle= 5 E= -78.0833277312444  delta_E= -0.00209  |g|= 0.0241  |ddm|= 0.0572
+  HOMO = 0.0219232058290729  LUMO = 0.561608532448491
+cycle= 6 E= -78.0838233362782  delta_E= -0.000496  |g|= 0.0115  |ddm|= 0.0288
+  HOMO = 0.0203132527724918  LUMO = 0.562592661398609
+cycle= 7 E= -78.08392736101  delta_E= -0.000104  |g|= 0.00611  |ddm|= 0.0131
+  HOMO = 0.0194705003868045  LUMO = 0.562761447731328
+cycle= 8 E= -78.083951521137  delta_E= -2.42e-05  |g|= 0.00331  |ddm|= 0.00617
+  HOMO = 0.0193795322480606  LUMO = 0.56273011594568
+cycle= 9 E= -78.083957176336  delta_E= -5.66e-06  |g|= 0.00165  |ddm|= 0.00285
+  HOMO = 0.0193948135373141  LUMO = 0.562723147629971
+cycle= 10 E= -78.0839584347922  delta_E= -1.26e-06  |g|= 0.000791  |ddm|= 0.0013
+  HOMO = 0.019392549574448  LUMO = 0.562725786862985
+cycle= 11 E= -78.0839587107305  delta_E= -2.76e-07  |g|= 0.000371  |ddm|= 0.000598
+  HOMO = 0.0193918164983222  LUMO = 0.562726922028084
+cycle= 12 E= -78.0839587703591  delta_E= -5.96e-08  |g|= 0.000173  |ddm|= 0.000277
+  HOMO = 0.0193918468876689  LUMO = 0.562726795430266
+cycle= 13 E= -78.0839587831966  delta_E= -1.28e-08  |g|= 8.02e-05  |ddm|= 0.000128
+  HOMO = 0.0193918170940012  LUMO = 0.562726787801231
+cycle= 14 E= -78.0839587859471  delta_E= -2.75e-09  |g|= 3.71e-05  |ddm|= 5.93e-05
+  HOMO = 0.0193917834219389  LUMO = 0.56272680347412
+cycle= 15 E= -78.0839587865358  delta_E= -5.89e-10  |g|= 1.72e-05  |ddm|= 2.74e-05
+converged SCF energy = -78.0839587865358
+
+energy from frozen occupied orbitals = 2.82227845824
+deviation from DMET exact condition = -0.01018476718117256
+energy from embedded cluster with low level calculation = -78.08395878653576
+total energy with low level calculation = -75.25149556111458
+
+--- DMET from CADFT-UKS(pbe 4,5) reference ---
+nimp = 9  nbath = 2  nfo = 0  nfv = 0
+reference e_tot          = -75.25149556
+embedded (R)HF e_tot     = -78.08395879
+frozen env + nuc energy  = 2.82227846
+deviation (exact cond.)  = -1.02e-02
+Running MP2 for EO space
+============================================================
+ROMP2 is used for ROHF reference
+
+******** <class 'pyscf.mp.ump2.UMP2'> ********
+nocc = (np.int64(5), np.int64(4)), nmo = (11, 11)
+max_memory 4000 MB (current use 0 MB)
+E(UMP2) = -78.1963862810137  E_corr = -0.112427494477971
+E(SCS-UMP2) = -78.1980545940149  E_corr = -0.114095807479153
+E_corr(same-spin) = -0.024019829878168
+E_corr(oppo-spin) = -0.0884076645998032
+MP2 correlation energy = -0.112427494478
+Total MP2 energy = -75.374107822774
+MP2-in-DMET total        = -75.37410782   err vs full MP2 = -1.49e-09
+
+All DMET end-to-end runs finished.

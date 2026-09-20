@@ -1,0 +1,460 @@
+% !TEX program = xelatex
+% 编译: xelatex cadft_theory.tex (需 ctex 宏包)
+\documentclass[11pt,a4paper]{ctexart}
+\usepackage{amsmath,amssymb,bm}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue}
+
+\title{\bfseries 组态平均 DFT 参考:\\实现逻辑与 ROHF-DMET 框架的对接}
+\author{技术笔记(对应 \texttt{embed\_sim/cadft.py} 与 \texttt{examples/test\_example/} 验证脚本)}
+\date{2026 年 9 月 18 日}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\section{动机:DMET 参考态的组态平均}
+
+单发(single-shot)DMET 中,杂质 + bath 子空间完全由低阶平均场参考的 1-RDM 决定:
+环境块本征分解后,占据在 $(0,2)$ 之间的本征轨道即 bath。因此 bath 的质量、
+乃至强关联体系下 embedding 能否收敛,都由参考态决定。
+
+单行列式 RHF/ROHF 参考的困难是众所周知的:对近简并组态(过渡金属 $d$ 壳层、
+解离键、自旋 crossover),RHF 把离子项混入解离极限(分数自旋误差),UKS/UNHF
+则靠对称破缺挑选某个特定组态,失去了对其它组态的描述能力。
+
+组态平均(configuration averaging / average-of-configuration, AOC)的思路是:
+在所选活性空间 $(n_{cas}, n_{elecas})$ 内,对\textbf{所有组态等权平均}后做一次
+平均场变分。Guan--Jiang(SA-DMET, arXiv:2607.08178)证明:作为 DMET 起点,
+CAHF 的 bath 精度与 SA-CASSCF 相当而代价仅是平均场 SCF,因为
+``对活性空间全部态等权平均的 SA-CASSCF 在平均场极限下就是 CAHF''。
+\texttt{cadft.py} 就是同一思想在 DFT 泛函上的实现。
+
+\section{实现的物理逻辑}
+
+\subsection{等权组态系综 $\Rightarrow$ 分数占据}
+
+取公共轨道 $\{\varphi_i\}$,组态 $\Phi_I$ 由在 $n_{cas}$ 个活性轨道中分布
+$N=n_{elecas}$ 个电子(自旋投影固定时 $n_\alpha$ 个 $\alpha$、$n_\beta$ 个
+$\beta$)的所有 Slater 行列式构成,权重 $w_I = 1/\#\{I\}$。系综平均能量为
+\begin{equation}
+  \bar E \;=\; \sum_I w_I \,\langle \Phi_I | \hat H | \Phi_I \rangle .
+  \label{eq:ens}
+\end{equation}
+
+\paragraph{单电子部分。}轨道 $i$ 被电子占有的概率就是平均占据数,
+\begin{equation}
+  f_i^\sigma = \langle \hat n_i^\sigma\rangle = \frac{n_\sigma}{n_{cas}},
+  \qquad
+  \sum_I w_I \sum_{i\in I} h_{ii} = \sum_{i\sigma} f_i^\sigma\, h_{ii}^{},
+\end{equation}
+即\textbf{组态平均恰好等于分数占据}。这是整个实现的物理核心:不需要显式枚举
+组态,只需给每个活性轨道固定的分数占据 $f_i = N/n_{cas}$(自旋平均方案)或
+$f_i^\alpha = n_\alpha/n_{cas}$、$f_i^\beta = n_\beta/n_{cas}$(固定 $S_z$ 方案)。
+
+\paragraph{双电子部分与 $\lambda$ 系数(CAHF 的做法)。}HF 逐行列式平均时,
+成对占据的\textbf{联合概率}不等于边缘概率之积。同自旋与异自旋的精确联合概率
+($i\neq j$)为
+\begin{equation}
+  \langle \hat n_i^\sigma \hat n_j^\sigma\rangle
+    = \frac{n_\sigma(n_\sigma-1)}{n_{cas}(n_{cas}-1)},
+  \qquad
+  \langle \hat n_i^\alpha \hat n_j^\beta\rangle
+    = \frac{n_\alpha(n_{cas}\!-\!n_\alpha)\, n_\beta(n_{cas}\!-\!n_\beta)}
+           {n_{cas}^2 (n_{cas}-1)^2} .
+\end{equation}
+把全部联合概率求和、归并 $J/K$ 通道后,平均双电子能可以写成一个
+``有效 $J/K$ 算符'':对角 $J_{ii}$ 项保持权重 $f_i^2$,非对角 $J$、$K$ 项分别乘以
+有效系数(即 \texttt{cahf.get\_coeffs} 中的量)
+\begin{equation}
+  \lambda_J = \frac{n_{cas}N(N-1) - 2 n_\alpha n_\beta}{N^2 (n_{cas}-1)},
+  \qquad
+  \lambda_K = \frac{n_{cas}N(N-1) - 2 n_{cas} n_\alpha n_\beta}{N^2 (n_{cas}-1)} .
+  \label{eq:lambda}
+\end{equation}
+以 H$_2$ 活性空间 $(n_{cas},N)=(2,2)$ 为例:$\lambda_J = 1/2$、$\lambda_K = 0$
+—— 四个行列式中 $p,q$ 同时被占的概率只有 $1/2$,而同自旋交换从不出现。
+
+\subsection{为什么 DFT 版本不需要 $\lambda$ 修正}\label{sec:nolambda}
+
+CAHF 必须\eqref{eq:lambda}那样的算符级修正,因为它的目标能量是
+\emph{逐行列式 HF 能量的精确系综平均},而单行列式分数占据的 HF 表达式给不出
+正确的联合概率。
+
+DFT 版本的目标不同:Gross--Oliveira--Kohn (GOK) 系综 DFT 的约定是
+\textbf{把交换关联泛函作用在系综密度上},
+\begin{equation}
+  \boxed{\;
+  E_{\mathrm{CA\text{-}DFT}}[\gamma]
+  = \sum_{i\sigma} f_i^\sigma \langle \varphi_i | \hat h | \varphi_i\rangle
+  + \tfrac12 \iint \frac{\rho(\bm r)\rho(\bm r')}{|\bm r-\bm r'|}
+  + E_{xc}[\rho_\alpha, \rho_\beta] + E_{nn},
+  \qquad
+  \rho_\sigma(\bm r) = \sum_i f_i^\sigma |\varphi_i(\bm r)|^2 .
+  \;}
+  \label{eq:ecadft}
+\end{equation}
+密度 $\rho_\sigma$ 本身已经携带了全部组态平均信息(每个活性轨道的自旋占据
+正好是系综平均占据),泛函部分\textbf{不再需要、也不应该再做}
+\eqref{eq:lambda}式修正。这与 REKS、分数占据 DFT(Chai 2012)、系综 DFT
+(Gould--Kronik--Pittalis 2025 综述)的约定一致:对泛函做系综化
+(``ensemblization'')而不是对逐组态泛函值做平均。
+
+两种约定的定量差别可以直接测量:对拉伸 H$_2$ $(2,2)$ 活性空间,
+$E_{\mathrm{CAHF}} - E_{\mathrm{CA\text{-}DFT}(\mathrm{hf})}
+ = -0.797 - (-0.693) = -0.104\,E_h$,
+即 $\lambda$ 修正(精确成对概率)与光滑泛函插值之差。
+本实现选择 GOK 约定作为基线,原因:(i) 泛函形式唯一、无歧义;(ii) Janak
+定理严格成立;(iii) 尺寸一致性与普通 KS-DFT 相同。
+
+\subsection{杂化泛函中的 HF 交换成分}
+
+杂化泛函的精确交换部分与泛函的其余部分遵循同一系综化约定:按
+$c_x\,E_x[\gamma]$ 作用在分数占据密度矩阵
+$\gamma=\sum_{i\sigma}f_i^\sigma|\varphi_{i\sigma}\rangle
+\langle\varphi_{i\sigma}|$ 上,
+\begin{equation}
+  E_x^{\mathrm{HF}}[\gamma]
+  = -\frac12\sum_\sigma\sum_{ij}
+    f_i^\sigma f_j^\sigma\,
+    \langle \varphi_{i\sigma}\varphi_{j\sigma}
+    | r_{12}^{-1} | \varphi_{j\sigma}\varphi_{i\sigma}\rangle ,
+  \qquad v_x = \hat K[\gamma] .
+\end{equation}
+两个理论要点:
+
+\paragraph{(i) $E_x[\gamma]$ 对 $\gamma$ 双线性。}交换线性于每个占据数,故
+$v_x=\hat K[\gamma]$ 是\emph{精确}的泛函导数,不存在半局域部分那样的非线性
+求导近似,Janak 定理在杂化下逐自旋仍严格成立。长程校正泛函的
+$\omega$-衰减 $\hat K_\omega[\gamma]$、meta-GGA 的
+$\tau_\sigma=\sum_i f_i^\sigma|\nabla\varphi_{i\sigma}|^2$ 同理,均无歧义。
+
+\paragraph{(ii) $c_xE_x[\gamma]$ 不是行列式系综平均的精确交换。}这正是
+第~\ref{sec:nolambda}节 $\lambda_K$ 存在的理由。以 H$_2$ $(2,2)$ 系综为例:
+四个行列式 $(g\alpha g\beta),(g\alpha u\beta),(u\alpha g\beta),
+(u\alpha u\beta)$ 中没有任何同自旋对,\emph{精确}平均交换严格为零
+($\lambda_K=0$);而 $\gamma$ 基交换给出非零的 $-c_x K_{gu}$ 型项。J 通道
+同理:$g,u$ 同时被占只发生在 4 个行列式中的 2 个(精确 $\lambda_J=1/2$),
+$\gamma$ 基 Hartree 却给满权 $J_{gu}$。两者之差即实测的
+$E_{\mathrm{CAHF}}-E_{\mathrm{CA\text{-}DFT}(\mathrm{hf})}
+ = -0.104\,E_h$(H$_2$,$R=2.5$\,\AA{})。
+
+因此杂化系数 $c_x$ 实际在两种系综化约定之间插值:半局域部分
+$(1-c_x)$ 是光滑密度泛函(GOK 系综化,本实现基线);精确部分 $c_x$ 按
+$\gamma$ 的成对概率之积求值(REKS 同款约定);而方案 C(CAHF$+E_c$)则用
+$\lambda_K$ 权重的精确成对概率交换(逐行列式系综平均约定,CAHF 同款)。
+特例 $c_x=1$(即 \texttt{xc='hf'})是 \emph{GOK 约定的系综
+HF}——CA-DFT 家族的无泛函极限。哪个约定作为 DMET 参考更好是经验问题:
+SA-DMET 文献验证的是 CAHF 一侧;GOK 一侧的优点是泛函形式统一、Janak 严格。
+
+\subsection{能量表达式、SCF 方程与 Janak 定理}
+
+对 \eqref{eq:ecadft} 关于轨道变分(保持正交),得分数占据 KS 方程
+\begin{equation}
+  \hat F_\sigma \varphi_{i\sigma} = \varepsilon_{i\sigma} \varphi_{i\sigma},
+  \qquad
+  \hat F_\sigma = \hat h + v_H[\rho] + v_{xc,\sigma}[\rho_\alpha,\rho_\beta]
+  \;(+\,c_x \hat K_\sigma \ \text{杂化}),
+\end{equation}
+其中 $v_{xc,\sigma} = \delta E_{xc}/\delta \rho_\sigma$ 在\textbf{分数占据自旋
+密度}上求值;占据 $f$ 全程固定,不做 Aufbau 更新。收敛时能量求值用标准去
+双重计数式
+\begin{equation}
+  E = \sum_{i\sigma} f_i^\sigma \varepsilon_{i\sigma}
+    - \tfrac12 \int v_H \rho
+    + E_{xc} - \sum_\sigma \int v_{xc,\sigma} \rho_\sigma + E_{nn} .
+\end{equation}
+Janak 定理 $\partial E/\partial f_i^\sigma = \varepsilon_{i\sigma}$ 在此框架
+内严格成立,故对活性块有 $\partial E/\partial N = \langle \varepsilon
+\rangle_{\mathrm{act}}$——这是数值验证(见第~\ref{sec:valid}节,精度
+$1.5\times10^{-6}$)。当 $N=0$ 或 $N=2n_{cas}$ 时分数占据退化为整数,
+\eqref{eq:ecadft}严格回到普通 RKS/UKS,这是实现的自然边界自检。
+
+\subsection{占据指认:位置固定而非 Aufbau}\label{sec:position}
+
+分数占据放在\textbf{按轨道位置}(能量排序后前 $n_{core}$ 个轨道闭壳层、随后
+$n_{cas}$ 个轨道取分数占据)指认,与 \texttt{cahf.get\_occ} 的约定一致:
+\begin{equation}
+  \mathrm{occ} = [\underbrace{2,\dots,2}_{n_{core}},
+                  \underbrace{f,\dots,f}_{n_{cas}}, 0,\dots],
+  \qquad
+  n_{core} = \Big\lfloor \tfrac{N_{el}-N}{2} \Big\rceil,
+  \quad f = N/n_{cas},
+\end{equation}
+其中 $N_{el}$ 为分子电子数。理由:(i) 组态平均的定义本来就是
+``轨道指标 + 占据'',与能量排序无关;(ii) 若用 Aufbau,任何激发型系综
+(如解离问题的 HOMO/LUMO 等权系综)都会在第一次对角化后塌缩回基态占据,
+系综定义即被破坏——这与 $\Delta$SCF 激发态必须手工定占据是同一个道理。
+
+活性占据恒取 $N/n_{cas}$(而不是把奇偶性残差塞回活性块)保证能量对 $N$
+连续,Janak 有限差分良定义;$N$ 与 $N_{el}$ 奇偶性不同时系综带分数电子数,
+仅触发警告(Janak 型化学势探针合法用途),物理参考应取同奇偶的 $N$。
+
+\section{为什么是 UKS}\label{sec:whyuks}
+
+固定 $S_z$ 的组态平均要求两个自旋通道有不同的占据向量
+$f^\alpha \neq f^\beta$(例如 $(n_{cas},N,S)=(4,5,1)$ 给出
+$f^\alpha = 3/4$、$f^\beta = 2/4$),且各自的 Euler 方程是
+$\hat F_\sigma\varphi = \varepsilon\varphi$ 形式、$v_{xc,\sigma}$ 是对
+$\rho_\sigma$ 的泛函导数。候选实现有三种,取舍如下。
+
+\paragraph{(a) RKS(自旋受限)。}强制 $\rho_\alpha=\rho_\beta$,只能实现
+$S_z$ 平均系综(方案 A,\texttt{CADFT\_RKS}:对全部自旋微观态平均,
+$f^\alpha = f^\beta = N/2n_{cas}$)。对闭壳层分子这是最简方案;但它无法
+表达开壳层 TMC 的固定自旋参考(正是 CAHF 以 $spin\neq0$ 服务的场景)。
+
+\paragraph{(b) UKS(自旋不受限,本实现 \texttt{CADFT\_UKS})。}两个自旋通道
+各有一套轨道与占据,PySCF 的 UKS 机制(\texttt{get\_occ} 返回
+$(2,n_{mo})$、\texttt{make\_rdm1} 接受分数占据、\texttt{nr\_uks} 按
+$\rho_\sigma$ 求 $v_{xc,\sigma}$)对分数占据\textbf{原生支持、零修改}:
+$v_{xc,\sigma}[\rho_\alpha,\rho_\beta]$ 是系综泛函无歧义的泛函导数,
+Janak 定理按自旋成立。选 UKS 的本质原因:
+\emph{系综 DFT 的变分方程本来就是按自旋通道分开的,UKS 是它的最小无歧义实现};
+任何把两通道合并成单一有效势的做法都引入额外构造(见 (c))。
+代价与对策见下。
+
+\paragraph{(c) RO(K)S(公共空间轨道,不同 $\alpha/\beta$ 占据)。}这才是与
+CAHF(基于 ROHF/Roothaan 有效 Fock)完全同构的方案:公共轨道保证系综是
+自旋纯的组态平均。但对 DFT 有一个原则性困难:Roothaan 构造把
+$\alpha/\beta$ 两个 Fock 算符按 core/open/virtual 块\emph{线性组合}成一个
+有效 Fock(即 \texttt{cahf.CAHF\_get\_roothaan\_fock}),这在 HF 里是精确的,
+因为算符对 $J/K$ 线性;而 $v_{xc,\alpha}[\rho_\alpha,\rho_\beta] \neq
+v_{xc,\beta}$,把两个自旋的 XC 势合并成作用于公共轨道的单一有效势
+\emph{没有唯一定义}(文献中的各种 ROKS 配方即在此处各不相同),且 PySCF 的
+ROKS 对分数占据未支持未测试。
+
+\paragraph{UKS 的代价:自旋破缺风险。}UKS 允许 $\varphi_\alpha \neq
+\varphi_\beta$。组态平均定义要求\emph{公共空间轨道};若 SCF 收敛到
+$\varphi_\alpha \neq \varphi_\beta$ 的解,得到的不再是纯组态平均,而是
+破缺对称的分数占据 DFT。实践中:(i) 占据不等本身不强制轨道破缺;
+(ii) 近简并会诱发破缺,需监控自旋污染;(iii) 需要严格自旋纯系综时,可做
+\textbf{ROKS 版扩展(方案 C)}:完全复用 CAHF 的类结构——保留
+\eqref{eq:lambda}式的 $J/K$ Roothaan 算符,在 \texttt{focka/fockb} 中各自
+加 $v_{xc,\sigma}[\rho_\alpha,\rho_\beta]$,能量用
+$E_{\mathrm{CAHF}} + E_c[\rho_\alpha,\rho_\beta]$(只加关联、避免交换双重
+计数)。这属于 ``CAHF + DFT 关联'' 型混合方案,可作为与 GOK 基线的对照。
+
+\section{如何接入现有 ROHF-DMET 框架}\label{sec:rohf}
+
+\subsection{关键观察:参考只需提供三个接口}
+
+现有 \texttt{SSDMET} 对参考对象的全部要求是:
+\begin{enumerate}
+  \item \texttt{mol}(几何、基组、\texttt{spin});
+  \item \texttt{make\_rdm1()}(给 1-RDM,决定杂质 + bath);
+  \item \texttt{get\_hcore()} / \texttt{get\_jk()}(冻结环境 Fock 与
+        $E_{fo}$ 用,均为 HF 型 $J/K$ 机器,RKS/UKS 从 \texttt{hf.SCF}
+        原生继承);
+  \item \texttt{e\_tot}(仅用于打印参考能量)。
+\end{enumerate}
+\textbf{参考的分数占据不会、也不需要进入下游任何地方}——它唯一的物理作用
+是改变 1-RDM 的本征值谱,从而改变 bath 的挑选。这就是 UKS 参考能够无损接入
+ROHF 框架的原因。
+
+\subsection{信息流与代码路径}
+
+\begin{verbatim}
+CADFT_UKS(mol,...).kernel()                # 全体系系综 SCF (分数占据)
+   |
+SSDMET(mf, imp_idx, bath_norb)             # ssdmet.py:218
+   |
+mf_or_cas_make_rdm1s(mf)                   # ssdmet.py:35  <-- 唯一新增分支
+   |   dma,dmb = mf.make_rdm1()  ->  dm=(2,nao,nao), open_shell=True
+   |       (与 ROHF/CASSCF 参考走完全相同的返回形状)
+   v
+build(): lowdin_orth -> build_embeded_subspace(ldm)     # 参考无关
+   |        环境块本征分解; 分数占据谱 -> bath/fo/fv (阈值或 bath_norb)
+   |        make_es_int1e: h + J(rho_fo) - K/2  (参考的 get_jk, HF 机器)
+   |        make_es_int2e: ao2mo(es_orb)        (与参考类型无关)
+   v
+self.es_mf = self.ROHF()                   # ssdmet.py:687
+   |        在 imp+bath 空间新建 RHF/ROHF, es_int1e/int2e,
+   |        整数占据重新收敛 —— 参考的分数占据在此已不存在
+   v
+calc_fo_ene() / mp2_solver() / avas / sacasscf ...      # 与 ROHF 参考共用
+\end{verbatim}
+
+要点逐条:
+
+\begin{enumerate}
+\item \textbf{分支点只有一个。}\texttt{mf\_or\_cas\_make\_rdm1s} 里
+\texttt{CADFT\_UKS} 分支把 $(\gamma_\alpha,\gamma_\beta)$ 堆成
+$(2,n_{ao},n_{ao})$。此后 \texttt{build()} 看到的输入与 ROHF 参考逐比特同形
+(\texttt{dm.ndim==3} $\Rightarrow$ \texttt{open\_shell=True}),下游不存在任何
+CADFT 特殊代码。
+\item \textbf{嵌入求解器不受分数占据影响。}\texttt{SSDMET.ROHF()} 在嵌入空间
+从头构造新的 ROHF/\,RHF(\texttt{mol.spin} 原样传入),从 \texttt{es\_dm}
+出发整数占据重收敛。分数占据只影响 \texttt{es\_dm} 初猜(经本征值二值化)。
+\item \textbf{开壳层路径。}UKS 参考给出 $(\gamma_\alpha,\gamma_\beta)$
+$\Rightarrow$ 嵌入 ROHF——与 ROHF 参考同一条路;闭壳层 CADFT\_RKS 给出
+$\gamma$ $\Rightarrow$ 嵌入 RHF,与 RHF 参考同路。
+\item \textbf{冻结能。}\texttt{calc\_fo\_ene} 用参考对象的 \texttt{get\_jk}
+计算冻结环境的 HF 型能量;UKS/RKS 继承的 \texttt{hf.SCF.get\_jk} 直接可用,
+与参考的 XC 无关(冻结部分仍是 HF 口径,与嵌入侧口径一致)。
+\end{enumerate}
+
+\subsection{精确条件偏差的物理含义}
+
+HF 参考时 one-shot DMET 严格满足
+$E_{es}^{\mathrm{HF\text{-}in\text{-}HF}} + E_{fo} = E_{\mathrm{ref}}$
+(实测 OH 体系 $-1.3\times10^{-13}$)。换成 DFT 参考后,
+\begin{equation}
+  \Delta \equiv E_{es}^{\mathrm{HF}} + E_{fo}^{\mathrm{HF}} - E_{\mathrm{CA\text{-}DFT}}
+  \neq 0 ,
+\end{equation}
+它度量\emph{参考与嵌入低阶方法的不一致},而非误差:CA-DFT 的作用只是把
+entanglement(因而 bath)选对,可观测量的精度由嵌入高阶求解器
+(MP2/CASSCF)决定。这与 \texttt{mf\_or\_cas} 为 CASSCF 时的情形完全同构,
+是该框架已知且被接受的性质(OH 体系实测 $\Delta \approx -1.0\times10^{-2}\,E_h$)。
+
+\subsection{未来的 DFT-in-DFT 路线(可选)}
+
+若以后要求嵌入求解器本身也是 CA-DFT(彻底的 DFT 口径),需在
+\texttt{SSDMET.ROHF()} 旁增加嵌入 UKS 构造:嵌入空间网格上求
+$v_{xc}$(可仿照 \texttt{calc\_fo\_ene\_dft} 的 NumInt 用法),并相应把
+$E_{fo}$ 换成 DFT 口径。参考态用法(当前实现)不需要这一步。
+
+\section{数值验证汇总}\label{sec:valid}
+
+全部脚本位于 \texttt{examples/test\_example/},日志同目录。
+
+\begin{table}[h]
+\centering
+\begin{tabular}{llll}
+\toprule
+检验 & 体系 & 结果 & 判据 \\
+\midrule
+边界退化 (hf) & H$_2$/6-31G, $(1,2)$ & 与 RHF 差 $1.9\times10^{-12}$ & $=0$ \\
+边界退化 (pbe) & H$_2$/6-31G, $(1,2)$ & 与 RKS 差 $4.7\times10^{-11}$ & $=0$ \\
+H$_2$ 解离 & $R=0.74\sim4.0$\,\AA{} & CA-DFT 平滑趋近 $-0.910$ & 消除离子项($-0.770$) \\
+$\lambda$ 对照 & H$_2$ $(2,2)$, $R=2.5$\,\AA{} & $E_{\mathrm{CAHF}}-E_{\mathrm{CA\text{-}DFT}}=-0.104$ & 量级合理 \\
+Janak 定理 & H$_2$O/6-31G, $(4{+}2,2)$ & $|\partial E/\partial N - \langle\varepsilon\rangle| = 1.5\times10^{-6}$ & $<10^{-5}$ \\
+CMY 分数自旋定理 & H 原子 vs H$_2$ 解离极限 & LDA 22.1/21.7, PBE 27.2/26.6, B3LYP 36.6/35.6 kcal/mol(两路径) & 差 $<2$;HF 解析值 $J/4=98.05$ 实测 98.6 \\
+\bottomrule
+\end{tabular}
+\caption{SCF 层验证(\texttt{test\_cadft.py})。}
+\end{table}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lllll}
+\toprule
+体系 & 参考 & bath & $\Delta$(精确条件) & MP2-in-DMET 误差 \\
+\midrule
+H$_2$O 拉伸 & RHF & 2 & $1.8\times10^{-2}$ & $+2.5\times10^{-2}$ \\
+H$_2$O 拉伸 & CADFT-RKS (pbe, $4{+}2{,}2$) & 2 & $3.0\times10^{-1}$ & $+9.0\times10^{-2}$ \\
+OH 拉伸 & ROHF & 2 & $-1.3\times10^{-13}$ & $+3.0\times10^{-9}$ \\
+OH 拉伸 & CADFT-UKS (pbe, $4{,}5{,}1$) & 2 & $-1.0\times10^{-2}$ & $-1.5\times10^{-9}$ \\
+\bottomrule
+\end{tabular}
+\caption{DMET 端到端(\texttt{cadft\_dmet.py},统一 \texttt{bath\_norb=2})。
+OH 体系两参考误差同为 $10^{-9}$ 量级是因为 $n_{imp}+n_{bath}$ 已覆盖全部轨道
+(嵌入=全空间),仅作管线回归。H$_2$O 上 PBE 参考误差更大是单一玩具体系、
+bath 选择不同的单点结果,不构成结论;参考质量的判别需在真实 TMC 体系做
+RHF/ROHF/CAHF/CADFT 四参考对比。}
+\end{table}
+
+\paragraph{收敛性经验。}位置指认的分数占据 SCF 在 \emph{core/active 边界无
+轨道能隙}时会 DIIS 振荡(激发态型鞍点)。对策与 CAHF 完全一致:
+\texttt{level\_shift}$\,\approx\,0.5$(见 \texttt{cadft\_dmet.py} 的
+\texttt{run\_cadft}),且活性空间应与 core 之间有能隙隔开(前线型系综)。
+PySCF 的 \texttt{newton()} 与分数占据不兼容(\texttt{unpack\_uniq\_var} 的
+占据掩码按整数设计),v1 不使用。
+
+\section{与文献的对应}\label{sec:ref}
+
+本实现没有单一奠基文献,而是四条线的组合;各公式的出处如下。
+
+\begin{table}[h]
+\centering
+\begin{tabular}{p{4.4cm}p{4.6cm}p{4.6cm}}
+\toprule
+本实现的公式/做法 & 文献 & 对应关系 \\
+\midrule
+系综密度上的泛函求值
+$E_{\mathrm{CA\text{-}DFT}}=\sum fh+\frac12J[\rho]+E_{xc}[\rho_\alpha,\rho_\beta]$
+(式~\ref{eq:ecadft})
+& GOK 系综 DFT,\ Phys.\ Rev.\ A \textbf{37}, 2809 (1988)
+& 精确系综变分 $E=\min\sum_I w_I E[n_I]$ 的近似泛函实现;
+  ``ensemblization'' 约定(REKS 一族同款) \\
+\addlinespace
+去双重计数能量式与
+$\partial E/\partial f_i=\varepsilon_i$(§2.3)
+& Janak,\ PRB \textbf{18}, 7165 (1978)
+& SCF 能量求值公式;Janak 检验(第~\ref{sec:valid}节)即验证该定理 \\
+\addlinespace
+方案 A 的自旋平均占据
+$f^\alpha=f^\beta=N/2n_{cas}$
+& Cohen--Mori-S\'anchez--Yang,\ JCP \textbf{129}, 121104 (2008)
+& 分数自旋系综构造;消除 H$_2$ 解离离子项的物理依据 \\
+\addlinespace
+固定分数占据、不做 Aufbau 的 KS-SCF 协议
+& Chai,\ JCP \textbf{136}, 154104 (2012)
+& \texttt{CADFT\_RKS/UKS} 的运行协议与之一致 \\
+\addlinespace
+DMET 参考用法:1-RDM $\to$ bath,嵌入求解器不变
+& Guan--Jiang,\ arXiv:2607.08178 (2026)
+& SA-DMET 的结构;本文仅把 CAHF 替换为 CA-DFT \\
+\addlinespace
+$\lambda_J,\lambda_K$(式~\ref{eq:lambda})
+& Zerner,\ IJQC \textbf{35}, 567--575 (1989)
+& \emph{对照项}:CAHF(即 \texttt{cahf.get\_coeffs})的做法,本实现不用 \\
+\bottomrule
+\end{tabular}
+\caption{公式来源对照。}
+\end{table}
+
+需要说明:分数占据 DFT(GOK+Janak+Chai)与``平均场系综参考进 DMET''
+(Guan--Jiang,用 CAHF)分别有文献,但\textbf{两者组合——CA-DFT 直接作
+DMET 参考——尚未见先例};这是本实现新增的自由度,其价值需在真实 TMC 体系
+上以 RHF/ROHF/CAHF/CADFT 四参考对比检验(§\ref{sec:valid}表 2 的推广)。
+
+\paragraph{与文献数值的对标现状。}目前已有的文献锚定是
+Cohen--Mori-S\'anchez--Yang 2008 的\textbf{分数自旋常数定理}
+($E_{\mathrm{exact}}(f_\alpha,f_\beta)=$ 常数 $=E_{\mathrm{pure}}$):
+实现给出的 $\Delta E_{FS}(\mathrm{H})$ 由两条独立路径(H 原子直接求值、
+H$_2$ 系综解离极限)交叉验证一致,且 HF 的解析值 $J/4=5E_h/32$ 与实测吻合
+(表~\ref{sec:valid}表 1,Test 5)。各泛函 $\Delta E_{FS}$ 的量级与排序
+(HF $\gg$ B3LYP $>$ PBE $>$ LDA,全部凸性高估)与该文的定性结论一致,
+但尚未与其图表数值做逐点比对;Chai 2012 的 FDOC 解离曲线、REKS 一族的
+基准值、以及 SA-DMET 的 CAHF-in-DMET 基准,均属待补的定量对标项。
+
+\section{小结}
+
+\begin{enumerate}
+\item 物理逻辑一句话:\textbf{等权组态平均 + 公共轨道 $\Rightarrow$ 固定分数
+占据};HF 需要成对概率修正($\lambda_J,\lambda_K$),DFT 按系综 DFT 约定把
+$E_{xc}$ 作用在系综密度上,无需修正。
+\item 为什么 UKS:固定 $S_z$ 系综的变分方程按自旋通道分离,UKS 是其最小无歧义
+实现(PySCF 对分数占据原生支持);RO(K)S 方案在 XC 势的 Roothaan 合并上无
+唯一定义,留作需要严格自旋纯系综时的扩展(方案 C)。
+\item 如何接入 ROHF 框架:CA-DFT 只通过 1-RDM 影响 DMET
+(\texttt{mf\_or\_cas\_make\_rdm1s} 一个分支),下游 \texttt{build()}、嵌入
+ROHF、MP2/CASSCF 求解器代码与 ROHF 参考完全共用;分数占据只改变 bath 的挑选,
+不进入嵌入求解器。
+\end{enumerate}
+
+\begin{thebibliography}{9}
+\bibitem{gok} E.\,K.\,U. Gross, L.\,N. Oliveira, W. Kohn,
+  Phys. Rev. A \textbf{37}, 2809 (1988). —— 系综 DFT 精确框架。
+\bibitem{janak} J.\,F. Janak, Phys. Rev. B \textbf{18}, 7165 (1978). ——
+  $\partial E/\partial f_i = \varepsilon_i$。
+\bibitem{cmy} A.\,J. Cohen, P. Mori\-S\'anchez, W. Yang,
+  J. Chem. Phys. \textbf{129}, 121104 (2008). —— 分数自旋误差与静态关联。
+\bibitem{zerner} M.\,C. Zerner, Int. J. Quantum Chem. \textbf{35}, 567--575 (1989).
+  —— 组态平均 HF(CAHF)算符。
+\bibitem{guan} Z.-B. Guan, H. Jiang, arXiv:2607.08178 (2026). ——
+  SA-DMET;CAHF 作 DMET 起点与 SA-CASSCF 等精度。
+\bibitem{gkp} T. Gould, L. Kronik, S. Pittalis, arXiv:2504.00547 (2025). ——
+  ``Ensemblization'' of DFT 综述。
+\bibitem{chai} J.-D. Chai, J. Chem. Phys. \textbf{136}, 154104 (2012). ——
+  分数占据 DFT。
+\bibitem{dmet} G.\,H. W. Knizia, G.\,K.-L. Chan, Phys. Rev. Lett. \textbf{109},
+  186404 (2012); Q. Sun, G.\,K.-L. Chan, JCTC \textbf{10}, 3784 (2014). ——
+  DMET 与 one bath per bond。
+\end{thebibliography}
+
+\end{document}

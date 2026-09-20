@@ -54,6 +54,7 @@ Check `examples/test_example/README_one_bath_per_bond.md` for detailed results o
 | `BNO_bath.py` | Bath natural orbitals from MP2; systematic expansion via occupation threshold η |
 | `consistent_bath.py` | Restores bath orbitals across PES geometries for fixed embedded-space size |
 | `bath_selection.py` | "One bath per bond" logic: `partition_env_by_bath_count()` selects bath orbitals by occupation (closest to 1 = strongest entanglement) |
+| `cadft.py` | Configuration-averaged DFT reference (fractional-occupation ensemble, GOK convention): `CADFT_RKS` (spin-averaged) / `CADFT_UKS` (fixed-Sz); usable directly as `SSDMET` reference. Validated in `examples/test_example/test_cadft.py` (edge degeneracy, H₂ dissociation, Janak) and `cadft_dmet.py` (DMET end-to-end) |
 | `myavas.py` | AVAS active-space construction; see also `sacasscf_mixer.py` (SA-CASSCF + NEVPT2), `cahf.py` (CAHF reference) |
 | `siso.py` | Spin–orbit coupling via spin-mixing; `spin_utils.py` for utilities |
 | `pes_guess.py` | Fragment-based initial guesses for reaction-path embedding |
@@ -175,6 +176,11 @@ The `embed_sim` module is also vendored into:
 - `5LiCoO2project/0AIMP-open/src/embed_sim` — LiCoO₂ battery project
 
 **Before editing, check which copies scripts in other folders import.**
+
+## Recent Changes (2026-09)
+
+- **Plain DFT reference (RKS/UKS) for DMET**: `ssdmet.mf_or_cas_make_rdm1s` now dispatches ordinary `dft.RKS`/`dft.UKS` objects — the DFT density matrix (`mf.make_rdm1()`) selects impurity + bath exactly like CADFT; embedded solver stays RHF/ROHF. Previously RKS silently hit the RHF branch (mislabeled) and UKS raised `TypeError`. Usage example in the `mf_or_cas_make_rdm1s` docstring.
+- **Configuration-averaged DFT reference** (`embed_sim/cadft.py`): fractional-occupation ensemble KS references (`CADFT_RKS`/`CADFT_UKS`) usable directly as DMET starting points (`ssdmet.mf_or_cas_make_rdm1s` handles them). Occupations fixed by position (CAHF convention), energy continuous in `nelecas`, Janak verified to 1.5e-6. Known: plain DIIS can oscillate when the core/active boundary has no orbital-energy gap — use `level_shift=0.5` (see `run_cadft` in `examples/test_example/cadft_dmet.py`), like CAHF; PySCF `newton()` does not support fractional occ.
 
 ## Recent Changes (2026-08)
 

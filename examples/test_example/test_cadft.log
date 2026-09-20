@@ -1,0 +1,51 @@
+==============================================================================
+Test 1: edge degeneracy (ncas=1, nelecas=2 -> ordinary RHF/RKS)
+==============================================================================
+E(RHF)              = -1.1267553172
+E(CADFT-RKS hf)     = -1.1267553172   diff = 1.87e-12
+E(RKS pbe)          = -1.1619044112
+E(CADFT-RKS pbe)    = -1.1619044111   diff = 4.67e-11
+PASS: ncas=1, nelecas=2 reduces exactly to RHF/RKS
+
+==============================================================================
+Test 2: H2 dissociation, RHF vs UKS vs CA-DFT (ncas=2, nelecas=2)
+==============================================================================
+ R(Ang)              RHF         UKS(pbe)        CADFT pbe         CADFT hf
+   0.74      -1.12675532      -1.16190441      -0.67284225      -0.43286867
+   1.50      -0.99749729      -1.05509743      -0.87018425      -0.64628531
+   2.50      -0.85689594      -0.95467174      -0.90755326      -0.69299303
+   4.00      -0.77020258      -0.91472148      -0.91011274      -0.69769053
+(2 x E(H) pbe = -0.99486326; restricted CADFT should approach it smoothly,
+ while RHF carries the ionic fractional-spin error)
+
+==============================================================================
+Test 3: CAHF vs CA-DFT(xc=hf) at H2 stretched (pair-probability lambda)
+==============================================================================
+E(CAHF)            = -0.79702082
+E(CADFT hf)        = -0.69299303
+difference         = 1.04e-01  (lambda_J/lambda_K operator correction vs plain fractional occ)
+
+==============================================================================
+Test 4: Janak theorem dE/dN_active = <eps_active>, H2O frontier ensemble
+        (ncore=4 closed shells + ncas=2 active orbitals at occ nelecas/2)
+==============================================================================
+active occupations = [1. 1.]
+dE/dN_active (finite diff) = -0.21621346
+<eps_active>   (Janak)     = -0.21621197
+difference                 = -1.48e-06
+PASS: Janak theorem holds
+
+==============================================================================
+Test 5: Cohen-Mori-Sanchez-Yang fractional-spin theorem (literature anchor)
+        DeltaE_FS(H) from two independent routes must agree:
+        (a) direct: E(H, 1/2a+1/2b) - E(H, pure spin)
+        (b) H2 ensemble dissociation limit: E(CADFT-H2, R=inf)/2 - E(H)
+==============================================================================
+xc         H-atom route  H2-limit route
+svwn              22.12           21.67   |diff| = 0.45 kcal/mol
+pbe               27.21           26.60   |diff| = 0.61 kcal/mol
+b3lyp             36.64           35.60   |diff| = 1.04 kcal/mol
+hf      (analytic: J/4 = 5/32 Eh = 98.05 kcal/mol; verified separately)
+PASS: fractional-spin errors agree across routes and with CMY theory
+
+All CADFT SCF-level tests passed.

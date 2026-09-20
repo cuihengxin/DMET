@@ -33,20 +33,73 @@ def compare_imp_orb(imp_orb1, imp_orb2, mol, atol=1e-7):
         imp_orb1, imp_orb2, mol.intor_symmetric('int1e_ovlp'), atol=atol)
 
 def mf_or_cas_make_rdm1s(mf_or_cas):
+    """1-RDM that seeds the DMET partition, extracted from the reference.
+
+    The reference mean field only feeds its density matrix (impurity + bath
+    come from its eigen-decomposition) plus the usual SCF interface
+    (get_hcore/get_jk/e_tot); the embedded solver is always RHF/ROHF, so a
+    plain DFT reference (RKS/UKS) works exactly like CADFT: what is "passed
+    in" is the DFT density matrix mf.make_rdm1(), while J/K in the embedded
+    Hamiltonian stays HF-type.
+
+    Usage example -- DMET from an ordinary DFT density matrix, closed shell:
+
+        from pyscf import gto, dft
+        from embed_sim import ssdmet
+        mol = gto.M(atom='O 0 0 0; H 0 0 1.0; H 0 1.52 -0.45', basis='6-31g')
+        mf = dft.RKS(mol, xc='pbe').run()   # ordinary DFT calculation ...
+        # ... its density matrix enters DMET here (imp+bath selection):
+        mydmet = ssdmet.SSDMET(mf, title='h2o_pbe', imp_idx='O', bath_norb=2)
+        mydmet.build(xc='pbe')              # xc only switches fo_ene to a DFT diagnostic
+        e_mp2, _ = mydmet.mp2_solver()      # MP2-in-DMET on the DFT bath
+
+    Open shell (UKS) is the same, only mol.spin != 0 and the embedded
+    solver becomes ROHF:
+
+        mol = gto.M(atom='O 0 0 0; H 0 0 1.5', basis='6-31g', spin=1)
+        mf = dft.UKS(mol, xc='pbe').run()
+        mydmet = ssdmet.SSDMET(mf, title='oh_uks', imp_idx='O', bath_norb=2)
+        mydmet.build()
+
+    Note: the printed "deviation from DMET exact condition" is finite for a
+    DFT reference (exactness only holds for HF-in-HF); the DFT-in-DMET
+    numbers to compare are the correlated-solver totals.
+    """
     from pyscf.scf.hf import RHF
     from pyscf.scf.rohf import ROHF
     from embed_sim.cahf import CAHF
+    from embed_sim.cadft import CADFT_RKS, CADFT_UKS
+    from pyscf.dft.rks import RKS
+    from pyscf.dft.uks import UKS
     from pyscf.mcscf.mc1step import CASSCF
     # I don't know whether there is a general way to calculate rdm1s
     # If there is, better to use that function
-    if isinstance(mf_or_cas, CASSCF): 
+    if isinstance(mf_or_cas, CASSCF):
         print('DMET from CASSCF')
         dma, dmb = mf_or_cas.make_rdm1s()
         dm = np.stack((dma, dmb), axis=0)
     elif isinstance(mf_or_cas, CAHF):
         dma = dmb = np.dot(mf_or_cas.mo_coeff*mf_or_cas.mo_occ, mf_or_cas.mo_coeff.conj().T) / 2
         dm = np.stack((dma, dmb), axis=0)
+    elif isinstance(mf_or_cas, CADFT_RKS):
+        print('DMET from CADFT-RKS (configuration-averaged DFT)')
+        dm = mf_or_cas.make_rdm1()
+    elif isinstance(mf_or_cas, CADFT_UKS):
+        print('DMET from CADFT-UKS (configuration-averaged DFT)')
+        dma, dmb = mf_or_cas.make_rdm1()
+        dm = np.stack((dma, dmb), axis=0)
+    elif isinstance(mf_or_cas, UKS):
+        print('DMET from UKS (DFT density matrix)')
+        dma, dmb = mf_or_cas.make_rdm1()
+        dm = np.stack((dma, dmb), axis=0)
+    elif isinstance(mf_or_cas, RKS):
+        # plain RKS: the DFT density matrix mf.make_rdm1() drives the
+        # impurity/bath partition exactly like the RHF branch below
+        print('DMET from RKS (DFT density matrix)')
+        dm = mf_or_cas.make_rdm1()
     elif isinstance(mf_or_cas, ROHF):
+        # ROKS (DFT) also lands here: it is an ROHF subclass, make_rdm1()
+        # returns (dma, dmb) just the same
         print('DMET from ROHF')
         dma, dmb = mf_or_cas.make_rdm1()
         dm = np.stack((dma, dmb), axis=0)
