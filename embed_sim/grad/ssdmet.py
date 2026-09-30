@@ -188,39 +188,54 @@ def group_indexes_by_diff(arr, threshold=1e-15):
 #     t0 = log.timer('lowdin_1', *t0)
 #     return caolo_1, cloao_1
 
+# def get_lowdin_1(mf, S_1_ao, log):
+#     t0 = (logger.process_clock(), logger.perf_counter())
+    
+#     nao = mf.mol.nao
+#     S = mf.get_ovlp()
+#     sval,svec = np.linalg.eigh(S)
+#     Ws = sval[:,None] - sval[None,:]
+#     Ws[range(nao), range(nao)] = np.inf
+#     if (abs(Ws) < 1e-12).sum() > 0:
+#         if (abs(Ws) < 1e-15).sum() > 0:
+#             log.warn(f'''
+#     {(abs(Ws) < 1e-15).sum()} degenerate eigenvalues of the overlap matrix are found,
+#     the gradients are unreliable! Please fine-tune your initial structure!
+#     ''')
+#         else:
+#             log.warn(f'''
+#     {(abs(Ws) < 1e-12).sum()} nearly degenerate eigenvalues of the overlap matrix are found,
+#     the gradients may suffer from numerical instability.
+#     ''')
+#     Ws = 1 / Ws
+#     S_1_svec = einsum('Atab,aj,bm->Atjm', S_1_ao, svec, svec)
+#     caolo_1_imds = einsum('mj,pj,rm,Atjm->Atpr',Ws,svec,svec*(sval**(-1/2)),S_1_svec)
+#     cloao_1_imds = einsum('mj,pj,rm,Atjm->Atpr',Ws,svec,svec*(sval**(1/2)),S_1_svec)
+#     caolo_1 = (
+#         + caolo_1_imds
+#         + caolo_1_imds.swapaxes(-1,-2)
+#         - 0.5*einsum('pm,rm,Atmm->Atpr',svec,svec*(sval**(-3/2)),S_1_svec)
+#     )
+#     cloao_1 = (
+#         + cloao_1_imds
+#         + cloao_1_imds.swapaxes(-1,-2)
+#         + 0.5*einsum('pm,rm,Atmm->Atpr',svec,svec*(sval**(-1/2)),S_1_svec)
+#     )
+    
+#     t0 = log.timer('lowdin_1', *t0)
+#     return caolo_1, cloao_1
+
 def get_lowdin_1(mf, S_1_ao, log):
+    from pyscf.lo.orth import lowdin
     t0 = (logger.process_clock(), logger.perf_counter())
     
-    nao = mf.mol.nao
     S = mf.get_ovlp()
-    sval,svec = np.linalg.eigh(S)
-    Ws = sval[:,None] - sval[None,:]
-    Ws[range(nao), range(nao)] = np.inf
-    if (abs(Ws) < 1e-12).sum() > 0:
-        if (abs(Ws) < 1e-15).sum() > 0:
-            log.warn(f'''
-    {(abs(Ws) < 1e-15).sum()} degenerate eigenvalues of the overlap matrix are found,
-    the gradients are unreliable! Please fine-tune your initial structure!
-    ''')
-        else:
-            log.warn(f'''
-    {(abs(Ws) < 1e-12).sum()} nearly degenerate eigenvalues of the overlap matrix are found,
-    the gradients may suffer from numerical instability.
-    ''')
-    Ws = 1 / Ws
-    S_1_svec = einsum('Atab,aj,bm->Atjm', S_1_ao, svec, svec)
-    caolo_1_imds = einsum('mj,pj,rm,Atjm->Atpr',Ws,svec,svec*(sval**(-1/2)),S_1_svec)
-    cloao_1_imds = einsum('mj,pj,rm,Atjm->Atpr',Ws,svec,svec*(sval**(1/2)),S_1_svec)
-    caolo_1 = (
-        + caolo_1_imds
-        + caolo_1_imds.swapaxes(-1,-2)
-        - 0.5*einsum('pm,rm,Atmm->Atpr',svec,svec*(sval**(-3/2)),S_1_svec)
-    )
-    cloao_1 = (
-        + cloao_1_imds
-        + cloao_1_imds.swapaxes(-1,-2)
-        + 0.5*einsum('pm,rm,Atmm->Atpr',svec,svec*(sval**(-1/2)),S_1_svec)
-    )
+    caolo = lowdin(S)
+    cloao = lib.dot(caolo, S)
+    Z, Y = np.linalg.eigh(cloao)
+    YBY = einsum('iu,Atij,jv,uv->Atuv', Y, S_1_ao, Y, 1/lib.direct_sum('u+v->uv', Z, Z))
+    cloao_1 = einsum('iu,Atuv,jv->Atij', Y, YBY, Y)
+    caolo_1 = -1 * einsum('ui,Atij,vj->Atuv', caolo, cloao_1, caolo)
     
     t0 = log.timer('lowdin_1', *t0)
     return caolo_1, cloao_1

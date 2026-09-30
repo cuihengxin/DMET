@@ -107,7 +107,84 @@ def get_orth_1(mf, orth, imp_idx, S_1_ao, log):
     else:
         raise NotImplementedError
 
+# def get_lowdin_1(mf, imp_idx, S_1_ao, log):
+#     t0 = (logger.process_clock(), logger.perf_counter())
+    
+#     nao = mf.mol.nao
+#     natm = mf.mol.natm
+#     env_idx = np.array([x for x in range(nao) if x not in imp_idx])
+#     rearange_idx = np.argsort(np.concatenate((imp_idx, env_idx)))
+#     nenv = len(env_idx)
+#     nimp = len(imp_idx)
+#     S = mf.get_ovlp()
+#     S_env = S[env_idx,:][:,env_idx]
+#     sval,svec = np.linalg.eigh(S_env)
+#     Ws = sval[:,None] - sval[None,:]
+#     Ws[range(nenv), range(nenv)] = np.inf
+#     if (abs(Ws) < 1e-12).sum() > 0:
+#         if (abs(Ws) < 1e-15).sum() > 0:
+#             log.warn(f'''
+#     {(abs(Ws) < 1e-15).sum()} degenerate eigenvalues of the environmental overlap matrix are found,
+#     the gradients are unreliable! Please fine-tune your initial structure!
+#     ''')
+#         else:
+#             log.warn(f'''
+#     {(abs(Ws) < 1e-12).sum()} nearly degenerate eigenvalues of the environmental overlap matrix are found,
+#     the gradients may suffer from numerical instability.
+#     ''')
+#     Ws[abs(Ws) < 1e-15] = np.inf
+#     Ws = 1 / Ws
+#     S_1_ao_env = S_1_ao[:,:,env_idx,:][:,:,:,env_idx]
+#     S_1_svec = einsum('Atab,aj,bm->Atjm',S_1_ao_env,svec,svec)
+#     nondegen_sval, degen_sval_list = group_indexes_by_diff(sval, threshold=1e-15)
+#     svec_nondegen = svec[:,nondegen_sval]
+#     Ws_nondegen = Ws[nondegen_sval]
+#     sval_nondegen = sval[nondegen_sval]
+#     S_1_svec_nondegen = S_1_svec[:,:,:,nondegen_sval]
+#     caolo_1_env = (
+#         einsum('mj,pj,rm,Atjm->Atpr',Ws_nondegen,svec,svec_nondegen*(sval_nondegen**(-1/2)),S_1_svec_nondegen)
+#     )
+#     caolo_1_env += caolo_1_env.swapaxes(-1,-2)
+#     caolo_1_env -= 0.5*einsum('pm,rm,Atmm->Atpr',
+#                               svec_nondegen,svec_nondegen*(sval_nondegen**(-3/2)),S_1_svec_nondegen[:,:,nondegen_sval])
+#     cloao_1_env = (
+#         einsum('mj,pj,rm,Atjm->Atpr',Ws_nondegen,svec,svec_nondegen*(sval_nondegen**(1/2)),S_1_svec_nondegen)
+#     )
+#     cloao_1_env += cloao_1_env.swapaxes(-1,-2)
+#     cloao_1_env += 0.5*einsum('pm,rm,Atmm->Atpr',
+#                               svec_nondegen,svec_nondegen*(sval_nondegen**(-1/2)),S_1_svec_nondegen[:,:,nondegen_sval])
+#     for degen_sval in degen_sval_list:
+#         degen_sval_comp = [x for x in range(nenv) if x not in degen_sval]
+#         svec_degen = svec[:,degen_sval]
+#         svec_degen_comp = svec[:,degen_sval_comp]
+#         Ws_degen = Ws[degen_sval,:][:,degen_sval_comp]
+#         sval_degen = sval[degen_sval]
+#         S_1_svec_degen_comp = einsum('Atab,aj,bm->Atjm',S_1_ao_env,svec_degen_comp,svec_degen)
+#         S_1_svec_degen = einsum('Atab,aj,bm->Atjm',S_1_ao_env,svec_degen,svec_degen)
+#         caolo_1_degen = einsum('mj,pj,rm,Atjm->Atpr',
+#                                Ws_degen,svec_degen_comp,svec_degen*(sval_degen**(-1/2)),S_1_svec_degen_comp)
+#         caolo_1_degen += caolo_1_degen.swapaxes(-1,-2)
+#         caolo_1_degen -= 0.5*einsum('pm,rm,Atmm->Atpr',
+#                                     svec_degen,svec_degen*(sval_degen**(-3/2)),S_1_svec_degen)
+#         cloao_1_degen = einsum('mj,pj,rm,Atjm->Atpr',
+#                                Ws_degen,svec_degen_comp,svec_degen*(sval_degen**(1/2)),S_1_svec_degen_comp)
+#         cloao_1_degen += cloao_1_degen.swapaxes(-1,-2)
+#         cloao_1_degen += 0.5*einsum('pm,rm,Atmm->Atpr',
+#                                     svec_degen,svec_degen*(sval_degen**(-1/2)),S_1_svec_degen)
+#         caolo_1_env += caolo_1_degen
+#         cloao_1_env += cloao_1_degen
+#     caolo_1 = np.zeros((natm, 3, nao, nao))
+#     cloao_1 = np.zeros((natm, 3, nao, nao))
+#     caolo_1[:,:,nimp:,nimp:] += caolo_1_env
+#     cloao_1[:,:,nimp:,nimp:] += cloao_1_env
+#     cloao_1 = cloao_1[:,:,rearange_idx,:][:,:,:,rearange_idx]
+#     caolo_1 = caolo_1[:,:,rearange_idx,:][:,:,:,rearange_idx]
+    
+#     t0 = log.timer('lowdin_1', *t0)
+#     return caolo_1, cloao_1
+
 def get_lowdin_1(mf, imp_idx, S_1_ao, log):
+    from pyscf.lo.orth import lowdin
     t0 = (logger.process_clock(), logger.perf_counter())
     
     nao = mf.mol.nao
@@ -118,61 +195,15 @@ def get_lowdin_1(mf, imp_idx, S_1_ao, log):
     nimp = len(imp_idx)
     S = mf.get_ovlp()
     S_env = S[env_idx,:][:,env_idx]
-    sval,svec = np.linalg.eigh(S_env)
-    Ws = sval[:,None] - sval[None,:]
-    Ws[range(nenv), range(nenv)] = np.inf
-    if (abs(Ws) < 1e-12).sum() > 0:
-        if (abs(Ws) < 1e-15).sum() > 0:
-            log.warn(f'''
-    {(abs(Ws) < 1e-15).sum()} degenerate eigenvalues of the environmental overlap matrix are found,
-    the gradients are unreliable! Please fine-tune your initial structure!
-    ''')
-        else:
-            log.warn(f'''
-    {(abs(Ws) < 1e-12).sum()} nearly degenerate eigenvalues of the environmental overlap matrix are found,
-    the gradients may suffer from numerical instability.
-    ''')
-    Ws[abs(Ws) < 1e-15] = np.inf
-    Ws = 1 / Ws
     S_1_ao_env = S_1_ao[:,:,env_idx,:][:,:,:,env_idx]
-    S_1_svec = einsum('Atab,aj,bm->Atjm',S_1_ao_env,svec,svec)
-    nondegen_sval, degen_sval_list = group_indexes_by_diff(sval, threshold=1e-15)
-    svec_nondegen = svec[:,nondegen_sval]
-    Ws_nondegen = Ws[nondegen_sval]
-    sval_nondegen = sval[nondegen_sval]
-    S_1_svec_nondegen = S_1_svec[:,:,:,nondegen_sval]
-    caolo_1_env = (
-        einsum('mj,pj,rm,Atjm->Atpr',Ws_nondegen,svec,svec_nondegen*(sval_nondegen**(-1/2)),S_1_svec_nondegen)
-    )
-    caolo_1_env += caolo_1_env.swapaxes(-1,-2)
-    caolo_1_env -= 0.5*einsum('pm,rm,Atmm->Atpr',
-                              svec_nondegen,svec_nondegen*(sval_nondegen**(-3/2)),S_1_svec_nondegen[:,:,nondegen_sval])
-    cloao_1_env = (
-        einsum('mj,pj,rm,Atjm->Atpr',Ws_nondegen,svec,svec_nondegen*(sval_nondegen**(1/2)),S_1_svec_nondegen)
-    )
-    cloao_1_env += cloao_1_env.swapaxes(-1,-2)
-    cloao_1_env += 0.5*einsum('pm,rm,Atmm->Atpr',
-                              svec_nondegen,svec_nondegen*(sval_nondegen**(-1/2)),S_1_svec_nondegen[:,:,nondegen_sval])
-    for degen_sval in degen_sval_list:
-        degen_sval_comp = [x for x in range(nenv) if x not in degen_sval]
-        svec_degen = svec[:,degen_sval]
-        svec_degen_comp = svec[:,degen_sval_comp]
-        Ws_degen = Ws[degen_sval,:][:,degen_sval_comp]
-        sval_degen = sval[degen_sval]
-        S_1_svec_degen_comp = einsum('Atab,aj,bm->Atjm',S_1_ao_env,svec_degen_comp,svec_degen)
-        S_1_svec_degen = einsum('Atab,aj,bm->Atjm',S_1_ao_env,svec_degen,svec_degen)
-        caolo_1_degen = einsum('mj,pj,rm,Atjm->Atpr',
-                               Ws_degen,svec_degen_comp,svec_degen*(sval_degen**(-1/2)),S_1_svec_degen_comp)
-        caolo_1_degen += caolo_1_degen.swapaxes(-1,-2)
-        caolo_1_degen -= 0.5*einsum('pm,rm,Atmm->Atpr',
-                                    svec_degen,svec_degen*(sval_degen**(-3/2)),S_1_svec_degen)
-        cloao_1_degen = einsum('mj,pj,rm,Atjm->Atpr',
-                               Ws_degen,svec_degen_comp,svec_degen*(sval_degen**(1/2)),S_1_svec_degen_comp)
-        cloao_1_degen += cloao_1_degen.swapaxes(-1,-2)
-        cloao_1_degen += 0.5*einsum('pm,rm,Atmm->Atpr',
-                                    svec_degen,svec_degen*(sval_degen**(-1/2)),S_1_svec_degen)
-        caolo_1_env += caolo_1_degen
-        cloao_1_env += cloao_1_degen
+
+    caolo_env = lowdin(S_env)
+    cloao_env = lib.dot(lowdin(S_env), S_env)
+    Z, Y = np.linalg.eigh(cloao_env)
+    YBY = einsum('iu,Atij,jv,uv->Atuv', Y, S_1_ao_env, Y, 1/lib.direct_sum('u+v->uv', Z, Z))
+    cloao_1_env = einsum('iu,Atuv,jv->Atij', Y, YBY, Y)
+    caolo_1_env = -1 * einsum('ui,Atij,vj->Atuv', caolo_env, cloao_1_env, caolo_env)
+
     caolo_1 = np.zeros((natm, 3, nao, nao))
     cloao_1 = np.zeros((natm, 3, nao, nao))
     caolo_1[:,:,nimp:,nimp:] += caolo_1_env
