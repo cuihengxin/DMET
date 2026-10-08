@@ -823,11 +823,16 @@ def auxe2(mol, auxmol, title, int3c='int3c2e_pvxp1', aosym='s1', comp=3, verbose
     return
 
 class DFSISO(siso.SISO):
-    def __init__(self, title, mc, statelis=None, save_mag=True, save_Hmat=False, save_old_Hal=False, verbose=5, with_df=None):
+    def __init__(self, title, mc, statelis=None, save_mag=True, save_Hmat=False, save_old_Hal=False, verbose=5, with_df=None, incore=False):
         self.title = title
         self.mol = mc.mol
         self.mc = mc
         self.with_df = with_df
+        # incore = True: the 3-center SOC integrals int3c2e_pvxp1 are
+        # generated on the fly block-by-block in memory (no <title>_int3c2e_pvxp1.h5
+        # disk write/read). Useful on filesystems (e.g. lustre) where the huge
+        # h5 write fails or is slow.
+        self.int3c_incore = incore
 
         # if statelis is None:
         #     statelis = gen_statelis(self.mc.ncas, self.mc.nelecas)
@@ -883,27 +888,95 @@ class DFSISO(siso.SISO):
                 else:
                     naoaux = feri.shape[0]
         
-        auxe2(mol, auxmol, self.title, int3c='int3c2e_pvxp1', aosym='s2ij', comp=3, verbose=self.verbose)
+        nao_pair = nao*(nao+1)//2
+        j3c_D = None
+        if not self.int3c_incore:
+            auxe2(mol, auxmol, self.title, int3c='int3c2e_pvxp1', aosym='s2ij', comp=3, verbose=self.verbose)
+        else:
+            # outcore.cholesky_eri_b stores low^-1 (x ij|L) with low = chol(j2c).
+            # The transform mixes the full aux index, so a transformed pvxp1
+            # tensor cannot be built block-by-block.  Use instead
+            #   sum_P (L^-1 A)_P (L^-1 B)_P == sum_PQ A_P j2c^-1_PQ B_Q
+            #                            == sum_P A_P (j2c^-1 B)_P :
+            # assemble the raw (ij|L) tensor in memory (~ naoaux*nao_pair*8 bytes,
+            # i.e. the size of the _cderi file), apply j2c^-1 once with BLAS, and
+            # contract it against raw on-the-fly pvxp1 blocks.
+            import scipy.linalg
+            log.info('SISO int3c2e_pvxp1 on the fly in memory (incore=True), '
+                     'no %s h5 file written', self.title)
+            j2c = auxmol.intor('int2c2e', hermi=1)
+            low = None
+            try:
+                low = scipy.linalg.cholesky(j2c, lower=True)
+            except scipy.linalg.LinAlgError:
+                pass
+            if low is not None and low.shape[0] != naoaux:
+                raise NotImplementedError('incore int3c requires naoaux == naux '
+                                          '(ED-reduced cderi is not supported)')
+            aux_ao_loc = auxmol.ao_loc_nr()
+
+            def shell_slice(aux_slice):
+                b0, b1 = aux_slice
+                sh0 = np.searchsorted(aux_ao_loc[:-1], b0, side='right') - 1
+                sh1 = np.searchsorted(aux_ao_loc[:-1], b1, side='left')
+                return sh0, sh1, slice(b0-aux_ao_loc[sh0], b1-aux_ao_loc[sh0])
+
+            t0m = (logger.process_clock(), logger.perf_counter())
+            j3c_D = np.empty((naoaux, nao_pair))
+            for aux_slice in lib.prange(0, naoaux, 128):
+                b0, b1 = aux_slice
+                sh0, sh1, rows = shell_slice(aux_slice)
+                blk_j = df.incore.aux_e2(mol, auxmol, intor='int3c2e', aosym='s2ij',
+                                         shls_slice=(0, mol.nbas, 0, mol.nbas, sh0, sh1))
+                j3c_D[b0:b1] = blk_j[:, rows].T if blk_j.ndim == 2 else blk_j[rows, :]
+            if low is not None:
+                # D = j2c^-1 B = low^-T (low^-1 B); the transform mixes aux ROWS,
+                # so go column-block by column-block and overwrite in place
+                cblk = 128
+                for c0, c1 in lib.prange(0, nao_pair, cblk):
+                    tmp = scipy.linalg.solve_triangular(low, j3c_D[:, c0:c1], lower=True,
+                                                        check_finite=False)
+                    j3c_D[:, c0:c1] = scipy.linalg.solve_triangular(low.T, tmp, lower=False,
+                                                                    check_finite=False)
+            else:
+                # ED fallback, same pseudo-inverse as outcore's storage
+                e, v = np.linalg.eigh(j2c)
+                keep = e > df.outcore.LINEAR_DEP_THR
+                j2c_inv = (v[:, keep] / e[keep]) @ v[:, keep].T
+                j3c_D = np.dot(j2c_inv, j3c_D)
+            j2c = None
+            log.timer('raw (ij|L) in memory + j2c^-1', *t0m)
+
         def load(aux_slice):
+            b0, b1 = aux_slice
             if self.with_df._cderi is None:
                 self.with_df.build()
-            
-            feri_name = self.title+'_int3c2e_pvxp1.h5'
-            b0, b1 = aux_slice
-            with df.addons.load(feri_name, 'j3c') as feri:
-                j3c_pvxp1 = _load_from_h5g(feri, b0, b1)
-            with df.addons.load(self.with_df._cderi, self.with_df._dataname) as feri:
-                if isinstance(feri, np.ndarray):
-                    j3c =  np.asarray(feri[b0:b1], order='C')
-                else:
-                    if isinstance(feri, h5py.Group):
-                        j3c = _load_from_h5g(feri, b0, b1)
+
+            if self.int3c_incore:
+                sh0, sh1, rows = shell_slice(aux_slice)
+                blk_p = df.incore.aux_e2(mol, auxmol, intor='int3c2e_pvxp1',
+                                         aosym='s2ij', comp=3,
+                                         shls_slice=(0, mol.nbas, 0, mol.nbas, sh0, sh1))
+                # aux_e2 returns (comp, nao_pair, nrow); h5 layout is (comp, nrow, nao_pair)
+                j3c_pvxp1 = np.ascontiguousarray(blk_p[:, :, rows].transpose(0,2,1))
+                j3c = j3c_D[b0:b1]
+            else:
+                feri_name = self.title+'_int3c2e_pvxp1.h5'
+                with df.addons.load(feri_name, 'j3c') as feri:
+                    j3c_pvxp1 = _load_from_h5g(feri, b0, b1)
+                with df.addons.load(self.with_df._cderi, self.with_df._dataname) as feri:
+                    if isinstance(feri, np.ndarray):
+                        j3c =  np.asarray(feri[b0:b1], order='C')
                     else:
-                        j3c =  np.asarray(feri[b0:b1])
+                        if isinstance(feri, h5py.Group):
+                            j3c = _load_from_h5g(feri, b0, b1)
+                        else:
+                            j3c =  np.asarray(feri[b0:b1])
             return j3c_pvxp1, j3c
 
-        nao_pair = nao*(nao+1)//2
         max_memory = int(mol.max_memory - lib.current_memory()[0])
+        if j3c_D is not None:
+            max_memory -= int(j3c_D.nbytes/1e6)
         blksize = max(16, int(max_memory*.06e6/8/nao_pair**2/3))
         nstep = -(-naoaux//blksize)
         vj = vk = vk2 = 0

@@ -177,6 +177,10 @@ The `embed_sim` module is also vendored into:
 
 **Before editing, check which copies scripts in other folders import.**
 
+## Recent Changes (2026-10)
+
+- **On-the-fly 3-center SOC integrals for `DFSISO`**: `siso.SISO(...).density_fit(incore=True)` (or `DFSISO(..., incore=True)`) generates the `int3c2e_pvxp1` integrals in memory per aux block instead of writing/reading the huge `<title>_int3c2e_pvxp1.h5` (which fails on lustre for GB-scale files). Implemented as `sum_P (L^-1 A)_P (L^-1 B)_P == sum_P A_P (j2c^-1 B)_P`: raw `(ij|L)` is assembled in memory (size = the `_cderi` file) and metric-transformed, contracted against on-the-fly raw pvxp1 blocks. Validated against the h5 path on CoSH4 (z agrees to 6e-18); see `examples/test_example/siso_incore_cosh4.py`.
+
 ## Recent Changes (2026-09)
 
 - **Plain DFT reference (RKS/UKS) for DMET**: `ssdmet.mf_or_cas_make_rdm1s` now dispatches ordinary `dft.RKS`/`dft.UKS` objects — the DFT density matrix (`mf.make_rdm1()`) selects impurity + bath exactly like CADFT; embedded solver stays RHF/ROHF. Previously RKS silently hit the RHF branch (mislabeled) and UKS raised `TypeError`. Usage example in the `mf_or_cas_make_rdm1s` docstring.

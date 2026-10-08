@@ -340,14 +340,14 @@ class SISO():
         self.solve()
         return
     
-    def density_fit(self, with_df=None):
+    def density_fit(self, with_df=None, incore=False):
         from embed_sim.df import DFSISO
         if with_df is None:
             if not getattr(self.mc, 'with_df', False):
                 raise NotImplementedError
             else:
                 with_df = self.mc.with_df
-        return DFSISO(self.title, self.mc, self.statelis, self.save_mag, self.save_Hmat, self.save_old_Hal, self.verbose, with_df)
+        return DFSISO(self.title, self.mc, self.statelis, self.save_mag, self.save_Hmat, self.save_old_Hal, self.verbose, with_df, incore=incore)
     
     def analyze(self, states=0, picture_change=True, gauge='length', order=0, mag_dip=False):
         '''
